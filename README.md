@@ -34,6 +34,8 @@ Every PR description must include the following:
 5. **Screenshots** — Include screenshots if the change affects the UI.
 6. **Testing** — Describe how to test the changes.
 
+See [docs/PRFormat.md](docs/PRFormat.md)
+
 ### Issue Format
 
 Every issue for bugs/large features must include the following:
