@@ -1,6 +1,23 @@
 # RankTheRef
 Personal portfolio website showcasing my projects, technical experience, and coursework. Built to highlight full-stack development, product thinking, and clean UI/UX. Includes integrations, real-world projects, and ongoing work.
 
+
+## Architecture
+
+### See [docs/architecture.md](docs/architecture.md) for more.
+
+Personal portfolio site built on Next.js, deployed to Vercel, with Convex
+as the TypeScript-native database and WorkOS for authentication.
+
+Feature development uses a Claude Code → Greptile feedback loop on
+feature branches. Only reviewed PRs merged to `main` trigger CI, which
+runs a destructive-migration safety check before deploying Convex and
+Vercel in order.
+
+**Stack:** Next.js · Vercel · Convex · WorkOS · GitHub Actions  
+**Dev tooling:** Claude Code · Greptile
+
+
 ## Conventions
 
 ### Naming Conventions
@@ -52,6 +69,16 @@ For small features or quick tasks, only the following are required:
 
 1. **Problem** — Describe the task or small feature needed.
 2. **Acceptance criteria** — List the conditions that must be met to close the issue.
+
+
+## Contributing
+
+1. Fork it!
+2. Create your feature branch: `git checkout -b firstlast-my-new-feature`
+3. Commit your changes: `git commit -am 'Add some feature'`
+4. Push to the branch: `git push origin firstlast-my-new-feature`
+5. Submit a pull request :D
+
 
 ## License
 
