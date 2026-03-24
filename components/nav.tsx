@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { ThemeToggle } from './theme-provider';
 
 const links = [
   { href: '/projects', label: 'Projects' },
@@ -25,7 +26,7 @@ export function Nav() {
         </Link>
 
         {/* Desktop nav */}
-        <div className="hidden sm:flex gap-6">
+        <div className="hidden sm:flex gap-6 items-center">
           {links.map((link) => (
             <Link
               key={link.href}
@@ -40,6 +41,7 @@ export function Nav() {
               {link.label}
             </Link>
           ))}
+          <ThemeToggle />
         </div>
 
         {/* Mobile hamburger button */}
@@ -82,6 +84,7 @@ export function Nav() {
               {link.label}
             </Link>
           ))}
+          <ThemeToggle />
         </div>
       </div>
     </header>
