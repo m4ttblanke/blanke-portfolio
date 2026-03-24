@@ -22,27 +22,27 @@ export default function AboutPage() {
           <li>
             <span className="text-zinc-600">Email: </span>
             <a
-              href="mailto:matt@example.com"
+              href="mailto:mattheweblanke@gmail.com"
               className="text-zinc-900 hover:underline"
             >
-              matt@example.com
+              mattheweblanke@gmail.com
             </a>
           </li>
           <li>
             <span className="text-zinc-600">GitHub: </span>
             <a
-              href="https://github.com/matthewblanke"
+              href="https://github.com/m4ttblanke"
               className="text-zinc-900 hover:underline"
               target="_blank"
               rel="noopener noreferrer"
             >
-              @matthewblanke
+              @m4ttblanke
             </a>
           </li>
           <li>
             <span className="text-zinc-600">LinkedIn: </span>
             <a
-              href="https://linkedin.com/in/matthewblanke"
+              href="https://linkedin.com/in/m4ttblanke"
               className="text-zinc-900 hover:underline"
               target="_blank"
               rel="noopener noreferrer"

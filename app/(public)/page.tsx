@@ -4,7 +4,7 @@ export default function Home() {
       <section className="space-y-4">
         <h1 className="text-4xl font-bold text-zinc-900">Matt Blanke</h1>
         <p className="text-lg text-zinc-600">
-          CS student and software engineer from Chicago.
+          CS student and software engineer from California.
         </p>
         <p className="text-zinc-600 leading-relaxed">
           I build full-stack applications with a focus on clean architecture, user
