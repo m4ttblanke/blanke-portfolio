@@ -109,7 +109,8 @@ export function HomeHero() {
           <div className="flex gap-4 pt-6">
             <Link
               href="/projects"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-accent text-white rounded-lg font-semibold hover:bg-accent-dark transition-colors duration-200"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-accent rounded-lg font-semibold hover:bg-accent-dark transition-colors duration-200"
+              style={{ color: 'white' }}
             >
               View Work →
             </Link>
