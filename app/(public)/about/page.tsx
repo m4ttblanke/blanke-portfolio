@@ -1,3 +1,8 @@
+export const metadata = {
+  title: "About — Matt Blanke",
+  description: "About Matt Blanke.",
+};
+
 export default function AboutPage() {
   return (
     <div className="space-y-8 max-w-2xl">
@@ -5,6 +10,7 @@ export default function AboutPage() {
 
       <section className="space-y-4">
         <h2 className="text-lg font-semibold text-zinc-900">Bio</h2>
+        {/* TODO: Update with your actual bio and background */}
         <p className="text-zinc-600 leading-relaxed">
           I'm a computer science student with a passion for building products that
           make a difference. I've worked on full-stack applications, infrastructure

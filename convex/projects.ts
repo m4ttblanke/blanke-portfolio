@@ -29,9 +29,20 @@ export const getById = query({
   },
 });
 
+export const getBySlug = query({
+  args: { slug: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("projects")
+      .filter((q) => q.eq(q.field("slug"), args.slug))
+      .unique();
+  },
+});
+
 export const create = mutation({
   args: {
     title: v.string(),
+    slug: v.string(),
     description: v.string(),
     stack: v.array(v.string()),
     repoUrl: v.optional(v.string()),
@@ -50,6 +61,7 @@ export const update = mutation({
   args: {
     id: v.id("projects"),
     title: v.optional(v.string()),
+    slug: v.optional(v.string()),
     description: v.optional(v.string()),
     stack: v.optional(v.array(v.string())),
     repoUrl: v.optional(v.string()),

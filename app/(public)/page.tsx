@@ -1,3 +1,8 @@
+export const metadata = {
+  title: "Matt Blanke",
+  description: "CS student and software engineer.",
+};
+
 export default function Home() {
   return (
     <div className="space-y-12">

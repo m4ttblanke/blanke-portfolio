@@ -1,6 +1,11 @@
 import { fetchQuery } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
 
+export const metadata = {
+  title: "Coursework — Matt Blanke",
+  description: "Academic coursework and courses.",
+};
+
 export default async function CourseworkPage() {
   const coursework = await fetchQuery(api.coursework.listPublished);
 

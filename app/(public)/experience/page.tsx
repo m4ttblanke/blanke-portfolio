@@ -1,6 +1,11 @@
 import { fetchQuery } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
 
+export const metadata = {
+  title: "Experience — Matt Blanke",
+  description: "Work experience and roles.",
+};
+
 export default async function ExperiencePage() {
   const experience = await fetchQuery(api.experience.listPublished);
 

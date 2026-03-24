@@ -1,5 +1,11 @@
+import Link from "next/link";
 import { fetchQuery } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
+
+export const metadata = {
+  title: "Projects — Matt Blanke",
+  description: "Software projects by Matt Blanke.",
+};
 
 export default async function ProjectsPage() {
   const projects = await fetchQuery(api.projects.listPublished);
@@ -18,10 +24,10 @@ export default async function ProjectsPage() {
       <h1 className="text-2xl font-semibold text-zinc-900">Projects</h1>
       <div className="space-y-6">
         {projects.map((project) => (
-          <article
-            key={project._id}
-            className="border border-zinc-100 rounded-lg p-6 hover:border-zinc-200 transition"
-          >
+          <Link key={project._id} href={`/projects/${project.slug}`}>
+            <article
+              className="border border-zinc-100 rounded-lg p-6 hover:border-zinc-200 transition cursor-pointer"
+            >
             <div className="space-y-3">
               <div>
                 <h2 className="text-lg font-semibold text-zinc-900">
@@ -75,7 +81,8 @@ export default async function ProjectsPage() {
                 </div>
               )}
             </div>
-          </article>
+            </article>
+          </Link>
         ))}
       </div>
     </div>

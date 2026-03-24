@@ -8,6 +8,7 @@ import type { Id } from "@/convex/_generated/dataModel";
 type Project = {
   _id: Id<"projects">;
   title: string;
+  slug: string;
   description: string;
   stack: string[];
   repoUrl?: string;
@@ -31,8 +32,20 @@ export function ProjectsManager() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
 
+    const title = formData.get("title") as string;
+    let slug = (formData.get("slug") as string) || "";
+
+    // Auto-generate slug from title if not provided
+    if (!slug) {
+      slug = title
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9-]/g, "");
+    }
+
     const data = {
-      title: formData.get("title") as string,
+      title,
+      slug,
       description: formData.get("description") as string,
       stack: (formData.get("stack") as string)
         .split(",")
@@ -105,6 +118,19 @@ export function ProjectsManager() {
               name="title"
               defaultValue={editingProject?.title}
               required
+              className="w-full px-3 py-2 border border-zinc-300 rounded text-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-zinc-700 mb-1">
+              URL Slug (auto-generated from title if left blank)
+            </label>
+            <input
+              type="text"
+              name="slug"
+              defaultValue={editingProject?.slug}
+              placeholder="my-project-name"
               className="w-full px-3 py-2 border border-zinc-300 rounded text-sm"
             />
           </div>

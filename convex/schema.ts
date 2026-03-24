@@ -4,6 +4,7 @@ import { v } from "convex/values";
 export default defineSchema({
   projects: defineTable({
     title: v.string(),
+    slug: v.string(),
     description: v.string(),
     stack: v.array(v.string()),
     repoUrl: v.optional(v.string()),
