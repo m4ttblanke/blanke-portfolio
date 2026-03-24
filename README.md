@@ -14,8 +14,63 @@ feature branches. Only reviewed PRs merged to `main` trigger CI, which
 runs a destructive-migration safety check before deploying Convex and
 Vercel in order.
 
-**Stack:** Next.js · Vercel · Convex · WorkOS · GitHub Actions  
+**Stack:** Next.js · Vercel · Convex · WorkOS · GitHub Actions
 **Dev tooling:** Claude Code · Greptile
+
+
+## Deployment
+
+The site uses a **fully automated deployment pipeline** triggered on every push to `main`:
+
+1. **GitHub Actions** detects changes to `convex/` and/or app files
+2. **Migration safety check** verifies no destructive schema changes without `[allow-destructive]` tag
+3. **Convex deploy** pushes database schema and functions to production
+4. **Vercel deploy** builds and deploys the Next.js app after Convex succeeds
+
+**Live site:** https://blanke-portfolio.vercel.app
+
+### Environment Variables
+
+Required in `.env.local` (local dev) and Vercel dashboard (production):
+
+```
+NEXT_PUBLIC_CONVEX_URL=         # Convex deployment URL
+NEXT_PUBLIC_WORKOS_REDIRECT_URI=http://localhost:3000/callback
+WORKOS_API_KEY=                 # From WorkOS dashboard
+WORKOS_CLIENT_ID=               # From WorkOS dashboard
+WORKOS_COOKIE_PASSWORD=         # 32+ character secure string
+CONVEX_DEPLOY_KEY=              # From Convex Settings > Deploy Keys
+```
+
+### GitHub Secrets
+
+Required for CI/CD pipeline:
+
+- `CONVEX_DEPLOY_KEY` — Convex production deploy key
+- `VERCEL_TOKEN` — Vercel API token
+- `VERCEL_ORG_ID` — From `.vercel/project.json`
+- `VERCEL_PROJECT_ID` — From `.vercel/project.json`
+
+
+## Users
+
+### Public Users
+Access the portfolio without authentication at `/` (home), `/projects`, `/experience`, `/coursework`, `/about`.
+
+- View published projects with stack, dates, and links
+- Browse experience timeline and coursework
+- All content marked as "Draft" is hidden from public view
+
+### Admin Users
+Access the admin dashboard at `/admin` after signing in with WorkOS.
+
+**Capabilities:**
+- Create, edit, and delete projects, experience entries, and coursework
+- Toggle "Draft" flag to control visibility on public pages
+- Live updates — changes appear immediately on public pages
+- Admin navigation: `/admin/projects`, `/admin/experience`, `/admin/coursework`
+
+**Auth:** WorkOS handles login, session management, and HTTP-only cookies. Only users configured in the WorkOS dashboard can access `/admin`.
 
 
 ## Conventions
