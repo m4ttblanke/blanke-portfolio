@@ -4,7 +4,7 @@ import { api } from "@/convex/_generated/api";
 
 export const metadata = {
   title: "Projects — Matt Blanke",
-  description: "Software projects by Matt Blanke.",
+  description: "Featured work and technical experiments.",
 };
 
 export default async function ProjectsPage() {
@@ -13,35 +13,42 @@ export default async function ProjectsPage() {
   if (projects.length === 0) {
     return (
       <div className="text-center py-12">
-        <h1 className="text-2xl font-semibold text-fg mb-2">Projects</h1>
+        <h1 className="text-4xl font-bold text-fg mb-2">Projects</h1>
         <p className="text-fg-muted">No projects yet.</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      <h1 className="text-2xl font-semibold text-fg">Projects</h1>
+    <div className="space-y-12">
+      <div>
+        <h1 className="text-5xl md:text-6xl font-bold text-fg mb-2">Projects</h1>
+        <p className="text-lg text-fg-muted">Featured work and technical experiments</p>
+      </div>
+
       <div className="space-y-6">
-        {projects.map((project) => (
+        {projects.map((project, index) => (
           <article
             key={project._id}
-            className="border border-bg-subtle rounded-lg p-6 hover:border-border-hover transition-colors duration-150"
+            className="group relative border border-border rounded-xl p-8 transition-all duration-300 hover:border-accent hover:shadow-lg hover:bg-accent/2"
           >
-            <div className="space-y-3">
+            {/* Accent line on hover */}
+            <div className="absolute top-0 left-0 h-1 bg-gradient-to-r from-accent to-accent-muted rounded-t-xl w-0 group-hover:w-full transition-all duration-500" />
+
+            <div className="space-y-4">
               <div>
                 <Link href={`/projects/${project.slug}`}>
-                  <h2 className="text-lg font-semibold text-fg hover:underline">
+                  <h2 className="text-2xl font-bold text-fg group-hover:text-accent transition-colors duration-200">
                     {project.title}
                   </h2>
                 </Link>
-                <p className="text-sm text-fg-subtle mt-1">
+                <p className="text-sm text-fg-subtle mt-2 font-mono">
                   {project.startDate}
                   {project.endDate && ` – ${project.endDate}`}
                 </p>
               </div>
 
-              <p className="text-fg-muted text-sm leading-relaxed">
+              <p className="text-fg-muted leading-relaxed max-w-2xl">
                 {project.description}
               </p>
 
@@ -50,7 +57,7 @@ export default async function ProjectsPage() {
                   {project.stack.map((tech) => (
                     <span
                       key={tech}
-                      className="text-xs bg-badge-bg text-badge-fg px-2 py-1 rounded"
+                      className="text-xs font-mono bg-accent/10 text-accent px-3 py-1.5 rounded-full border border-accent/20 group-hover:border-accent/50 transition-colors"
                     >
                       {tech}
                     </span>
@@ -59,25 +66,27 @@ export default async function ProjectsPage() {
               )}
 
               {(project.repoUrl || project.liveUrl) && (
-                <div className="flex gap-4 pt-3">
+                <div className="flex gap-6 pt-4">
                   {project.repoUrl && (
                     <a
                       href={project.repoUrl}
-                      className="text-sm text-fg-muted hover:text-fg underline transition-colors duration-150"
+                      className="inline-flex items-center gap-2 text-sm font-medium text-accent hover:text-accent-dark transition-colors group/link"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
                       GitHub
+                      <span className="group-hover/link:translate-x-1 transition-transform">→</span>
                     </a>
                   )}
                   {project.liveUrl && (
                     <a
                       href={project.liveUrl}
-                      className="text-sm text-fg-muted hover:text-fg underline transition-colors duration-150"
+                      className="inline-flex items-center gap-2 text-sm font-medium text-accent hover:text-accent-dark transition-colors group/link"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Live
+                      Live Demo
+                      <span className="group-hover/link:translate-x-1 transition-transform">→</span>
                     </a>
                   )}
                 </div>

@@ -1,65 +1,75 @@
 @import "tailwindcss";
 
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 :root {
   /* Colors - Light mode */
-  --color-bg: #ffffff;
-  --color-bg-subtle: #f9fafb;
-  --color-fg: #111827;
-  --color-fg-muted: #52525b;
-  --color-fg-subtle: #a1a1aa;
-  --color-border: #f4f4f5;
-  --color-border-hover: #e4e4e7;
-  --color-badge-bg: #f4f4f5;
-  --color-badge-fg: #3f3f46;
+  --color-bg: #fafaf8;
+  --color-bg-subtle: #f3f1ed;
+  --color-fg: #0f0e0c;
+  --color-fg-muted: #6b6560;
+  --color-fg-subtle: #9b9388;
+  --color-border: #e5e0d8;
+  --color-border-hover: #d4ccc2;
+  --color-badge-bg: #e8f5f1;
+  --color-badge-fg: #047857;
+
+  /* Accent - Green hacking theme */
+  --color-accent: #10b981;
+  --color-accent-light: #d1fae5;
+  --color-accent-dark: #065f46;
+  --color-accent-muted: #6ee7b7;
 
   /* Typography */
-  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), monospace;
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-sans: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 
   /* Transitions */
-  --transition-fast: 150ms ease;
-  --transition-base: 200ms ease;
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     /* Colors - Dark mode */
-    --color-bg: #0a0a0a;
-    --color-bg-subtle: #111111;
-    --color-fg: #f4f4f5;
-    --color-fg-muted: #a1a1aa;
-    --color-fg-subtle: #52525b;
-    --color-border: #1f1f1f;
-    --color-border-hover: #2f2f2f;
-    --color-badge-bg: #1f1f1f;
-    --color-badge-fg: #a1a1aa;
+    --color-bg: #0d0d0b;
+    --color-bg-subtle: #1a1916;
+    --color-fg: #f5f3f0;
+    --color-fg-muted: #a89f97;
+    --color-fg-subtle: #7d7470;
+    --color-border: #2a2622;
+    --color-border-hover: #3a3530;
+    --color-badge-bg: #1a2e27;
+    --color-badge-fg: #6ee7b7;
   }
 }
 
 [data-theme='dark'] {
   /* Colors - Dark mode (explicit) */
-  --color-bg: #0a0a0a;
-  --color-bg-subtle: #111111;
-  --color-fg: #f4f4f5;
-  --color-fg-muted: #a1a1aa;
-  --color-fg-subtle: #52525b;
-  --color-border: #1f1f1f;
-  --color-border-hover: #2f2f2f;
-  --color-badge-bg: #1f1f1f;
-  --color-badge-fg: #a1a1aa;
+  --color-bg: #0d0d0b;
+  --color-bg-subtle: #1a1916;
+  --color-fg: #f5f3f0;
+  --color-fg-muted: #a89f97;
+  --color-fg-subtle: #7d7470;
+  --color-border: #2a2622;
+  --color-border-hover: #3a3530;
+  --color-badge-bg: #1a2e27;
+  --color-badge-fg: #6ee7b7;
 }
 
 [data-theme='light'] {
   /* Colors - Light mode (explicit) */
-  --color-bg: #ffffff;
-  --color-bg-subtle: #f9fafb;
-  --color-fg: #111827;
-  --color-fg-muted: #52525b;
-  --color-fg-subtle: #a1a1aa;
-  --color-border: #f4f4f5;
-  --color-border-hover: #e4e4e7;
-  --color-badge-bg: #f4f4f5;
-  --color-badge-fg: #3f3f46;
+  --color-bg: #fafaf8;
+  --color-bg-subtle: #f3f1ed;
+  --color-fg: #0f0e0c;
+  --color-fg-muted: #6b6560;
+  --color-fg-subtle: #9b9388;
+  --color-border: #e5e0d8;
+  --color-border-hover: #d4ccc2;
+  --color-badge-bg: #e8f5f1;
+  --color-badge-fg: #047857;
 }
 
 @theme inline {
@@ -72,8 +82,13 @@
   --color-border-hover: var(--color-border-hover);
   --color-badge-bg: var(--color-badge-bg);
   --color-badge-fg: var(--color-badge-fg);
+  --color-accent: var(--color-accent);
+  --color-accent-light: var(--color-accent-light);
+  --color-accent-dark: var(--color-accent-dark);
+  --color-accent-muted: var(--color-accent-muted);
   --color-background: var(--color-bg);
   --color-foreground: var(--color-fg);
+  --font-display: var(--font-display);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
 }
@@ -86,4 +101,28 @@ body {
   background: var(--color-bg);
   color: var(--color-fg);
   font-family: var(--font-sans);
+  font-size: clamp(0.95rem, 1vw, 1.05rem);
+  line-height: 1.6;
+}
+
+/* Link styling with green accent */
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-accent-dark);
+}
+
+/* Selection color - green accent */
+::selection {
+  background-color: var(--color-accent);
+  color: var(--color-bg);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
 }

@@ -19,7 +19,7 @@ export function Nav() {
   const isActive = (href: string) => pathname === href;
 
   return (
-    <header className="border-b border-bg-subtle">
+    <header className="border-b border-border bg-bg/50 backdrop-blur-sm sticky top-0 z-40">
       <nav className="max-w-3xl mx-auto px-6 py-4 flex gap-6 items-center justify-between">
         <Link href="/" className="font-semibold text-fg text-lg">
           Matt Blanke
@@ -32,13 +32,16 @@ export function Nav() {
               key={link.href}
               href={link.href}
               aria-current={isActive(link.href) ? 'page' : undefined}
-              className={`text-sm transition-colors duration-150 ${
+              className={`text-sm font-medium transition-colors duration-150 relative group ${
                 isActive(link.href)
-                  ? 'font-semibold text-fg'
+                  ? 'text-accent'
                   : 'text-fg-muted hover:text-fg'
               }`}
             >
               {link.label}
+              {isActive(link.href) && (
+                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-accent" />
+              )}
             </Link>
           ))}
           <ThemeToggle />
@@ -75,9 +78,9 @@ export function Nav() {
               href={link.href}
               aria-current={isActive(link.href) ? 'page' : undefined}
               onClick={() => setOpen(false)}
-              className={`block text-sm py-2 transition-colors duration-150 ${
+              className={`block text-sm py-2 font-medium transition-colors duration-150 ${
                 isActive(link.href)
-                  ? 'font-semibold text-fg'
+                  ? 'text-accent'
                   : 'text-fg-muted hover:text-fg'
               }`}
             >
