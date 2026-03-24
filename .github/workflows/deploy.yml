@@ -1,0 +1,104 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      convex: ${{ steps.filter.outputs.convex }}
+      app: ${{ steps.filter.outputs.app }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            convex:
+              - 'convex/**'
+            app:
+              - 'app/**'
+              - 'components/**'
+              - 'lib/**'
+              - 'middleware.ts'
+              - 'next.config.ts'
+              - 'package.json'
+
+  migration-safety-check:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.convex == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Check for destructive schema changes
+        run: |
+          git diff HEAD~1 HEAD -- convex/schema.ts > schema_diff.txt
+          REMOVED=$(grep '^-' schema_diff.txt | grep -v '^---' | wc -l | tr -d ' ')
+          if [ "$REMOVED" -gt "0" ]; then
+            COMMIT_MSG=$(git log -1 --pretty=%B)
+            if echo "$COMMIT_MSG" | grep -q '\[allow-destructive\]'; then
+              echo "Destructive change acknowledged via [allow-destructive]"
+            else
+              echo "ERROR: schema.ts has removed lines but commit message lacks [allow-destructive]"
+              cat schema_diff.txt
+              exit 1
+            fi
+          fi
+
+  deploy-convex:
+    needs: [detect-changes, migration-safety-check]
+    if: |
+      always() &&
+      needs.detect-changes.outputs.convex == 'true' &&
+      (needs.migration-safety-check.result == 'success' || needs.migration-safety-check.result == 'skipped')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx convex deploy --cmd 'npm run build'
+        env:
+          CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
+
+  deploy-vercel:
+    needs: [detect-changes, deploy-convex]
+    if: |
+      always() &&
+      (needs.deploy-convex.result == 'success' || needs.deploy-convex.result == 'skipped')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm i -g vercel
+      - run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      - run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+  failure-summary:
+    needs: [deploy-convex, deploy-vercel]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Write failure summary
+        run: |
+          echo "## Deploy Failed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Author:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Message:** ${{ github.event.head_commit.message }}" >> $GITHUB_STEP_SUMMARY
