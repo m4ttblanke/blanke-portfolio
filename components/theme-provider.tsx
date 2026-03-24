@@ -52,9 +52,16 @@ export function ThemeToggle() {
           <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
         </svg>
       ) : (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="5" />
-          <path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m5.08-5.08l4.24-4.24M19.78 19.78l-4.24-4.24m-5.08-5.08l-4.24-4.24M19.78 4.22l-4.24 4.24m-5.08 5.08l-4.24 4.24" />
+        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="4" />
+          <circle cx="12" cy="3" r="1.5" />
+          <circle cx="12" cy="21" r="1.5" />
+          <circle cx="3" cy="12" r="1.5" />
+          <circle cx="21" cy="12" r="1.5" />
+          <circle cx="5.64" cy="5.64" r="1.5" />
+          <circle cx="18.36" cy="18.36" r="1.5" />
+          <circle cx="18.36" cy="5.64" r="1.5" />
+          <circle cx="5.64" cy="18.36" r="1.5" />
         </svg>
       )}
     </button>
