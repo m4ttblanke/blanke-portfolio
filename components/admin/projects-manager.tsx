@@ -35,7 +35,13 @@ export function ProjectsManager() {
     const title = formData.get("title") as string;
     let slug = (formData.get("slug") as string) || "";
 
-    // Auto-generate slug from title if not provided
+    // Normalize slug: lowercase, remove special chars, replace spaces with hyphens
+    slug = slug
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "");
+
+    // Auto-generate from title if normalized slug is empty
     if (!slug) {
       slug = title
         .toLowerCase()
