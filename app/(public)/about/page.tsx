@@ -53,7 +53,7 @@ export default function AboutPage() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              @matthewblanke
+              @m4ttblanke
             </a>
           </li>
         </ul>
