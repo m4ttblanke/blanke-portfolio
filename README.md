@@ -1,4 +1,4 @@
-# RankTheRef
+# Matthew Blanke's Personal Portfolio
 Personal portfolio website showcasing my projects, technical experience, and coursework. Built to highlight full-stack development, product thinking, and clean UI/UX. Includes integrations, real-world projects, and ongoing work.
 
 
