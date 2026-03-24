@@ -1,20 +1,46 @@
 # Matthew Blanke's Personal Portfolio
+
 Personal portfolio website showcasing my projects, technical experience, and coursework. Built to highlight full-stack development, product thinking, and clean UI/UX. Includes integrations, real-world projects, and ongoing work.
 
+**Live site:** https://blanke-portfolio.vercel.app
+
+## Quick Start
+
+### Local Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start Convex dev server (in one terminal)
+npx convex dev
+
+# Start Next.js dev server (in another terminal)
+npm run dev
+```
+
+The site will be available at `http://localhost:3000`. Admin panel at `/admin` (requires WorkOS login).
+
+### Environment Variables
+
+Create a `.env.local` file with:
+
+```
+NEXT_PUBLIC_CONVEX_URL=<your-convex-url>
+NEXT_PUBLIC_WORKOS_REDIRECT_URI=http://localhost:3000/callback
+WORKOS_API_KEY=<from-workos-dashboard>
+WORKOS_CLIENT_ID=<from-workos-dashboard>
+WORKOS_COOKIE_PASSWORD=<32+-character-string>
+```
 
 ## Architecture
 
-### See [docs/architecture.md](docs/architecture.md) for more.
+**See [docs/architecture.md](docs/architecture.md) for detailed architecture documentation.**
 
-Personal portfolio site built on Next.js, deployed to Vercel, with Convex
-as the TypeScript-native database and WorkOS for authentication.
-
-Feature development uses a Claude Code → Greptile feedback loop on
-feature branches. Only reviewed PRs merged to `main` trigger CI, which
-runs a destructive-migration safety check before deploying Convex and
-Vercel in order.
+Personal portfolio site built on Next.js, deployed to Vercel, with Convex as the TypeScript-native database and WorkOS for authentication.
 
 **Stack:** Next.js · Vercel · Convex · WorkOS · GitHub Actions
+**Design:** CSS custom properties (tokens) with light/dark mode support
 **Dev tooling:** Claude Code · Greptile
 
 
