@@ -17,6 +17,23 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Matt Blanke",
   description: "CS student and software engineer.",
+  openGraph: {
+    title: "Matt Blanke",
+    description: "CS student and software engineer.",
+    url: "https://blanke-portfolio.vercel.app",
+    siteName: "Matt Blanke",
+    type: "website",
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 export default function RootLayout({

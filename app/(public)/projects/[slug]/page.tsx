@@ -31,34 +31,34 @@ export default async function ProjectDetailPage({ params }: Props) {
     <article className="space-y-8">
       <Link
         href="/projects"
-        className="text-sm text-zinc-500 hover:text-zinc-900 inline-flex items-center gap-1"
+        className="text-sm text-fg-muted hover:text-fg inline-flex items-center gap-1 transition-colors duration-150"
       >
         ← Back to Projects
       </Link>
 
       <div className="space-y-6">
         <div className="space-y-2">
-          <h1 className="text-3xl font-semibold text-zinc-900">
+          <h1 className="text-3xl font-semibold text-fg">
             {project.title}
           </h1>
-          <p className="text-zinc-600">
+          <p className="text-fg-muted">
             {project.startDate}
             {project.endDate && ` – ${project.endDate}`}
           </p>
         </div>
 
-        <p className="text-lg text-zinc-700 leading-relaxed">
+        <p className="text-lg text-fg-muted leading-relaxed">
           {project.description}
         </p>
 
         {project.stack.length > 0 && (
           <div>
-            <h2 className="text-sm font-semibold text-zinc-900 mb-3">Stack</h2>
+            <h2 className="text-sm font-semibold text-fg mb-3">Stack</h2>
             <div className="flex flex-wrap gap-2">
               {project.stack.map((tech) => (
                 <span
                   key={tech}
-                  className="text-sm bg-zinc-100 text-zinc-700 px-3 py-1 rounded"
+                  className="text-sm bg-badge-bg text-badge-fg px-3 py-1 rounded"
                 >
                   {tech}
                 </span>
@@ -72,7 +72,7 @@ export default async function ProjectDetailPage({ params }: Props) {
             {project.repoUrl && (
               <a
                 href={project.repoUrl}
-                className="text-sm font-medium text-zinc-900 hover:underline"
+                className="text-sm font-medium text-fg hover:underline transition-colors duration-150"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -82,7 +82,7 @@ export default async function ProjectDetailPage({ params }: Props) {
             {project.liveUrl && (
               <a
                 href={project.liveUrl}
-                className="text-sm font-medium text-zinc-900 hover:underline"
+                className="text-sm font-medium text-fg hover:underline transition-colors duration-150"
                 target="_blank"
                 rel="noopener noreferrer"
               >

@@ -12,35 +12,35 @@ export default async function CourseworkPage() {
   if (coursework.length === 0) {
     return (
       <div className="text-center py-12">
-        <h1 className="text-2xl font-semibold text-zinc-900 mb-2">Coursework</h1>
-        <p className="text-zinc-600">No coursework yet.</p>
+        <h1 className="text-2xl font-semibold text-fg mb-2">Coursework</h1>
+        <p className="text-fg-muted">No coursework yet.</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-semibold text-zinc-900">Coursework</h1>
+      <h1 className="text-2xl font-semibold text-fg">Coursework</h1>
       <div className="space-y-6">
         {coursework.map((course) => (
           <article
             key={course._id}
-            className="border border-zinc-100 rounded-lg p-6"
+            className="border border-bg-subtle rounded-lg p-6 hover:border-border-hover transition-colors duration-150"
           >
             <div className="space-y-2">
               <div>
-                <h2 className="text-lg font-semibold text-zinc-900">
+                <h2 className="text-lg font-semibold text-fg">
                   {course.title}
                 </h2>
-                <p className="text-sm text-zinc-600">{course.institution}</p>
+                <p className="text-sm text-fg-muted">{course.institution}</p>
               </div>
 
-              <p className="text-sm text-zinc-500">
+              <p className="text-sm text-fg-subtle">
                 {course.term}
                 {course.grade && ` • Grade: ${course.grade}`}
               </p>
 
-              <p className="text-zinc-600 text-sm leading-relaxed">
+              <p className="text-fg-muted text-sm leading-relaxed">
                 {course.description}
               </p>
             </div>

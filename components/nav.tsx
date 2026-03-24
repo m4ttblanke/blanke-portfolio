@@ -18,9 +18,9 @@ export function Nav() {
   const isActive = (href: string) => pathname === href;
 
   return (
-    <header className="border-b border-zinc-100">
+    <header className="border-b border-bg-subtle">
       <nav className="max-w-3xl mx-auto px-6 py-4 flex gap-6 items-center justify-between">
-        <Link href="/" className="font-semibold text-zinc-900 text-lg">
+        <Link href="/" className="font-semibold text-fg text-lg">
           Matt Blanke
         </Link>
 
@@ -30,10 +30,11 @@ export function Nav() {
             <Link
               key={link.href}
               href={link.href}
-              className={`text-sm transition ${
+              aria-current={isActive(link.href) ? 'page' : undefined}
+              className={`text-sm transition-colors duration-150 ${
                 isActive(link.href)
-                  ? 'font-semibold text-zinc-900'
-                  : 'text-zinc-600 hover:text-zinc-900'
+                  ? 'font-semibold text-fg'
+                  : 'text-fg-muted hover:text-fg'
               }`}
             >
               {link.label}
@@ -44,7 +45,7 @@ export function Nav() {
         {/* Mobile hamburger button */}
         <button
           onClick={() => setOpen(!open)}
-          className="sm:hidden text-zinc-900 p-1"
+          className="sm:hidden text-fg p-1"
           aria-label="Toggle menu"
         >
           {open ? (
@@ -59,27 +60,30 @@ export function Nav() {
         </button>
       </nav>
 
-      {/* Mobile menu */}
-      {open && (
-        <div className="sm:hidden border-t border-zinc-100">
-          <div className="max-w-3xl mx-auto px-6 py-4 space-y-3">
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                className={`block text-sm py-2 transition ${
-                  isActive(link.href)
-                    ? 'font-semibold text-zinc-900'
-                    : 'text-zinc-600 hover:text-zinc-900'
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
+      {/* Mobile menu with CSS transition */}
+      <div
+        className={`sm:hidden overflow-hidden transition-all duration-200 ease-in-out motion-reduce:transition-none ${
+          open ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
+        <div className="border-t border-bg-subtle max-w-3xl mx-auto px-6 py-4 space-y-3">
+          {links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              aria-current={isActive(link.href) ? 'page' : undefined}
+              onClick={() => setOpen(false)}
+              className={`block text-sm py-2 transition-colors duration-150 ${
+                isActive(link.href)
+                  ? 'font-semibold text-fg'
+                  : 'text-fg-muted hover:text-fg'
+              }`}
+            >
+              {link.label}
+            </Link>
+          ))}
         </div>
-      )}
+      </div>
     </header>
   );
 }

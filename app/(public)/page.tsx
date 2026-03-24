@@ -7,11 +7,11 @@ export default function Home() {
   return (
     <div className="space-y-12">
       <section className="space-y-4">
-        <h1 className="text-4xl font-bold text-zinc-900">Matt Blanke</h1>
-        <p className="text-lg text-zinc-600">
+        <h1 className="text-4xl font-bold text-fg">Matt Blanke</h1>
+        <p className="text-lg text-fg-muted">
           CS student and software engineer from California.
         </p>
-        <p className="text-zinc-600 leading-relaxed">
+        <p className="text-fg-muted leading-relaxed">
           I build full-stack applications with a focus on clean architecture, user
           experience, and deployment practices. Currently exploring real-time systems,
           database design, and the intersection of developer experience and product.
@@ -19,43 +19,43 @@ export default function Home() {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold text-zinc-900">Quick Links</h2>
+        <h2 className="text-lg font-semibold text-fg">Quick Links</h2>
         <ul className="space-y-2">
           <li>
             <a
               href="/projects"
-              className="text-zinc-600 hover:text-zinc-900 underline"
+              className="text-fg-muted hover:text-fg underline transition-colors duration-150"
             >
               Projects
             </a>
-            <span className="text-zinc-400"> — Featured work and experiments</span>
+            <span className="text-fg-subtle"> — Featured work and experiments</span>
           </li>
           <li>
             <a
               href="/experience"
-              className="text-zinc-600 hover:text-zinc-900 underline"
+              className="text-fg-muted hover:text-fg underline transition-colors duration-150"
             >
               Experience
             </a>
-            <span className="text-zinc-400"> — Professional roles and internships</span>
+            <span className="text-fg-subtle"> — Professional roles and internships</span>
           </li>
           <li>
             <a
               href="/coursework"
-              className="text-zinc-600 hover:text-zinc-900 underline"
+              className="text-fg-muted hover:text-fg underline transition-colors duration-150"
             >
               Coursework
             </a>
-            <span className="text-zinc-400"> — Academic projects and learning</span>
+            <span className="text-fg-subtle"> — Academic projects and learning</span>
           </li>
           <li>
             <a
               href="/about"
-              className="text-zinc-600 hover:text-zinc-900 underline"
+              className="text-fg-muted hover:text-fg underline transition-colors duration-150"
             >
               About
             </a>
-            <span className="text-zinc-400"> — Bio and contact information</span>
+            <span className="text-fg-subtle"> — Bio and contact information</span>
           </li>
         </ul>
       </section>

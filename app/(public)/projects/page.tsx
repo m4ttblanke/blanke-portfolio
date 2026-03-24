@@ -13,33 +13,35 @@ export default async function ProjectsPage() {
   if (projects.length === 0) {
     return (
       <div className="text-center py-12">
-        <h1 className="text-2xl font-semibold text-zinc-900 mb-2">Projects</h1>
-        <p className="text-zinc-600">No projects yet.</p>
+        <h1 className="text-2xl font-semibold text-fg mb-2">Projects</h1>
+        <p className="text-fg-muted">No projects yet.</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-semibold text-zinc-900">Projects</h1>
+      <h1 className="text-2xl font-semibold text-fg">Projects</h1>
       <div className="space-y-6">
         {projects.map((project) => (
-          <Link key={project._id} href={`/projects/${project.slug}`}>
-            <article
-              className="border border-zinc-100 rounded-lg p-6 hover:border-zinc-200 transition cursor-pointer"
-            >
+          <article
+            key={project._id}
+            className="border border-bg-subtle rounded-lg p-6 hover:border-border-hover transition-colors duration-150"
+          >
             <div className="space-y-3">
               <div>
-                <h2 className="text-lg font-semibold text-zinc-900">
-                  {project.title}
-                </h2>
-                <p className="text-sm text-zinc-500 mt-1">
+                <Link href={`/projects/${project.slug}`}>
+                  <h2 className="text-lg font-semibold text-fg hover:underline">
+                    {project.title}
+                  </h2>
+                </Link>
+                <p className="text-sm text-fg-subtle mt-1">
                   {project.startDate}
                   {project.endDate && ` – ${project.endDate}`}
                 </p>
               </div>
 
-              <p className="text-zinc-600 text-sm leading-relaxed">
+              <p className="text-fg-muted text-sm leading-relaxed">
                 {project.description}
               </p>
 
@@ -48,7 +50,7 @@ export default async function ProjectsPage() {
                   {project.stack.map((tech) => (
                     <span
                       key={tech}
-                      className="text-xs bg-zinc-100 text-zinc-700 px-2 py-1 rounded"
+                      className="text-xs bg-badge-bg text-badge-fg px-2 py-1 rounded"
                     >
                       {tech}
                     </span>
@@ -61,7 +63,7 @@ export default async function ProjectsPage() {
                   {project.repoUrl && (
                     <a
                       href={project.repoUrl}
-                      className="text-sm text-zinc-500 hover:text-zinc-900 underline"
+                      className="text-sm text-fg-muted hover:text-fg underline transition-colors duration-150"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -71,7 +73,7 @@ export default async function ProjectsPage() {
                   {project.liveUrl && (
                     <a
                       href={project.liveUrl}
-                      className="text-sm text-zinc-500 hover:text-zinc-900 underline"
+                      className="text-sm text-fg-muted hover:text-fg underline transition-colors duration-150"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -81,8 +83,7 @@ export default async function ProjectsPage() {
                 </div>
               )}
             </div>
-            </article>
-          </Link>
+          </article>
         ))}
       </div>
     </div>
