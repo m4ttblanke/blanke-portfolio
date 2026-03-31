@@ -3,6 +3,13 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning.';
+  if (h < 17) return 'Good afternoon.';
+  return 'Good evening.';
+}
+
 const CODE_SNIPPETS = [
   '> git hire \\\n  matt@blanke.dev',
   '> npm i @matt/blanke\n  --save-team',
@@ -104,6 +111,11 @@ export function HomeHero() {
         <BinaryBackground />
 
         <div className="space-y-4">
+          {/* Greeting — appears as part of hero after intro */}
+          <p className="text-sm font-mono text-accent/70 tracking-widest uppercase">
+            {getGreeting()}
+          </p>
+
           {/* Name row: title on left, code box on right */}
           <div className="flex items-start justify-between gap-6">
             <div className="space-y-2">

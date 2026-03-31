@@ -1,6 +1,6 @@
 import { Nav } from "@/components/nav";
 import { BinaryRain } from "@/components/binary-rain";
-import { HackerIntro } from "@/components/hacker-intro";
+import { IntroOrchestrator } from "@/components/intro-orchestrator";
 import { fetchQuery } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
 
@@ -16,7 +16,7 @@ export default async function PublicLayout({
 
   return (
     <>
-      <HackerIntro projectCount={projects.length} experienceCount={experience.length} />
+      <IntroOrchestrator projectCount={projects.length} experienceCount={experience.length} />
       <BinaryRain />
       <a
         href="#main-content"
