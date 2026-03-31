@@ -3,6 +3,55 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
+const CODE_SNIPPETS = [
+  '> git hire \\\n  matt@blanke.dev',
+  '> npm i @matt/blanke\n  --save-team',
+  '> SELECT name FROM devs\n  WHERE tier = 1\n  -- returns: matt',
+  '> ssh talent@yourco.io\n  --add matt_blanke',
+  '> docker run \\\n  matt-blanke:latest',
+  '> curl -X POST /api/hire\n  -d \'{"name":"Matt"}\'',
+  '> import { Matt } from\n  "blanke-portfolio"',
+];
+
+function CodeTypewriter() {
+  const [text, setText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const full = CODE_SNIPPETS[index];
+
+    if (!isDeleting && text === full) {
+      const t = setTimeout(() => setIsDeleting(true), 2200);
+      return () => clearTimeout(t);
+    }
+
+    if (isDeleting && text === '') {
+      setIsDeleting(false);
+      setIndex((i) => (i + 1) % CODE_SNIPPETS.length);
+      return;
+    }
+
+    const speed = isDeleting ? 18 : 42;
+    const t = setTimeout(() => {
+      setText(isDeleting
+        ? full.slice(0, text.length - 1)
+        : full.slice(0, text.length + 1)
+      );
+    }, speed + Math.random() * 12);
+
+    return () => clearTimeout(t);
+  }, [text, isDeleting, index]);
+
+  return (
+    <div className="border border-accent/40 rounded-lg p-4 bg-accent/5 font-mono text-xs text-accent w-56 min-h-[90px] flex flex-col justify-start">
+      <pre className="whitespace-pre-wrap leading-relaxed">
+        {text}<span className="animate-pulse opacity-80">▋</span>
+      </pre>
+    </div>
+  );
+}
+
 function BinaryBackground() {
   return (
     <div className="absolute inset-0 opacity-5 pointer-events-none overflow-hidden">
@@ -10,30 +59,6 @@ function BinaryBackground() {
         {`1010 1100 1001
 0110 1010 0011
 1001 0101 1100`}
-      </div>
-    </div>
-  );
-}
-
-function FloatingCode() {
-  const [offset, setOffset] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setOffset(window.scrollY * 0.5);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  return (
-    <div
-      className="absolute top-20 right-8 hidden lg:block text-accent font-mono text-xs opacity-30 transition-transform duration-75 z-10"
-      style={{ transform: `translateY(${offset}px)` }}
-    >
-      <div className="border border-accent rounded-lg p-3 w-48 bg-accent/5 backdrop-blur-sm">
-        <div className="text-accent">&gt; build.sh</div>
-        <div className="text-accent-muted mt-1">Initializing...</div>
       </div>
     </div>
   );
@@ -86,18 +111,24 @@ export function HomeHero() {
       {/* Hero Section */}
       <section className="relative space-y-8 pb-20">
         <BinaryBackground />
-        <FloatingCode />
 
         <div className="space-y-4">
-          <div className="space-y-2">
-            <h1 className="text-6xl md:text-7xl font-bold tracking-tight text-fg">
-              Matt
-              <br />
-              <span className="text-accent">Blanke</span>
-            </h1>
-            <p className="text-xl md:text-2xl text-fg-muted font-medium">
-              Full-Stack Engineer
-            </p>
+          {/* Name row: title on left, code box on right */}
+          <div className="flex items-start justify-between gap-6">
+            <div className="space-y-2">
+              <h1 className="text-6xl md:text-7xl font-bold tracking-tight text-fg">
+                Matt
+                <br />
+                <span className="text-accent">Blanke</span>
+              </h1>
+              <p className="text-xl md:text-2xl text-fg-muted font-medium">
+                Full-Stack Engineer
+              </p>
+            </div>
+
+            <div className="hidden lg:flex items-center self-center pt-2">
+              <CodeTypewriter />
+            </div>
           </div>
 
           <p className="max-w-2xl text-fg-muted text-base md:text-lg leading-relaxed pt-4">
