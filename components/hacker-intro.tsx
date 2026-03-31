@@ -2,15 +2,17 @@
 
 import { useEffect, useState } from 'react';
 
-const BOOT_SEQUENCE = [
-  { text: '> ssh matt@blanke.dev' },
-  { text: '> Connection established.' },
-  { text: '> Authenticating... ACCESS GRANTED' },
-  { text: '> Scanning portfolio directory...' },
-  { text: '> Projects located: 12' },
-  { text: '> Experience logs: 4 entries' },
-  { text: '> Compiling interface... DONE' },
-];
+function bootSequence(projectCount: number, experienceCount: number) {
+  return [
+    { text: '> ssh matt@blanke.dev' },
+    { text: '> Connection established.' },
+    { text: '> Authenticating... ACCESS GRANTED' },
+    { text: '> Scanning portfolio directory...' },
+    { text: `> Projects located: ${projectCount}` },
+    { text: `> Experience logs: ${experienceCount} entries` },
+    { text: '> Compiling interface... DONE' },
+  ];
+}
 
 // Base speed for normal characters (ms)
 const CHAR_SPEED = 24;
@@ -22,17 +24,17 @@ const ELLIPSIS_PAUSE_MAX = 4000;
 // Pause after normal lines (ms)
 const NORMAL_PAUSE = 220;
 
-// Progress segments: run to `target` %, then optional pause
+// Progress segments tuned for ~2.5s total
 const PROGRESS_SEGMENTS = [
-  { target: 24,  stepMs: 18  },
-  { pause: () => 800  + Math.random() * 700  }, // stutter ~0.8–1.5s
-  { target: 27,  stepMs: 30, drop: 3 },          // slight drop back then continue
-  { target: 57,  stepMs: 20  },
-  { pause: () => 1100 + Math.random() * 900  }, // stutter ~1.1–2s
-  { target: 60,  stepMs: 12  },
-  { target: 81,  stepMs: 18  },
-  { pause: () => 600  + Math.random() * 500  }, // stutter ~0.6–1.1s
-  { target: 100, stepMs: 14  },
+  { target: 30,  stepMs: 16  },                   // ~480ms
+  { pause: () => 220 + Math.random() * 180 },      // stutter 220–400ms
+  { target: 33,  stepMs: 22, drop: 2 },            // micro-drop, ~66ms
+  { target: 63,  stepMs: 15  },                   // ~450ms
+  { pause: () => 260 + Math.random() * 200 },      // stutter 260–460ms
+  { target: 66,  stepMs: 18  },                   // ~54ms
+  { target: 86,  stepMs: 16  },                   // ~320ms
+  { pause: () => 160 + Math.random() * 140 },      // stutter 160–300ms
+  { target: 100, stepMs: 14  },                   // ~196ms
 ];
 
 function sleep(ms: number) {
@@ -60,7 +62,7 @@ function endsWithEllipsis(text: string): boolean {
   return /\.\.\.$/.test(text.trimEnd());
 }
 
-export function HackerIntro() {
+export function HackerIntro({ projectCount, experienceCount }: { projectCount: number; experienceCount: number }) {
   const [shouldShow, setShouldShow] = useState<boolean | null>(null);
   const [completedLines, setCompletedLines] = useState<string[]>([]);
   const [currentLine, setCurrentLine] = useState('');
@@ -83,7 +85,7 @@ export function HackerIntro() {
       await sleep(300);
 
       // ── Phase 1: boot lines ──────────────────────────────────────
-      for (const { text } of BOOT_SEQUENCE) {
+      for (const { text } of bootSequence(projectCount, experienceCount)) {
         if (cancelled) return;
 
         // Type character by character, slowing way down for each "." in "..."

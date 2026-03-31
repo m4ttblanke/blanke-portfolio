@@ -1,15 +1,22 @@
 import { Nav } from "@/components/nav";
 import { BinaryRain } from "@/components/binary-rain";
 import { HackerIntro } from "@/components/hacker-intro";
+import { fetchQuery } from "convex/nextjs";
+import { api } from "@/convex/_generated/api";
 
-export default function PublicLayout({
+export default async function PublicLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [projects, experience] = await Promise.all([
+    fetchQuery(api.projects.listPublished),
+    fetchQuery(api.experience.listPublished),
+  ]);
+
   return (
     <>
-      <HackerIntro />
+      <HackerIntro projectCount={projects.length} experienceCount={experience.length} />
       <BinaryRain />
       <a
         href="#main-content"
