@@ -14,8 +14,8 @@ const BOOT_SEQUENCE = [
 
 // Base speed for normal characters (ms)
 const CHAR_SPEED = 24;
-// Speed per dot in an ellipsis (ms) — ~1 per second
-const DOT_SPEED = 950;
+// Speed per dot in an ellipsis (ms) — 3 dots totals ~1–2 seconds
+const DOT_SPEED = 333;
 // Pause after a line that ends with ellipsis (ms) — randomised in run()
 const ELLIPSIS_PAUSE_MIN = 2000;
 const ELLIPSIS_PAUSE_MAX = 4000;
@@ -91,7 +91,7 @@ export function HackerIntro() {
           if (cancelled) return;
           setCurrentLine(text.slice(0, i));
           const delay = isEllipsisDot(text, i - 1)
-            ? DOT_SPEED + Math.random() * 150
+            ? DOT_SPEED + Math.random() * 100   // 333–433ms → 3 dots ≈ 1–1.3s
             : CHAR_SPEED + Math.random() * 14;
           await sleep(delay);
         }
