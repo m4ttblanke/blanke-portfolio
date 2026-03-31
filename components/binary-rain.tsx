@@ -35,6 +35,7 @@ export function BinaryRain() {
     }
 
     function init() {
+      if (!canvas || !ctx) return;
       const w = calcWidth();
       const h = window.innerHeight;
       canvas.width = w;
@@ -63,6 +64,7 @@ export function BinaryRain() {
     document.addEventListener('mouseleave', onMouseLeave);
 
     function draw() {
+      if (!canvas || !ctx) return;
       const w = canvas.width;
       const h = canvas.height;
 
