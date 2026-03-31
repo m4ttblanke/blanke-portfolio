@@ -30,15 +30,18 @@ export default async function ProjectsPage() {
         {projects.map((project, index) => (
           <article
             key={project._id}
-            className="group relative border border-border rounded-xl p-8 transition-all duration-300 hover:border-accent hover:shadow-lg hover:bg-accent/2"
+            className="group relative border border-border rounded-xl p-8 overflow-hidden transition-all duration-300 hover:border-accent hover:bg-accent/5 hover:scale-[1.02] hover:shadow-[0_0_28px_rgba(16,185,129,0.1)]"
           >
-            {/* Accent line on hover */}
-            <div className="absolute top-0 left-0 h-1 bg-gradient-to-r from-accent to-accent-muted rounded-t-xl w-0 group-hover:w-full transition-all duration-500" />
+            {/* Scan-line sweep */}
+            <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 bg-gradient-to-r from-transparent via-accent/8 to-transparent pointer-events-none" />
+            {/* Top accent bar */}
+            <div className="absolute top-0 left-0 h-[2px] bg-gradient-to-r from-accent to-accent-muted rounded-t-xl w-0 group-hover:w-full transition-all duration-500" />
 
             <div className="space-y-4">
               <div>
                 <Link href={`/projects/${project.slug}`}>
-                  <h2 className="text-2xl font-bold text-fg group-hover:text-accent transition-colors duration-200">
+                  <h2 className="text-2xl font-bold text-fg group-hover:text-accent transition-colors duration-200 flex items-center gap-1">
+                    <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-lg">&gt;</span>
                     {project.title}
                   </h2>
                 </Link>

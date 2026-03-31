@@ -25,11 +25,17 @@ export default async function CourseworkPage() {
         {coursework.map((course) => (
           <article
             key={course._id}
-            className="border border-bg-subtle rounded-lg p-6 hover:border-border-hover transition-colors duration-150"
+            className="group relative border border-border rounded-lg p-6 overflow-hidden transition-all duration-300 hover:border-accent hover:bg-accent/5 hover:scale-[1.02] hover:shadow-[0_0_28px_rgba(16,185,129,0.1)]"
           >
+            {/* Scan-line sweep */}
+            <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 bg-gradient-to-r from-transparent via-accent/8 to-transparent pointer-events-none" />
+            {/* Bottom accent bar */}
+            <div className="absolute bottom-0 left-0 h-[2px] bg-accent w-0 group-hover:w-full transition-all duration-300 rounded-b-lg" />
+
             <div className="space-y-2">
               <div>
-                <h2 className="text-lg font-semibold text-fg">
+                <h2 className="text-lg font-semibold text-fg group-hover:text-accent transition-colors duration-200 flex items-center gap-1">
+                  <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-sm">&gt;</span>
                   {course.title}
                 </h2>
                 <p className="text-sm text-fg-muted">{course.institution}</p>

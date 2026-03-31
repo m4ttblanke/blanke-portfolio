@@ -33,12 +33,15 @@ export function Nav() {
               key={link.href}
               href={link.href}
               aria-current={isActive(link.href) ? 'page' : undefined}
-              className={`text-sm font-medium transition-colors duration-150 relative group ${
+              className={`text-sm font-medium transition-all duration-200 relative group inline-flex items-center gap-1 hover:scale-110 ${
                 isActive(link.href)
                   ? 'text-accent'
-                  : 'text-fg-muted hover:text-fg'
+                  : 'text-fg-muted hover:text-accent'
               }`}
             >
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 text-xs leading-none">
+                &gt;
+              </span>
               {link.label}
               {isActive(link.href) && (
                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-accent" />
