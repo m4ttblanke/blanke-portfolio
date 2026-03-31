@@ -1,5 +1,6 @@
 import { Nav } from "@/components/nav";
 import { BinaryRain } from "@/components/binary-rain";
+import { HackerIntro } from "@/components/hacker-intro";
 
 export default function PublicLayout({
   children,
@@ -8,6 +9,7 @@ export default function PublicLayout({
 }) {
   return (
     <>
+      <HackerIntro />
       <BinaryRain />
       <a
         href="#main-content"
