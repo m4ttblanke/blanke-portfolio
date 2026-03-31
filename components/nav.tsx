@@ -21,7 +21,8 @@ export function Nav() {
   return (
     <header className="border-b border-border bg-bg/50 backdrop-blur-sm sticky top-0 z-40">
       <nav className="max-w-3xl mx-auto px-6 py-4 flex gap-6 items-center justify-between">
-        <Link href="/" className="font-semibold text-fg text-lg">
+        <Link href="/" className="font-semibold text-fg text-lg flex items-center gap-2">
+          <img src="/favicon.ico" alt="" className="w-6 h-6" />
           Matt Blanke
         </Link>
 

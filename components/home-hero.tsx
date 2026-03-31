@@ -28,7 +28,7 @@ function FloatingCode() {
 
   return (
     <div
-      className="absolute top-20 right-8 hidden lg:block text-accent font-mono text-xs opacity-30 transition-transform duration-75"
+      className="absolute top-20 right-8 hidden lg:block text-accent font-mono text-xs opacity-30 transition-transform duration-75 z-10"
       style={{ transform: `translateY(${offset}px)` }}
     >
       <div className="border border-accent rounded-lg p-3 w-48 bg-accent/5 backdrop-blur-sm">
