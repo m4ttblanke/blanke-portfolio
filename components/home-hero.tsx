@@ -68,38 +68,29 @@ function QuickLink({
   href,
   title,
   description,
-  icon,
 }: {
   href: string;
   title: string;
   description: string;
-  icon: string;
 }) {
-  const [isHovered, setIsHovered] = useState(false);
-
   return (
     <Link href={href}>
-      <div
-        className="group relative p-6 rounded-lg border border-border transition-all duration-300 hover:border-accent hover:bg-accent/5 cursor-pointer"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
-        <div className="flex items-start justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-fg group-hover:text-accent transition-colors">
-              {title}
-            </h3>
-            <p className="text-fg-muted text-sm mt-2">{description}</p>
-          </div>
-          <div className="text-2xl opacity-50 group-hover:opacity-100 transition-opacity">
-            {icon}
-          </div>
-        </div>
-        <div
-          className={`absolute bottom-0 left-0 h-1 bg-accent transition-all duration-300 ${
-            isHovered ? 'w-full' : 'w-0'
-          }`}
-        />
+      <div className="group relative p-6 rounded-lg border border-border cursor-pointer overflow-hidden transition-all duration-300 hover:border-accent hover:bg-accent/5 hover:scale-[1.03] hover:shadow-[0_0_28px_rgba(16,185,129,0.1)]">
+        {/* Scan-line sweep on hover */}
+        <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 bg-gradient-to-r from-transparent via-accent/8 to-transparent pointer-events-none" />
+
+        <h3 className="text-lg font-semibold text-fg group-hover:text-accent transition-colors duration-200 flex items-center gap-1">
+          <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-accent">
+            &gt;
+          </span>
+          {title}
+        </h3>
+        <p className="text-fg-muted text-sm mt-2 transition-colors duration-200 group-hover:text-fg-muted">
+          {description}
+        </p>
+
+        {/* Bottom accent bar */}
+        <div className="absolute bottom-0 left-0 h-[2px] bg-accent w-0 group-hover:w-full transition-all duration-300 rounded-b-lg" />
       </div>
     </Link>
   );
@@ -166,25 +157,21 @@ export function HomeHero() {
               href="/projects"
               title="Projects"
               description="Featured work, experiments, and technical deep dives"
-              icon="💻"
             />
             <QuickLink
               href="/experience"
               title="Experience"
               description="Professional roles, internships, and career journey"
-              icon="🚀"
             />
             <QuickLink
               href="/coursework"
               title="Learning"
               description="Academic projects, courses, and skill development"
-              icon="📚"
             />
             <QuickLink
               href="/about"
               title="About"
               description="Background, interests, and how to get in touch"
-              icon="👋"
             />
           </div>
         </div>
