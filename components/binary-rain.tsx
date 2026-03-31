@@ -4,7 +4,8 @@ import { useEffect, useRef } from 'react';
 
 const FONT_SIZE = 13;
 const MAX_CONTENT_WIDTH = 768; // max-w-3xl in px
-const INFLUENCE_RADIUS = 160;
+const INFLUENCE_RADIUS = 140; // horizontal distance only
+const TRAIL_LENGTH = 18;
 const BASE_SPEED_MIN = 0.15;
 const BASE_SPEED_MAX = 0.35;
 
@@ -27,13 +28,22 @@ export function BinaryRain() {
       return Math.max(0, Math.floor((window.innerWidth - MAX_CONTENT_WIDTH) / 2));
     }
 
+    function getBgColor() {
+      return getComputedStyle(document.documentElement)
+        .getPropertyValue('--color-bg')
+        .trim() || '#0d0d0b';
+    }
+
     function init() {
       const w = calcWidth();
       const h = window.innerHeight;
       canvas.width = w;
       canvas.height = h;
+      // Fill with bg color immediately so canvas isn't transparent on mount
+      ctx.fillStyle = getBgColor();
+      ctx.fillRect(0, 0, w, h);
       cols = Math.floor(w / FONT_SIZE);
-      drops = Array.from({ length: cols }, () => -(Math.random() * (h / FONT_SIZE)));
+      drops = Array.from({ length: cols }, () => -(Math.random() * 30));
       speeds = Array.from(
         { length: cols },
         () => BASE_SPEED_MIN + Math.random() * (BASE_SPEED_MAX - BASE_SPEED_MIN)
@@ -52,12 +62,6 @@ export function BinaryRain() {
     window.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseleave', onMouseLeave);
 
-    // Get background color from CSS variable for correct fade
-    function getBgColor() {
-      const style = getComputedStyle(document.documentElement);
-      return style.getPropertyValue('--color-bg').trim() || '#0d0d0b';
-    }
-
     function draw() {
       const w = canvas.width;
       const h = canvas.height;
@@ -67,51 +71,55 @@ export function BinaryRain() {
         return;
       }
 
-      // Fade previous frame — alpha controls trail length
-      ctx.fillStyle = `rgba(13, 13, 11, 0.055)`;
+      // Clear each frame with the actual page bg color — no accumulated tint
+      ctx.fillStyle = getBgColor();
       ctx.fillRect(0, 0, w, h);
 
       ctx.font = `${FONT_SIZE}px 'JetBrains Mono', monospace`;
       ctx.textAlign = 'center';
 
-      const { x: mx, y: my } = mouseRef.current;
+      const { x: mx } = mouseRef.current;
 
       for (let i = 0; i < cols; i++) {
         const colX = i * FONT_SIZE + FONT_SIZE / 2;
-        const dist = Math.hypot(colX - mx, drops[i] * FONT_SIZE - my);
+
+        // Horizontal distance only — entire column lights up, not a bubble
+        const dist = Math.abs(colX - mx);
         const influence = Math.max(0, 1 - dist / INFLUENCE_RADIUS);
+        const speed = speeds[i] * (1 + influence * 4);
 
-        // Speed up near cursor
-        const speed = speeds[i] * (1 + influence * 5);
+        const leadRow = Math.floor(drops[i]);
 
-        const y = drops[i] * FONT_SIZE;
-        const char = Math.random() > 0.5 ? '1' : '0';
+        // Draw trail from leading char upward
+        for (let t = 0; t < TRAIL_LENGTH; t++) {
+          const row = leadRow - t;
+          const y = row * FONT_SIZE;
+          if (y < -FONT_SIZE || y > h) continue;
 
-        // Color: white-green at high influence, dim green at low
-        if (influence > 0.6) {
-          ctx.fillStyle = `rgba(210, 255, 235, ${0.5 + influence * 0.5})`;
-        } else if (influence > 0.1) {
-          ctx.fillStyle = `rgba(16, 185, 129, ${0.3 + influence * 0.7})`;
-        } else {
-          ctx.fillStyle = 'rgba(16, 185, 129, 0.18)';
+          const char = Math.random() > 0.5 ? '1' : '0';
+          const fade = 1 - t / TRAIL_LENGTH;
+
+          if (t === 0) {
+            // Leading character: brightest
+            if (influence > 0.5) {
+              ctx.fillStyle = `rgba(210, 255, 230, ${0.6 + influence * 0.4})`;
+            } else {
+              ctx.fillStyle = `rgba(16, 185, 129, ${0.55 + influence * 0.3})`;
+            }
+          } else {
+            // Trail: fade with influence boost
+            const base = 0.06 + influence * 0.18;
+            ctx.fillStyle = `rgba(16, 185, 129, ${base * fade})`;
+          }
+
+          ctx.fillText(char, colX, y);
         }
-
-        ctx.fillText(char, colX, y);
 
         drops[i] += speed;
 
-        if (drops[i] * FONT_SIZE > h && Math.random() > 0.975) {
+        if (drops[i] * FONT_SIZE > h + TRAIL_LENGTH * FONT_SIZE) {
           drops[i] = -(Math.random() * 25);
         }
-      }
-
-      // Radial glow at cursor position (only when inside canvas bounds)
-      if (mx >= 0 && mx < w) {
-        const grad = ctx.createRadialGradient(mx, my, 0, mx, my, INFLUENCE_RADIUS);
-        grad.addColorStop(0, 'rgba(16, 185, 129, 0.07)');
-        grad.addColorStop(1, 'rgba(16, 185, 129, 0)');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, w, h);
       }
 
       animId = requestAnimationFrame(draw);
