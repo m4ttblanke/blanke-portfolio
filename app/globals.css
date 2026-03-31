@@ -19,8 +19,8 @@
   --color-accent-muted: #6ee7b7;
 
   /* Typography */
-  --font-display: var(--font-space-grotesk), system-ui, sans-serif;
-  --font-sans: var(--font-space-grotesk), system-ui, sans-serif;
+  --font-display: var(--font-jetbrains-mono), monospace;
+  --font-sans: var(--font-jetbrains-mono), monospace;
   --font-mono: var(--font-jetbrains-mono), monospace;
 
   /* Transitions */
