@@ -5,8 +5,11 @@
  *
  * Phase 1 · hacker        Terminal boot lines + progress bar (~3s)
  * Phase 2 · stabilizing   Glitch burst → horizontal scan bars sweep in (~1.2s)
- * Phase 3 · materializing SVG wireframe draws over blurred page (~2s)
- * Phase 4 · reveal        Wireframe + overlay fade out, page appears (~0.8s)
+ * Phase 3 · materializing SVG wireframe draws over solid dark overlay (~2s)
+ * Phase 4 · greeting      Green bar slides in from both screen edges, shows greeting,
+ *                          expands to fill screen, then retracts from centre outward
+ *                          to reveal the homepage. Wireframe fades while fully
+ *                          covered — never visible to the user. (~3.3s)
  *
  * Skipped on repeat visits via sessionStorage key "intro-v4-seen".
  * Respects prefers-reduced-motion (skips directly to done).
@@ -19,18 +22,23 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 // ─────────────────────────────────────────────────────────────────────────────
 
 const CFG = {
-  charSpeed:        20,    // ms per character (normal)
-  dotSpeed:         320,   // ms per dot in "..."  (3 dots ≈ 1s)
-  normalPause:      130,   // ms pause after a normal line
-  ellipsisPause:    [1800, 3000] as [number, number], // ms [min, max] after "..." line
-  progressDuration: 2200,  // ms total for progress bar
-  glitchFrames:     5,     // number of glitch frames
-  glitchFrameMs:    70,    // ms per glitch frame
-  scanCount:        14,    // horizontal scan bars
-  scanStaggerMs:    38,    // ms between each bar
-  scanDuration:     600,   // ms for all bars to sweep in
-  wireDuration:     1800,  // ms total for wireframe to draw
-  revealDuration:   750,   // ms for final fade-out
+  charSpeed:              20,    // ms per character (normal)
+  dotSpeed:               320,   // ms per dot in "..."  (3 dots ≈ 1s)
+  normalPause:            130,   // ms pause after a normal line
+  ellipsisPause:          [1800, 3000] as [number, number], // ms [min, max] after "..." line
+  progressDuration:       2200,  // ms total for progress bar
+  glitchFrames:           5,     // number of glitch frames
+  glitchFrameMs:          70,    // ms per glitch frame
+  scanCount:              14,    // horizontal scan bars
+  scanStaggerMs:          38,    // ms between each bar
+  scanDuration:           600,   // ms for all bars to sweep in
+  wireDuration:           1800,  // ms total for wireframe to draw
+  wireFadeDuration:       650,   // ms for wireframe to fade (runs while covered by green)
+  // Greeting
+  greetingFormDuration:   500,   // ms for bars to slide in from both edges
+  greetingBarHold:        1400,  // ms to hold bar + greeting text
+  greetingExpandDuration: 520,   // ms for panels to grow from bar height to full screen
+  greetingRevealDuration: 650,   // ms for panels to retract from centre to edges
 } as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -279,7 +287,7 @@ function WireframeSVG({ active, fading }: { active: boolean; fading: boolean }) 
         position: 'absolute', inset: 0,
         width: '100%', height: '100%',
         opacity: fading ? 0 : 1,
-        transition: 'opacity 0.65s ease',
+        transition: fading ? `opacity ${CFG.wireFadeDuration}ms ease` : 'none',
         pointerEvents: 'none',
       }}
     >
@@ -349,10 +357,194 @@ function WireframeSVG({ active, fading }: { active: boolean; fading: boolean }) 
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Phase 4: Greeting transition
+//
+// Narrative:
+//   1. Two green bars slide in simultaneously from the LEFT EDGE and RIGHT EDGE,
+//      meeting at the centre. Text appears in the bar.
+//   2. The bar expands vertically — top panel grows from the bar's top edge up
+//      to the top of the screen; bottom panel grows downward. Full green screen.
+//   3. Panels retract from centre outward: top panel collapses upward (top edge
+//      stays, bottom edge rises to top), bottom panel collapses downward.
+//      Homepage is revealed through the transparent overlay behind them.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const BAR_H = 68; // px — height of the initial horizontal bar
+
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning.';
+  if (h < 17) return 'Good afternoon.';
+  return 'Good evening.';
+}
+
+function GreetingTransition({
+  barForming,
+  barHolding,
+  expanded,
+  revealing,
+}: {
+  barForming: boolean;
+  barHolding: boolean;
+  expanded:   boolean;
+  revealing:  boolean;
+}) {
+  const EASE = 'cubic-bezier(0.4,0,0.2,1)';
+
+  // ── barAnim: triggers the CSS width transition after the bars mount.
+  // Without this, the bars mount already at 50% with no animation.
+  const [barAnim, setBarAnim] = useState(false);
+  useEffect(() => {
+    if (barForming) {
+      requestAnimationFrame(() => setBarAnim(true));
+    } else {
+      setBarAnim(false);
+    }
+  }, [barForming]);
+
+  // ── barFrac: scaleY ratio so the expanding panels START exactly at bar height,
+  // giving a seamless bar → full-screen grow with no positional jump.
+  const [barFrac, setBarFrac] = useState(0.1);
+  useEffect(() => {
+    const update = () => setBarFrac((BAR_H / 2) / (window.innerHeight / 2));
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
+  const showBars   = (barForming || barHolding) && !revealing;
+  const showPanels = expanded && !revealing;
+  const showReveal = revealing;
+
+  return (
+    <>
+      {/* ── 1. Forming bars (slide in from left + right edges) ───────────── */}
+      {showBars && (
+        <>
+          {/* Left half */}
+          <div
+            style={{
+              position: 'absolute',
+              top: `calc(50% - ${BAR_H / 2}px)`,
+              left: 0,
+              height: BAR_H,
+              width: barAnim ? '50%' : '0%',
+              background: '#10b981',
+              transition: `width ${CFG.greetingFormDuration}ms ${EASE}`,
+              zIndex: 2,
+            }}
+          />
+          {/* Right half */}
+          <div
+            style={{
+              position: 'absolute',
+              top: `calc(50% - ${BAR_H / 2}px)`,
+              right: 0,
+              height: BAR_H,
+              width: barAnim ? '50%' : '0%',
+              background: '#10b981',
+              transition: `width ${CFG.greetingFormDuration}ms ${EASE}`,
+              zIndex: 2,
+            }}
+          />
+        </>
+      )}
+
+      {/* ── 2. Expanding panels (bar height → full screen) ───────────────── */}
+      {/* Uses a CSS custom property so the keyframe starts exactly at bar height */}
+      {showPanels && (
+        <>
+          {/* Top panel — grows upward from the bar's top edge */}
+          <div
+            style={{
+              position: 'absolute',
+              left: 0, right: 0,
+              top: 0, height: '50%',
+              background: '#10b981',
+              transformOrigin: 'bottom center',
+              '--gt-bar-frac': barFrac,
+              animation: `gt-expand ${CFG.greetingExpandDuration}ms ${EASE} forwards`,
+              zIndex: 2,
+            } as React.CSSProperties}
+          />
+          {/* Bottom panel — grows downward from the bar's bottom edge */}
+          <div
+            style={{
+              position: 'absolute',
+              left: 0, right: 0,
+              bottom: 0, height: '50%',
+              background: '#10b981',
+              transformOrigin: 'top center',
+              '--gt-bar-frac': barFrac,
+              animation: `gt-expand ${CFG.greetingExpandDuration}ms ${EASE} forwards`,
+              zIndex: 2,
+            } as React.CSSProperties}
+          />
+        </>
+      )}
+
+      {/* ── 3. Reveal panels (full-screen → retract from centre outward) ─── */}
+      {/* These mount fully expanded (scaleY=1) and animate to scaleY=0.      */}
+      {/* Top panel: transformOrigin top → bottom edge rises to top edge.     */}
+      {/* Bottom panel: transformOrigin bottom → top edge sinks to bottom.    */}
+      {showReveal && (
+        <>
+          <div
+            style={{
+              position: 'absolute',
+              left: 0, right: 0,
+              top: 0, height: '50%',
+              background: '#10b981',
+              transformOrigin: 'top center',
+              animation: `gt-reveal-top ${CFG.greetingRevealDuration}ms ${EASE} forwards`,
+              zIndex: 2,
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              left: 0, right: 0,
+              bottom: 0, height: '50%',
+              background: '#10b981',
+              transformOrigin: 'bottom center',
+              animation: `gt-reveal-bottom ${CFG.greetingRevealDuration}ms ${EASE} forwards`,
+              zIndex: 2,
+            }}
+          />
+        </>
+      )}
+
+      {/* ── Centre text — shown while bar is held, hidden before reveal ───── */}
+      <div
+        style={{
+          position: 'absolute', left: 0, right: 0,
+          top: '50%',
+          transform: 'translateY(-50%)',
+          opacity: barHolding && !expanded && !revealing ? 1 : 0,
+          transition: 'opacity 0.25s ease',
+          background: '#10b981',
+          height: BAR_H,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: 'clamp(14px, 2vw, 24px)',
+          fontWeight: 700,
+          letterSpacing: '0.06em',
+          color: '#0a1a14',
+          zIndex: 3,
+          pointerEvents: 'none',
+        }}
+      >
+        {getGreeting()} Welcome.
+      </div>
+    </>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // IntroOrchestrator — main export
 // ─────────────────────────────────────────────────────────────────────────────
 
-type Phase = 'hacker' | 'stabilizing' | 'materializing' | 'reveal' | 'done';
+type Phase = 'hacker' | 'stabilizing' | 'materializing' | 'greeting' | 'done';
 
 export function IntroOrchestrator({
   projectCount,
@@ -365,15 +557,21 @@ export function IntroOrchestrator({
   const [phase, setPhase]           = useState<Phase>('hacker');
 
   // Glitch state: transform + filter applied to overlay
-  const [gx, setGx]         = useState(0);
-  const [gSkew, setGSkew]   = useState(0);
+  const [gx,      setGx]      = useState(0);
+  const [gSkew,   setGSkew]   = useState(0);
   const [gBright, setGBright] = useState(1);
 
   const [scanVisible, setScanVisible] = useState(false);
   const [scanFading,  setScanFading]  = useState(false);
-  const [wireActive,  setWireActive]  = useState(false);
-  const [wireFading,  setWireFading]  = useState(false);
-  const [overlayOut,  setOverlayOut]  = useState(false);
+
+  const [wireActive, setWireActive] = useState(false);
+  const [wireFading, setWireFading] = useState(false);
+
+  // Greeting sub-states
+  const [greetingBarForming,  setGreetingBarForming]  = useState(false);
+  const [greetingBarHolding,  setGreetingBarHolding]  = useState(false);
+  const [greetingExpanded,    setGreetingExpanded]    = useState(false);
+  const [greetingRevealing,   setGreetingRevealing]   = useState(false);
 
   // ── Session + reduced-motion gate ────────────────────────────────────────
   useEffect(() => {
@@ -393,7 +591,7 @@ export function IntroOrchestrator({
     hackerDoneRef.current?.();
   }, []);
 
-  // ── Single orchestrating effect — only re-runs if shouldShow changes ──────
+  // ── Single orchestrating effect ───────────────────────────────────────────
   useEffect(() => {
     if (!shouldShow) return;
     let cancelled = false;
@@ -403,7 +601,7 @@ export function IntroOrchestrator({
       await new Promise<void>(resolve => { hackerDoneRef.current = resolve; });
       if (cancelled) return;
 
-      // ── Stabilizing phase ─────────────────────────────────────────────────
+      // ── Stabilizing ───────────────────────────────────────────────────────
       setPhase('stabilizing');
 
       const glitchFrames = [
@@ -422,23 +620,40 @@ export function IntroOrchestrator({
 
       if (cancelled) return;
 
-      // Scan bars sweep in
       setScanVisible(true);
       await sleep(CFG.scanDuration + CFG.scanCount * CFG.scanStaggerMs + 120);
       if (cancelled) return;
 
-      // ── Materializing phase ───────────────────────────────────────────────
+      // ── Materializing — wireframe draws on solid dark overlay ─────────────
       setPhase('materializing');
       setScanFading(true);
       setWireActive(true);
       await sleep(CFG.wireDuration + 400);
       if (cancelled) return;
 
-      // ── Reveal phase ──────────────────────────────────────────────────────
-      setPhase('reveal');
-      setWireFading(true);
-      setOverlayOut(true);
-      await sleep(CFG.revealDuration);
+      // ── Greeting ──────────────────────────────────────────────────────────
+      setPhase('greeting');
+
+      // 1. Bars slide in from both edges
+      setGreetingBarForming(true);
+      await sleep(CFG.greetingFormDuration);
+      if (cancelled) return;
+
+      // 2. Text appears, user reads
+      setGreetingBarHolding(true);
+      await sleep(CFG.greetingBarHold);
+      if (cancelled) return;
+
+      // 3. Panels expand to fill screen; wireframe fades while safely covered
+      setGreetingExpanded(true);
+      setWireFading(true);    // fades behind green — user never sees it
+      // Wait for both the expand animation AND the wire fade to complete
+      await sleep(Math.max(CFG.greetingExpandDuration + 100, CFG.wireFadeDuration + 100));
+      if (cancelled) return;
+
+      // 4. Panels retract from centre outward, revealing homepage
+      setGreetingRevealing(true);
+      await sleep(CFG.greetingRevealDuration + 80);
       if (cancelled) return;
 
       sessionStorage.setItem('intro-v4-seen', '1');
@@ -452,8 +667,6 @@ export function IntroOrchestrator({
   // ── Render guard ─────────────────────────────────────────────────────────
   if (shouldShow === null || !shouldShow || phase === 'done') return null;
 
-  const isMaterializing = phase === 'materializing' || phase === 'reveal';
-
   return (
     <>
       {/* ── Main overlay ──────────────────────────────────────────────────── */}
@@ -464,24 +677,15 @@ export function IntroOrchestrator({
           inset: 0,
           zIndex: 9999,
           overflow: 'hidden',
-          // Background transitions: opaque → semi-transparent → gone
-          background: overlayOut
-            ? 'rgba(13,13,11,0)'
-            : isMaterializing
-              ? 'rgba(13,13,11,0.80)'
-              : '#0d0d0b',
-          // Backdrop blur during wireframe phase (blurs actual page beneath)
-          backdropFilter: isMaterializing && !overlayOut ? 'blur(10px)' : 'blur(0px)',
-          transition: [
-            'background 0.65s ease',
-            'backdrop-filter 0.65s ease',
-          ].join(', '),
+          // Solid dark throughout; transparent only during reveal so homepage shows through
+          background: greetingRevealing ? 'transparent' : '#0d0d0b',
           // Glitch transform applied to whole overlay
           transform: `translateX(${gx}px) skewX(${gSkew}deg)`,
-          filter: `brightness(${gBright})`,
+          filter: gBright !== 1 ? `brightness(${gBright})` : 'none',
+          pointerEvents: greetingRevealing ? 'none' : 'auto',
         }}
       >
-        {/* Phase 1: hacker terminal — visible during hacker, fades on stabilizing */}
+        {/* Phase 1: hacker terminal — fades out during stabilizing */}
         {(phase === 'hacker' || phase === 'stabilizing') && (
           <HackerTerminal
             projectCount={projectCount}
@@ -494,9 +698,20 @@ export function IntroOrchestrator({
         {/* Phase 2: scan bars */}
         <ScanBars visible={scanVisible} fading={scanFading} />
 
-        {/* Phase 3+4: wireframe */}
-        {isMaterializing && (
+        {/* Phase 3: wireframe — stays mounted during greeting so it can fade
+            while covered (invisible to user) before the reveal uncovers it */}
+        {(phase === 'materializing' || phase === 'greeting') && (
           <WireframeSVG active={wireActive} fading={wireFading} />
+        )}
+
+        {/* Phase 4: greeting bar + panel expand/reveal */}
+        {phase === 'greeting' && (
+          <GreetingTransition
+            barForming={greetingBarForming}
+            barHolding={greetingBarHolding}
+            expanded={greetingExpanded}
+            revealing={greetingRevealing}
+          />
         )}
       </div>
 
@@ -510,6 +725,24 @@ export function IntroOrchestrator({
         @keyframes hk-blink {
           0%, 100% { opacity: 1; }
           50%       { opacity: 0; }
+        }
+
+        /* Bar height → full panel height, anchored at the bar edge closest to centre */
+        @keyframes gt-expand {
+          from { transform: scaleY(var(--gt-bar-frac, 0.1)); }
+          to   { transform: scaleY(1); }
+        }
+
+        /* Top panel retracts: bottom edge rises toward top, centre clears first */
+        @keyframes gt-reveal-top {
+          from { transform: scaleY(1); }
+          to   { transform: scaleY(0); }
+        }
+
+        /* Bottom panel retracts: top edge sinks toward bottom */
+        @keyframes gt-reveal-bottom {
+          from { transform: scaleY(1); }
+          to   { transform: scaleY(0); }
         }
       `}</style>
     </>
