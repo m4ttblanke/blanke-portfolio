@@ -573,6 +573,19 @@ export function IntroOrchestrator({
   const [greetingExpanded,    setGreetingExpanded]    = useState(false);
   const [greetingRevealing,   setGreetingRevealing]   = useState(false);
 
+  // ── Skip handler ─────────────────────────────────────────────────────────
+  const skipIntro = useCallback(() => {
+    sessionStorage.setItem('intro-v4-seen', '1');
+    window.dispatchEvent(new Event('intro-complete'));
+    setPhase('done');
+  }, []);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Enter') skipIntro(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [skipIntro]);
+
   // ── Session + reduced-motion gate ────────────────────────────────────────
   useEffect(() => {
     const seen    = sessionStorage.getItem('intro-v4-seen');
@@ -647,6 +660,7 @@ export function IntroOrchestrator({
       // 3. Panels expand to fill screen; wireframe fades while safely covered
       setGreetingExpanded(true);
       setWireFading(true);    // fades behind green — user never sees it
+      window.dispatchEvent(new Event('intro-complete')); // hero can start animating under the green
       // Wait for both the expand animation AND the wire fade to complete
       await sleep(Math.max(CFG.greetingExpandDuration + 100, CFG.wireFadeDuration + 100));
       if (cancelled) return;
@@ -712,6 +726,26 @@ export function IntroOrchestrator({
             expanded={greetingExpanded}
             revealing={greetingRevealing}
           />
+        )}
+
+        {/* Skip hint — hidden once the reveal begins */}
+        {!greetingRevealing && (
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 24,
+              right: 28,
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: '11px',
+              color: 'rgba(16,185,129,0.4)',
+              letterSpacing: '0.08em',
+              pointerEvents: 'none',
+              userSelect: 'none',
+              zIndex: 10,
+            }}
+          >
+            Press [Enter] to skip
+          </div>
         )}
       </div>
 
