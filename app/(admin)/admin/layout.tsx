@@ -1,11 +1,21 @@
 import { withAuth } from "@workos-inc/authkit-nextjs";
+import { redirect } from "next/navigation";
 
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  await withAuth({ ensureSignedIn: true });
+  const { user } = await withAuth({ ensureSignedIn: true });
+
+  const allowedEmails = (process.env.ADMIN_ALLOWED_EMAILS ?? "")
+    .split(",")
+    .map((e) => e.trim())
+    .filter(Boolean);
+
+  if (allowedEmails.length > 0 && (!user?.email || !allowedEmails.includes(user.email))) {
+    redirect("/");
+  }
 
   return (
     <div className="min-h-screen bg-zinc-50">
