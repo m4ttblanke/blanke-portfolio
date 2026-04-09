@@ -1,31 +1,19 @@
-import { Nav } from "@/components/nav";
-import { BinaryRain } from "@/components/binary-rain";
-import { IntroOrchestrator } from "@/components/intro-orchestrator";
-import { fetchQuery } from "convex/nextjs";
-import { api } from "@/convex/_generated/api";
-
-export default async function PublicLayout({
+export default function PublicLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [projects, experience] = await Promise.all([
-    fetchQuery(api.projects.listPublished),
-    fetchQuery(api.experience.listPublished),
-  ]);
-
   return (
     <>
-      <IntroOrchestrator projectCount={projects.length} experienceCount={experience.length} />
-      <BinaryRain />
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-fg focus:text-white focus:rounded"
-      >
-        Skip to main content
-      </a>
-      <Nav />
-      <main id="main-content" className="flex-1 max-w-3xl mx-auto w-full px-6 py-12">
+      <nav>
+        <a href="/">Home</a> |{" "}
+        <a href="/projects">Projects</a> |{" "}
+        <a href="/experience">Experience</a> |{" "}
+        <a href="/coursework">Coursework</a> |{" "}
+        <a href="/about">About</a>
+      </nav>
+      <hr />
+      <main id="main-content">
         {children}
       </main>
     </>
