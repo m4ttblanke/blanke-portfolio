@@ -10,7 +10,8 @@ export default function PublicLayout({
         <a href="/projects">Projects</a> |{" "}
         <a href="/experience">Experience</a> |{" "}
         <a href="/coursework">Coursework</a> |{" "}
-        <a href="/about">About</a>
+        <a href="/about">About</a> |{" "}
+        <a href="/admin">Sign in</a>
       </nav>
       <hr />
       <main id="main-content">
