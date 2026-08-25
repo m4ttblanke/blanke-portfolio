@@ -5,6 +5,23 @@ const nextConfig: NextConfig = {
   // fights the proxy.ts redirect that adds one for /plannr. Disable the
   // built-in behavior so only that explicit, exact-match redirect applies.
   skipTrailingSlashRedirect: true,
+  async redirects() {
+    return [
+      // The GitHub Pages source still links to privacy.html/terms.html
+      // internally, so bounce those to the clean URLs rather than editing
+      // the proxied site's markup.
+      {
+        source: "/plannr/privacy\\.html",
+        destination: "/plannr/privacy",
+        permanent: true,
+      },
+      {
+        source: "/plannr/terms\\.html",
+        destination: "/plannr/terms",
+        permanent: true,
+      },
+    ];
+  },
   async rewrites() {
     return [
       {
@@ -14,6 +31,14 @@ const nextConfig: NextConfig = {
         // explicitly to avoid that redirect loop.
         source: "/plannr/",
         destination: "https://m4ttblanke.github.io/plannr/index.html",
+      },
+      {
+        source: "/plannr/privacy",
+        destination: "https://m4ttblanke.github.io/plannr/privacy.html",
+      },
+      {
+        source: "/plannr/terms",
+        destination: "https://m4ttblanke.github.io/plannr/terms.html",
       },
       {
         source: "/plannr/:path+",
