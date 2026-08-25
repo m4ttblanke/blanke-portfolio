@@ -28,70 +28,23 @@ export default async function ProjectDetailPage({ params }: Props) {
   }
 
   return (
-    <article className="space-y-8">
-      <Link
-        href="/projects"
-        className="text-sm text-fg-muted hover:text-fg inline-flex items-center gap-1 transition-colors duration-150"
-      >
-        ← Back to Projects
-      </Link>
+    <article>
+      <Link href="/projects">← Back to Projects</Link>
 
-      <div className="space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-semibold text-fg">
-            {project.title}
-          </h1>
-          <p className="text-fg-muted">
-            {project.startDate}
-            {project.endDate && ` – ${project.endDate}`}
-          </p>
-        </div>
+      <h1>{project.title}</h1>
+      <p>{project.startDate}{project.endDate && ` – ${project.endDate}`}</p>
+      <p>{project.description}</p>
 
-        <p className="text-lg text-fg-muted leading-relaxed">
-          {project.description}
-        </p>
+      {project.stack.length > 0 && (
+        <p>Stack: {project.stack.join(", ")}</p>
+      )}
 
-        {project.stack.length > 0 && (
-          <div>
-            <h2 className="text-sm font-semibold text-fg mb-3">Stack</h2>
-            <div className="flex flex-wrap gap-2">
-              {project.stack.map((tech) => (
-                <span
-                  key={tech}
-                  className="text-sm bg-badge-bg text-badge-fg px-3 py-1 rounded"
-                >
-                  {tech}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {(project.repoUrl || project.liveUrl) && (
-          <div className="flex gap-4 pt-4">
-            {project.repoUrl && (
-              <a
-                href={project.repoUrl}
-                className="text-sm font-medium text-fg hover:underline transition-colors duration-150"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                View on GitHub →
-              </a>
-            )}
-            {project.liveUrl && (
-              <a
-                href={project.liveUrl}
-                className="text-sm font-medium text-fg hover:underline transition-colors duration-150"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                View Live Site →
-              </a>
-            )}
-          </div>
-        )}
-      </div>
+      {project.repoUrl && (
+        <a href={project.repoUrl} target="_blank" rel="noopener noreferrer">View on GitHub →</a>
+      )}
+      {project.liveUrl && (
+        <> | <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">View Live Site →</a></>
+      )}
     </article>
   );
 }
