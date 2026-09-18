@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
+import { requireAdmin } from "./lib/access";
 
 // Public: only non-draft experience
 export const listPublished = query({
@@ -16,13 +17,16 @@ export const listPublished = query({
 export const listAll = query({
   args: {},
   handler: async (ctx) => {
+    await requireAdmin(ctx);
     return await ctx.db.query("experience").collect();
   },
 });
 
+// Admin: any entry by id, including drafts
 export const getById = query({
   args: { id: v.id("experience") },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx);
     return await ctx.db.get(args.id);
   },
 });
@@ -38,6 +42,7 @@ export const create = mutation({
     draft: v.boolean(),
   },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx);
     return await ctx.db.insert("experience", args);
   },
 });
@@ -54,6 +59,7 @@ export const update = mutation({
     draft: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx);
     const { id, ...fields } = args;
     await ctx.db.patch(id, fields);
     return await ctx.db.get(id);
@@ -63,6 +69,7 @@ export const update = mutation({
 export const remove = mutation({
   args: { id: v.id("experience") },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx);
     return await ctx.db.delete(args.id);
   },
 });
