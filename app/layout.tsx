@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
-import { AuthKitProvider } from "@workos-inc/authkit-nextjs/components";
-import { ConvexClientProvider } from "@/components/convex-provider";
 
 export const metadata: Metadata = {
   title: "Matt Blanke",
   description: "CS student and software engineer.",
 };
 
+// No auth or Convex providers here: the public site is server-rendered and
+// must not depend on either. They are mounted only under /admin
+// (components/admin/admin-providers.tsx).
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -14,11 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
-        <AuthKitProvider>
-          <ConvexClientProvider>{children}</ConvexClientProvider>
-        </AuthKitProvider>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
