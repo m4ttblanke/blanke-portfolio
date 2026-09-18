@@ -5,6 +5,7 @@ import { api } from "@/convex/_generated/api";
 export const metadata = {
   title: "Projects — Matt Blanke",
   description: "Featured work and technical experiments.",
+  alternates: { canonical: "/projects" },
 };
 
 export default async function ProjectsPage() {
@@ -15,7 +16,7 @@ export default async function ProjectsPage() {
       <h1>Projects</h1>
 
       {projects.length === 0 ? (
-        <p>No projects yet.</p>
+        <p>Nothing published here yet.</p>
       ) : (
         <ul>
           {projects.map((project) => (

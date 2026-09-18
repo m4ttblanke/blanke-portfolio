@@ -80,7 +80,7 @@ export default async function OGImage({ params }: Props) {
           marginTop: '20px',
         }}
       >
-        blanke-portfolio.vercel.app
+        matthewblanke.com
       </div>
     </div>
   )

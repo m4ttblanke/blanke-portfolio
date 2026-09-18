@@ -44,7 +44,7 @@ export default function OGImage() {
           marginTop: '20px',
         }}
       >
-        blanke-portfolio.vercel.app
+        matthewblanke.com
       </div>
     </div>
   )

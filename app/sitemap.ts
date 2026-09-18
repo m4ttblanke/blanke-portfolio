@@ -1,10 +1,11 @@
 import { fetchQuery } from 'convex/nextjs'
 import { api } from '@/convex/_generated/api'
 import type { MetadataRoute } from 'next'
+import { SITE_URL } from '@/lib/site'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const projects = await fetchQuery(api.projects.listPublished)
-  const base = 'https://blanke-portfolio.vercel.app'
+  const base = SITE_URL
 
   const staticRoutes: MetadataRoute.Sitemap = ['/', '/projects', '/experience', '/coursework', '/about'].map(
     (route) => ({

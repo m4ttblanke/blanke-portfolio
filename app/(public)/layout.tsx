@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function PublicLayout({
   children,
 }: {
@@ -6,11 +8,12 @@ export default function PublicLayout({
   return (
     <>
       <nav>
-        <a href="/">Home</a> |{" "}
-        <a href="/projects">Projects</a> |{" "}
-        <a href="/experience">Experience</a> |{" "}
-        <a href="/coursework">Coursework</a> |{" "}
-        <a href="/about">About</a> |{" "}
+        <Link href="/">Home</Link> |{" "}
+        <Link href="/projects">Projects</Link> |{" "}
+        <Link href="/experience">Experience</Link> |{" "}
+        <Link href="/coursework">Coursework</Link> |{" "}
+        <Link href="/about">About</Link> |{" "}
+        {/* Plain anchor on purpose: /admin is behind sign-in, so it must not be prefetched. */}
         <a href="/admin">Sign in</a>
       </nav>
       <hr />

@@ -16,6 +16,7 @@ export async function generateMetadata({ params }: Props) {
   return {
     title: `${project.title} — Matt Blanke`,
     description: project.description,
+    alternates: { canonical: `/projects/${project.slug}` },
   };
 }
 

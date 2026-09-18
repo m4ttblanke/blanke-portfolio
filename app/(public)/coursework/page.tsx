@@ -4,6 +4,7 @@ import { api } from "@/convex/_generated/api";
 export const metadata = {
   title: "Coursework — Matt Blanke",
   description: "Academic coursework and courses.",
+  alternates: { canonical: "/coursework" },
 };
 
 export default async function CourseworkPage() {
@@ -14,7 +15,7 @@ export default async function CourseworkPage() {
       <h1>Coursework</h1>
 
       {coursework.length === 0 ? (
-        <p>No coursework yet.</p>
+        <p>Nothing published here yet.</p>
       ) : (
         <ul>
           {coursework.map((course) => (
