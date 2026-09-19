@@ -8,7 +8,16 @@ concurrency:
   group: production-deploy
   cancel-in-progress: false
 
+permissions:
+  contents: read
+
 jobs:
+  # Typecheck, lint, tests and a production build. Nothing deploys unless this
+  # passes. (vercel.json turns off Vercel's own Git deploy of `main`, so this
+  # workflow is the only path to production.)
+  verify:
+    uses: ./.github/workflows/ci.yml
+
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
@@ -26,9 +35,12 @@ jobs:
               - 'app/**'
               - 'components/**'
               - 'lib/**'
-              - 'middleware.ts'
+              - 'public/**'
+              - 'proxy.ts'
               - 'next.config.ts'
+              - 'vercel.json'
               - 'package.json'
+              - 'package-lock.json'
 
   migration-safety-check:
     needs: detect-changes
@@ -54,9 +66,10 @@ jobs:
           fi
 
   deploy-convex:
-    needs: [detect-changes, migration-safety-check]
+    needs: [verify, detect-changes, migration-safety-check]
     if: |
       always() &&
+      needs.verify.result == 'success' &&
       needs.detect-changes.outputs.convex == 'true' &&
       (needs.migration-safety-check.result == 'success' || needs.migration-safety-check.result == 'skipped')
     runs-on: ubuntu-latest
@@ -72,9 +85,13 @@ jobs:
           CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
 
   deploy-vercel:
-    needs: [detect-changes, deploy-convex]
+    # A failed verify or a blocked destructive-schema change must stop the
+    # frontend deploy too, not only the Convex deploy.
+    needs: [verify, detect-changes, migration-safety-check, deploy-convex]
     if: |
       always() &&
+      needs.verify.result == 'success' &&
+      (needs.migration-safety-check.result == 'success' || needs.migration-safety-check.result == 'skipped') &&
       (needs.deploy-convex.result == 'success' || needs.deploy-convex.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
@@ -92,7 +109,7 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
   failure-summary:
-    needs: [deploy-convex, deploy-vercel]
+    needs: [verify, migration-safety-check, deploy-convex, deploy-vercel]
     if: failure()
     runs-on: ubuntu-latest
     steps:
@@ -102,3 +119,7 @@ jobs:
           echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Author:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Message:** ${{ github.event.head_commit.message }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **verify:** ${{ needs.verify.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **migration-safety-check:** ${{ needs.migration-safety-check.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **deploy-convex:** ${{ needs.deploy-convex.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **deploy-vercel:** ${{ needs.deploy-vercel.result }}" >> $GITHUB_STEP_SUMMARY

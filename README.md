@@ -2,7 +2,7 @@
 
 Personal portfolio website showcasing my projects, technical experience, and coursework. Built to highlight full-stack development, product thinking, and clean UI/UX. Includes integrations, real-world projects, and ongoing work.
 
-**Live site:** https://blanke-portfolio.vercel.app
+**Live site:** https://matthewblanke.com
 
 ## Quick Start
 
@@ -31,7 +31,17 @@ NEXT_PUBLIC_WORKOS_REDIRECT_URI=http://localhost:3000/callback
 WORKOS_API_KEY=<from-workos-dashboard>
 WORKOS_CLIENT_ID=<from-workos-dashboard>
 WORKOS_COOKIE_PASSWORD=<32+-character-string>
+ADMIN_ALLOWED_EMAILS=<your-email>   # comma-separated; empty = nobody can open /admin
 ```
+
+Admin access is enforced in Convex, not just in Next.js. Set these **on the Convex deployment** (they are not read from `.env.local`):
+
+```bash
+npx convex env set WORKOS_CLIENT_ID <same value as above>
+npx convex env set ADMIN_WORKOS_USER_IDS <your WorkOS user id, e.g. user_01ABC...>   # empty = nobody can edit
+```
+
+Find your user id in the WorkOS dashboard (Users), or sign in to `/admin` once and it prints the exact command. `convex deploy` refuses to run if `WORKOS_CLIENT_ID` is not set on the target deployment. See [docs/architecture.md](docs/architecture.md#authentication-and-authorization-workos--convex).
 
 ## Architecture
 
@@ -48,12 +58,15 @@ Personal portfolio site built on Next.js, deployed to Vercel, with Convex as the
 
 The site uses a **fully automated deployment pipeline** triggered on every push to `main`:
 
-1. **GitHub Actions** detects changes to `convex/` and/or app files
-2. **Migration safety check** verifies no destructive schema changes without `[allow-destructive]` tag
-3. **Convex deploy** pushes database schema and functions to production
-4. **Vercel deploy** builds and deploys the Next.js app after Convex succeeds
+1. **Verify** runs typecheck, lint, tests and a production build (the same checks run on every pull request)
+2. **GitHub Actions** detects changes to `convex/`
+3. **Migration safety check** verifies no destructive schema changes without `[allow-destructive]` (a failure also blocks the Vercel deploy)
+4. **Convex deploy** pushes database schema and functions to production
+5. **Vercel deploy** builds and deploys the Next.js app after Convex succeeds
 
-**Live site:** https://blanke-portfolio.vercel.app
+Vercel's own Git auto-deploy of `main` is disabled in `vercel.json`, so this pipeline is the only path to production. Pull requests and branches still get Vercel preview deployments.
+
+**Live site:** https://matthewblanke.com
 
 ### Environment Variables
 

@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Local agent tooling (gitignored) and generated code are not project source.
+    ".claude/**",
+    ".agent/**",
+    "convex/_generated/**",
   ]),
 ]);
 

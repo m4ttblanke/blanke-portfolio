@@ -8,8 +8,10 @@
  * @module
  */
 
+import type * as admin from "../admin.js";
 import type * as coursework from "../coursework.js";
 import type * as experience from "../experience.js";
+import type * as lib_access from "../lib/access.js";
 import type * as projects from "../projects.js";
 
 import type {
@@ -19,8 +21,10 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  admin: typeof admin;
   coursework: typeof coursework;
   experience: typeof experience;
+  "lib/access": typeof lib_access;
   projects: typeof projects;
 }>;
 

@@ -1,0 +1,37 @@
+name: CI
+
+# Verification only: no secrets, no deploys. Runs on every pull request, and is
+# reused by deploy.yml so the same checks gate production.
+on:
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Tests (Convex authorization + access rules)
+        run: npm test
+      - name: Production build
+        run: npm run build
+        env:
+          # Placeholders only. The build never contacts these services (all
+          # data-driven routes render on demand). Real values live in Vercel.
+          NEXT_PUBLIC_CONVEX_URL: https://ci-placeholder.convex.cloud
+          NEXT_PUBLIC_WORKOS_REDIRECT_URI: http://localhost:3000/callback
+          WORKOS_CLIENT_ID: client_ci_placeholder
+          WORKOS_API_KEY: ci-placeholder-not-a-real-key
+          WORKOS_COOKIE_PASSWORD: ci-placeholder-cookie-password-32chars-minimum-ok

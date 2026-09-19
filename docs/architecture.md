@@ -139,15 +139,28 @@ All database work lives in `/convex` as TypeScript. This is intentional — it m
 
 ---
 
-## Authentication (WorkOS)
+## Authentication and authorization (WorkOS + Convex)
 
-WorkOS handles authentication via `authkitMiddleware` in Next.js middleware, using the App Router session pattern.
+Three independent layers. The public site never depends on any of them.
 
-**Key properties:**
-- Session managed via WorkOS-issued JWTs stored in HTTP-only cookies
-- Middleware protects `/admin` routes; public portfolio routes are unauthenticated
-- WorkOS user identity is passed through to Convex via the Convex auth integration
-- Only users configured in the WorkOS dashboard can access the admin panel
+**1. Public routes are never gated.** `proxy.ts` runs AuthKit only for `/admin/:path*` (and does the exact `/plannr` → `/plannr/` redirect). Pages, `/robots.txt`, `/sitemap.xml`, OG images, files in `/public`, `/callback` and `/plannr/*` do not pass through the auth middleware, so new public routes and assets need no registration. (`withAuth()` only works on paths the middleware covers, so the AuthKit and Convex client providers are mounted only under `/admin`, in `components/admin/admin-providers.tsx`.)
+
+**2. Admin UI gate (Next.js).** `app/(admin)/admin/layout.tsx` requires a WorkOS sign-in with a *verified* email listed in `ADMIN_ALLOWED_EMAILS`. This is a server-only variable. **Fail closed:** if it is missing or empty, nobody gets in.
+
+**3. Data authorization (Convex) is the real security boundary.** The Convex URL is public, so anyone can call functions directly; the Next.js gate alone would not protect the data.
+- `convex/auth.config.ts` makes Convex verify the WorkOS access token the admin's browser sends.
+- `convex/lib/access.ts` (`requireAdmin`) allows only WorkOS user ids listed in the Convex variable `ADMIN_WORKOS_USER_IDS`. Fail closed here too. (The check is by user id, not email: WorkOS access tokens carry no email claim, and ids are immutable.)
+- Every mutation and every query that can return drafts calls `requireAdmin`. Public queries (`listPublished`, `getBySlug`) return published content only. `tests/convex/every-function-is-guarded.test.ts` fails if a new function is added without a guard.
+
+**Environment variables**
+
+| Variable | Where | Purpose |
+|---|---|---|
+| `ADMIN_ALLOWED_EMAILS` | Vercel (server-only), `.env.local` | Comma-separated emails allowed into the admin UI. Empty = nobody. |
+| `WORKOS_CLIENT_ID` | Vercel **and the Convex deployment** | Convex uses it to validate WorkOS tokens. `convex deploy` refuses to run if it is missing on the deployment. |
+| `ADMIN_WORKOS_USER_IDS` | **Convex deployment only** | Comma-separated WorkOS user ids (`user_...`) allowed to read drafts and write content. Empty = nobody. |
+
+Set the Convex ones with `npx convex env set NAME value` (add `--prod` for a production deployment). Your WorkOS user id is in the WorkOS dashboard under Users; the admin page also prints the exact command with your id if you sign in but are not yet allow-listed.
 
 ---
 
@@ -176,28 +189,31 @@ GitHub Actions deploy pipeline runs
 
 ## Deploy Pipeline
 
-Defined in `.github/workflows/deploy.yml`. Triggers on every push to `main`.
+Defined in `.github/workflows/deploy.yml`. Triggers on every push to `main`. `.github/workflows/ci.yml` runs the same verification on every pull request.
 
 ```
+verify (typecheck, lint, tests, production build)
 detect-changes
-    ├── [convex/**]  → migration-safety-check → deploy-convex
-    └── [app/**]     →                        → deploy-vercel
-                                                    ↑
-                                         waits on deploy-convex
-                                         if it was triggered
+    ├── [convex/**]  → migration-safety-check → deploy-convex ─┐
+    └── (always)                                               ├→ deploy-vercel
+                                          verify + safety check ┘
 ```
 
 **Step-by-step:**
 
-1. **Detect changes** — path filtering determines whether Convex, the app, or both changed. Downstream jobs are skipped if their files weren't touched.
+1. **Verify** (`ci.yml`) — `npm run typecheck`, `npm run lint`, `npm test` (Convex authorization tests) and `npm run build` with placeholder env. Nothing below runs unless this passes.
 
-2. **Migration safety check** — diffs `convex/schema.ts` against `HEAD~1`. If any lines were removed or renamed and the commit message doesn't include `[allow-destructive]`, the pipeline fails before anything deploys.
+2. **Detect changes** — path filtering determines whether Convex files changed.
 
-3. **Convex deploy** — runs `npx convex deploy`, which pushes updated functions and applies any schema migrations.
+3. **Migration safety check** — diffs `convex/schema.ts` against `HEAD~1`. If any lines were removed or renamed and the commit message doesn't include `[allow-destructive]`, the pipeline fails **and the Vercel deploy is blocked too**.
 
-4. **Vercel deploy** — builds and ships the Next.js app to production. Always waits for Convex to finish if both were triggered, ensuring the frontend is never ahead of the schema.
+4. **Convex deploy** — runs `npx convex deploy`, which pushes updated functions and applies schema changes. It fails fast if `WORKOS_CLIENT_ID` is not set on the Convex deployment.
 
-5. **Failure summary** — on any failure, a summary is written to the GitHub Actions run with the commit SHA, author, and message for quick diagnosis.
+5. **Vercel deploy** — builds and ships the Next.js app to production. Waits for Convex if it was triggered, so the frontend is never ahead of the backend.
+
+6. **Failure summary** — on any failure, a summary with the commit and each job's result is written to the run.
+
+**Vercel Git auto-deploy of `main` is turned off** in `vercel.json` (`git.deploymentEnabled.main = false`). Before this, Vercel's own GitHub integration also deployed every push to `main` in parallel, bypassing the gates above and racing the Convex deploy. Pull requests and other branches still get Vercel preview deployments.
 
 **Concurrency:** A `production-deploy` concurrency group with `cancel-in-progress: false` ensures a second push queues rather than cancelling an in-flight migration.
 
@@ -230,7 +246,11 @@ npx convex dev
 npm run dev
 ```
 
-The Convex dev server creates an isolated development deployment separate from production. Schema changes made locally do not touch the production database until merged to `main` and deployed via CI.
+> **Warning:** as of M0, the `dev:` Convex deployment in `.env.local` is the *same deployment production uses* (the live site's bundle points at it). Treat `npx convex dev`, `npx convex deploy` and `npx convex run` as production operations. Create a separate production deployment before doing risky schema work.
+>
+> Convex functions now require an authenticated admin. `npx convex run` runs without a user identity, so admin functions reject it unless you pass `--identity '{"subject":"user_..."}'` (an id in `ADMIN_WORKOS_USER_IDS`). Public queries work as before.
+
+Run the checks CI runs: `npm run typecheck && npm run lint && npm test && npm run build`.
 
 Visit `http://localhost:3000` for the public site and `http://localhost:3000/admin` for the admin panel (requires WorkOS login).
 

@@ -4,6 +4,7 @@ import { api } from "@/convex/_generated/api";
 export const metadata = {
   title: "Experience — Matt Blanke",
   description: "Work experience and roles.",
+  alternates: { canonical: "/experience" },
 };
 
 export default async function ExperiencePage() {
@@ -14,7 +15,7 @@ export default async function ExperiencePage() {
       <h1>Experience</h1>
 
       {experience.length === 0 ? (
-        <p>No experience yet.</p>
+        <p>Nothing published here yet.</p>
       ) : (
         <ul>
           {experience.map((exp) => (
