@@ -50,7 +50,7 @@ Find your user id in the WorkOS dashboard (Users), or sign in to `/admin` once a
 Personal portfolio site built on Next.js, deployed to Vercel, with Convex as the TypeScript-native database and WorkOS for authentication.
 
 **Stack:** Next.js · Vercel · Convex · WorkOS · GitHub Actions
-**Design:** CSS custom properties (tokens) with light/dark mode support
+**Design:** editorial art direction with CSS tokens in `app/globals.css` (see [docs/ART_DIRECTION.md](docs/ART_DIRECTION.md)); proof sheet at `/proof` on local and preview builds
 **Dev tooling:** Claude Code · Greptile
 
 
