@@ -7,6 +7,20 @@ const nextConfig: NextConfig = {
   skipTrailingSlashRedirect: true,
   async redirects() {
     return [
+      // The admin index has no page of its own. This must be an HTTP redirect,
+      // not a `redirect()` inside app/(admin)/admin/page.tsx: AuthKit's client
+      // provider refreshes the session through server actions, which makes
+      // Next re-render the *current* route inside the action response. A
+      // redirecting page would embed a NEXT_REDIRECT in that response while
+      // the router is also following the page's own redirect, and the two
+      // collide (React error #310, "This page couldn't load"). A config
+      // redirect runs before the proxy and before React renders anything, and
+      // means sign-in returns the user straight to /admin/projects.
+      {
+        source: "/admin",
+        destination: "/admin/projects",
+        permanent: false,
+      },
       // The GitHub Pages source still links to privacy.html/terms.html
       // internally, so bounce those to the clean URLs rather than editing
       // the proxied site's markup.
