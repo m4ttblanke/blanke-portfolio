@@ -44,3 +44,6 @@ next-env.d.ts
 # Claude Code
 .claude/
 .agent/
+
+# M1 review screenshots (local artifacts)
+/docs/m1-review/

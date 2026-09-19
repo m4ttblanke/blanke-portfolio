@@ -1,0 +1,241 @@
+/*
+ * Proof sheet styles. Internal evaluation page only (see app/proof/page.tsx).
+ * Everything here uses the tokens from app/globals.css; nothing is a one-off
+ * color, z-index or rotation.
+ */
+
+.proof { --plate-gap: var(--space-section-m); overflow-x: clip; }
+
+/* ------------------------------------------------------------ sheet + plates */
+
+.proof-toc { columns: 2; column-gap: var(--gutter); margin-block-start: 1.5rem; max-inline-size: 44rem; }
+.proof-toc li { break-inside: avoid; border-block-end: 1px solid var(--rule); }
+.proof-toc a { display: flex; gap: 0.75rem; text-decoration: none; min-block-size: 2.75rem; align-items: center; }
+.proof-toc a:hover { text-decoration: underline; }
+@media (max-width: 47.99rem) { .proof-toc { columns: 1; } }
+
+.plate { padding-block: var(--plate-gap) 0; }
+.plate-head {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 0.5rem var(--gutter);
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  align-items: baseline;
+  padding-block-start: 0.75rem;
+  border-block-start: 3px solid var(--on);
+  margin-block-end: clamp(1.5rem, 3vw, 2.5rem);
+}
+.plate-head .plate-no { grid-column: 1 / span 2; }
+.plate-head h2 { grid-column: 3 / -1; }
+.plate-head p { grid-column: 3 / -1; color: var(--on-soft); max-inline-size: var(--measure); }
+.plate-head .plate-no { color: var(--on); }
+@media (max-width: 47.99rem) {
+  .plate-head .plate-no, .plate-head h2, .plate-head p { grid-column: 1 / -1; }
+}
+.plate-body { grid-column: 1 / -1; min-inline-size: 0; }
+
+/* ----------------------------------------------------------- display plates */
+
+/* Fit factors are 100 / (measured glyph width per em), so the word fills its
+   container. Measured in Chrome with the real fonts. */
+.display-a {
+  --display-family: var(--font-display-anybody), "Arial Black", ui-sans-serif, sans-serif;
+  --display-vars: "wdth" 75;
+  --display-weight: 800;
+  --display-track: 0;
+  --display-leading: 0.86;
+  --fit-blanke: 32.6;  /* BLANKE  3.013em */
+  --fit-matthew: 25;   /* MATTHEW 3.926em */
+}
+.display-b {
+  --display-family: var(--font-display-face), "Arial Narrow", ui-sans-serif, sans-serif;
+  --display-vars: normal;
+  --display-weight: 800;
+  --display-track: -0.01em;
+  --display-leading: 0.86;
+  --fit-blanke: 38.6;  /* BLANKE  2.546em */
+  --fit-matthew: 29.2; /* MATTHEW 3.369em */
+}
+
+.fit { container-type: inline-size; }
+.fit > .t-display { display: block; white-space: nowrap; }
+.fit-blanke { font-size: calc(var(--fit-blanke) * 1cqw); }
+.fit-matthew { font-size: calc(var(--fit-matthew) * 1cqw); }
+
+.dp-tests { grid-column: 1 / -1; display: grid; gap: clamp(2rem, 5vw, 4rem); }
+/* Grid items default to min-width:auto; a nowrap line would stretch the whole track. */
+.dp-tests > * { min-inline-size: 0; }
+.dp-label { display: block; margin-block-end: 0.5rem; }
+
+/* Occlusion: type BEHIND a photo block, type IN FRONT, on one stage. */
+.occlude { position: relative; min-block-size: 24rem; overflow: clip; }
+.occlude .back { position: absolute; inset-inline: 0; inset-block-start: 50%; translate: 0 -50%; }
+.occlude .block { position: absolute; inset-block: 0; inset-inline-start: 50%; inline-size: 34%; translate: -50% 0; }
+.occlude .front { position: absolute; inset-inline-start: 0; inset-block-end: 0.25rem; font-size: clamp(2rem, 8cqw, 5rem); color: var(--color-paper); }
+.occlude .front span { background-color: var(--color-ink); padding: 0.05em 0.2em 0.02em; }
+
+.ladder { display: grid; gap: 0.25rem; }
+.ladder-row { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); align-items: center; gap: var(--gutter); border-block-end: 1px solid var(--rule); padding-block: 0.5rem; }
+.ladder-row .t-display { font-size: clamp(2.5rem, 9vw, 6rem); line-height: 1; }
+
+.title-list { display: grid; }
+.title-row { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); align-items: baseline; gap: var(--gutter); border-block-end: 1px solid var(--rule); padding-block: 0.6rem; }
+.title-row .t-display { font-size: clamp(1.9rem, 6.2vw, 4.25rem); text-wrap: balance; line-height: 0.95; }
+
+.leave { position: relative; overflow: clip; }
+.leave .t-display { white-space: nowrap; font-size: clamp(6rem, 30vw, 24rem); line-height: 0.86; margin-inline-end: -0.35em; }
+
+/* Verdict */
+.verdict { display: grid; gap: var(--gutter); grid-template-columns: minmax(0, 1fr); }
+.verdict .facts { display: grid; gap: 0.6rem; }
+.verdict .facts li { border-block-start: 1px solid var(--rule); padding-block-start: 0.6rem; }
+@media (min-width: 64rem) {
+  .verdict { grid-template-columns: minmax(0, 5fr) minmax(0, 1fr) minmax(0, 6fr); }
+  .verdict .lead { grid-column: 1; }
+  .verdict .facts { grid-column: 3; }
+}
+
+/* ------------------------------------------------------------- reading type */
+
+.reading { display: grid; gap: clamp(2rem, 5vw, 4rem); grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 64rem) { .reading { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); } }
+.reading > * { min-inline-size: 0; }
+.roles { inline-size: 100%; border-collapse: collapse; }
+.roles caption { text-align: start; padding-block-end: 0.5rem; }
+.roles th, .roles td { text-align: start; vertical-align: baseline; padding: 0.65rem 0.75rem 0.65rem 0; border-block-start: 1px solid var(--rule); }
+.roles th { font-weight: 650; }
+.stack-gap > * + * { margin-block-start: 1.75rem; }
+.nav-sample { display: flex; flex-wrap: wrap; gap: 0 1.75rem; }
+.nav-sample a { display: inline-flex; align-items: center; min-block-size: 2.75rem; font-weight: 650; text-decoration: none; }
+.nav-sample a:hover { text-decoration: underline; }
+.nav-sample a[aria-current="page"] { text-decoration: underline; text-decoration-thickness: 0.2em; text-decoration-color: var(--accent-graphic); text-underline-offset: 0.35em; }
+.force-focus { outline: 3px solid var(--focus); outline-offset: 3px; }
+.controls { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+
+/* -------------------------------------------------------------------- color */
+
+.swatches { display: grid; gap: var(--gutter); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 48rem) { .swatches.core { grid-template-columns: repeat(4, minmax(0, 1fr)); } .swatches.support { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.swatch { display: grid; align-content: end; min-block-size: 11rem; padding: 0.9rem; box-shadow: inset 0 0 0 1px var(--rule); }
+.swatch b { font-size: var(--t-head-3); letter-spacing: -0.015em; }
+.contrast { inline-size: 100%; border-collapse: collapse; margin-block-start: 2rem; }
+.contrast caption { text-align: start; padding-block-end: 0.5rem; }
+.contrast th, .contrast td { text-align: start; padding: 0.6rem 0.75rem 0.6rem 0; border-block-start: 1px solid var(--rule); vertical-align: middle; }
+.contrast .chip { display: inline-grid; place-items: center; inline-size: 4.5rem; block-size: 2.75rem; font-weight: 800; font-size: 1.25rem; box-shadow: inset 0 0 0 1px var(--rule); }
+.contrast td.num { font-weight: 700; font-variant-numeric: tabular-nums; }
+.contrast tr.warn td { color: var(--on-soft); }
+
+/* --------------------------------------------------------------------- grid */
+
+.grid-demo { position: relative; }
+.grid-demo .gcols { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); column-gap: var(--gutter); padding-inline: var(--margin); max-inline-size: calc(var(--frame) + var(--margin) * 2); margin-inline: auto; pointer-events: none; }
+.grid-demo .gcols span { background-color: color-mix(in srgb, var(--color-red) 5%, transparent); border-inline: 1px solid color-mix(in srgb, var(--color-red) 30%, transparent); font-size: var(--t-meta); font-weight: 650; padding: 0.35rem; color: var(--color-red); }
+.grid-demo .page-grid { position: relative; padding-block: 1.5rem; min-block-size: 22rem; align-content: start; row-gap: 1.25rem; }
+.measure-list { display: grid; gap: 0.5rem 2rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); margin-block-start: 2rem; }
+.measure-list div { border-block-start: 1px solid var(--rule); padding-block-start: 0.5rem; }
+.measure-list dt { color: var(--on-soft); }
+.measure-list dd { font-weight: 650; }
+.viol { display: block; padding: 0.75rem; font-size: var(--t-caption); font-weight: 650; }
+.viol-ink { background-color: var(--color-ink); color: var(--color-paper); }
+.viol-red { background-color: var(--color-red); color: var(--color-white); }
+.viol-shade { background-color: var(--color-paper-shade); color: var(--color-ink); box-shadow: inset 0 0 0 1px var(--rule); }
+.viol-crop { block-size: 7rem; }
+.viol-crop .t-display { font-size: 11rem; line-height: 0.8; white-space: nowrap; }
+.viol-cap { display: block; margin-block-start: 0.5rem; }
+
+/* ------------------------------------------------------------- compositions */
+
+/* A composition responds to ITS OWN width (container queries), so the same
+   component can be shown full-width and inside a 375px "phone" frame. */
+.comp { container-type: inline-size; }
+.comp-grid {
+  --cg: clamp(0.75rem, 2.2cqw, 1.75rem);
+  --cpad-x: clamp(1rem, 4cqw, 3.5rem);
+  --cpad-y: clamp(1.25rem, 3cqw, 2.5rem);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: var(--cg);
+  row-gap: clamp(1rem, 2.4cqw, 1.75rem);
+  padding: var(--cpad-y) var(--cpad-x) calc(var(--cpad-y) * 1.4);
+}
+.comp-grid > * { min-inline-size: 0; }
+
+.c-folio { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 1rem; padding-block-start: 0.6rem; border-block-start: 3px solid var(--on); }
+.c-head { grid-column: 1 / -1; position: relative; }
+.c-head .line { display: block; white-space: nowrap; }
+.c-head .rule-accent { display: block; inline-size: 3.5rem; block-size: 0.4rem; background-color: var(--accent-graphic); margin-block-end: 0.9rem; }
+.c-dek { grid-column: 1 / -1; max-inline-size: 30ch; }
+.c-fig { grid-column: 1 / -1; position: relative; }
+.c-fig figcaption { margin-block-start: 0.5rem; max-inline-size: 34ch; }
+.c-meta { grid-column: 1 / -1; display: grid; gap: 0.15rem; align-content: start; }
+.c-meta dt { color: var(--on-soft); }
+.c-meta dd { font-weight: 600; margin-block-end: 0.55rem; }
+.c-body { grid-column: 1 / -1; position: relative; }
+.c-body .cols > p + p { margin-block-start: 0.9em; }
+
+/* Headline fit, from measured widths: 9 of 12 columns is ~68.5% of the
+   composition width (wide); the full column is ~91.5% (stacked).
+   "BUILDS THINGS" is 4.923em: 68.5 / 4.923 = 13.9 and 91.5 / 4.923 = 18.6. */
+.c-head { --hf: 18.4; }
+.c-head .line { font-size: calc(var(--hf) * 1cqw); }
+
+@container (min-width: 44rem) {
+  .comp-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  .c-head { grid-column: 1 / span 9; --hf: 13.7; }
+  .c-fig { grid-column: 10 / span 3; grid-row: 2 / span 2; align-self: start; }
+  .c-dek { grid-column: 1 / span 6; }
+  .c-meta { grid-column: 1 / span 2; }
+  .c-body { grid-column: 3 / span 6; }
+}
+@container (min-width: 64rem) {
+  .c-body .cols { column-count: 2; column-gap: var(--cg); }
+  .c-body .cols > p { break-inside: avoid-column; }
+}
+@container (max-width: 43.99rem) { .c-fig { max-inline-size: 22rem; } }
+@container (max-width: 30rem) { .c-folio span:last-child { display: none; } }
+
+/* The marked-up version. The SLAB is tilted and torn; the TEXT never is.
+   Marks are anchored to a specific word or phrase (.mark-host), so they point
+   at something and move with it. */
+.slab { position: relative; }
+.slab-bg { position: absolute; inset: -0.9rem -1rem -1.4rem; }
+.slab-body { position: relative; }
+.mark-host { position: relative; display: inline-block; }
+.mark-circle { inset: -9% -7% -7% -6%; --mark-tilt: -2deg; }
+.mark-circle svg { inline-size: 100%; block-size: 100%; }
+.mark-underline { inset-inline: -2%; inset-block-end: -0.42em; block-size: 0.5em; --mark-tilt: 0.6deg; }
+.mark-underline svg { inline-size: 100%; block-size: 100%; }
+@container (min-width: 44rem) {
+  .comp-bleed .c-fig { margin-inline-end: calc(var(--cpad-x) * var(--chaos) * -1); }
+}
+
+/* Proof-sheet frame around a composition, with printer's corner marks. */
+.frame { position: relative; margin-block-start: 1rem; }
+.frame::before, .frame::after { content: ""; position: absolute; inline-size: 1.25rem; block-size: 1.25rem; border-color: var(--on); border-style: solid; pointer-events: none; }
+.frame::before { inset-block-start: -0.9rem; inset-inline-start: -0.9rem; border-width: 0 1px 1px 0; }
+.frame::after { inset-block-end: -0.9rem; inset-inline-end: -0.9rem; border-width: 1px 0 0 1px; }
+.phones { display: grid; gap: clamp(2rem, 5vw, 4rem); grid-template-columns: repeat(auto-fit, minmax(min(100%, 23.5rem), 1fr)); justify-items: center; }
+.phones > * { inline-size: 100%; max-inline-size: 375px; min-inline-size: 0; }
+.phone { outline: 1px solid var(--rule); outline-offset: 0.6rem; }
+.phone-label { text-align: center; margin-block-end: 1.25rem; }
+
+/* ---------------------------------------------------------------- materials */
+
+.tiles { display: grid; gap: clamp(1.5rem, 3vw, 2.5rem) var(--gutter); grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); }
+.tile { display: grid; gap: 0.75rem; align-content: start; min-inline-size: 0; }
+.tile-stage { position: relative; min-block-size: 11rem; padding: 1.25rem; display: grid; align-content: center; }
+.tile-stage.sunk { background-color: var(--color-white); box-shadow: inset 0 0 0 1px var(--rule); }
+.marks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem 1.5rem; }
+.marks .swatch-mark { display: block; inline-size: 100%; block-size: 3.25rem; color: var(--accent-graphic); }
+.marks svg { inline-size: 100%; block-size: 100%; display: block; }
+.temp-flag { display: inline-block; padding: 0.15rem 0.5rem; background-color: var(--color-ink); color: var(--color-paper); font-size: var(--t-meta); font-weight: 650; letter-spacing: 0.09em; text-transform: uppercase; justify-self: start; }
+
+.layers { inline-size: 100%; border-collapse: collapse; }
+.layers caption { text-align: start; padding-block-end: 0.5rem; }
+.layers th, .layers td { text-align: start; padding: 0.5rem 0.75rem 0.5rem 0; border-block-start: 1px solid var(--rule); vertical-align: baseline; }
+.layers td.num { font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* Grid overlay: show only as many columns as the current grid has. */
+.grid-demo .gcols span:nth-child(n + 5) { display: none; }
+@media (min-width: 48rem) { .grid-demo .gcols span:nth-child(-n + 8) { display: block; } }
+@media (min-width: 64rem) { .grid-demo .gcols span:nth-child(-n + 12) { display: block; } }
