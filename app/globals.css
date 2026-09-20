@@ -1,1 +1,591 @@
 @import "tailwindcss";
+
+/*
+ * MATTHEW BLANKE, ISSUE 001: visual foundation.
+ * Read docs/ART_DIRECTION.md before changing anything here.
+ *
+ * Structure
+ *   1. Theme tokens      palette, fonts (Tailwind @theme)
+ *   2. Design tokens     type roles, grid, spacing, layers, motion, chaos
+ *   3. Base              reset-on-top-of-preflight, focus, links, reading copy
+ *   4. Surfaces          paper / white / ink / red, semantic colors per surface
+ *   5. Grid              12 / 8 / 4 columns, bleed, crop
+ *   6. Controlled chaos  a few primitives, all multiplied by --chaos
+ *   7. Clean Copy        the one switch that zeroes the chaos
+ *
+ * Rules enforced by tests/design: no raw z-index outside this file, no raw hex
+ * outside this file, no `transition: all`, no Math.random for visible design.
+ */
+
+/* ------------------------------------------------------------------ 1. THEME */
+
+@theme {
+  /* Palette: warm paper + hard white + toner ink + one assertive red.
+     Project colors (Rankle, Plannr) are NOT global tokens; they belong to
+     their own spreads. The default Tailwind palette is left in place only
+     because the admin UI is authored with it; public pages must not use it. */
+  --color-paper: #f4f3ef;
+  --color-paper-shade: #e7e5dd;
+  --color-white: #ffffff;
+  --color-ink: #10100f;
+  --color-ink-soft: #5a5954;
+  --color-red: #d42a1e;
+  --color-red-deep: #a82016;
+}
+
+@theme inline {
+  --font-sans: var(--font-body-face), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ---------------------------------------------------------- 2. DESIGN TOKENS */
+
+:root {
+  color-scheme: light;
+
+  /* Font stacks. --font-body-face / --font-display-face are set by the
+     next/font classes on <html> (app/layout.tsx). */
+  --font-body: var(--font-body-face), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display-face, var(--font-body-face)), ui-sans-serif, system-ui, sans-serif;
+
+  /* Type. rem so user font-size settings are respected; fluid only for display
+     and headings. Body stays fixed. */
+  --t-body: 1.0625rem;
+  --t-small: 0.9375rem;
+  --t-caption: 0.8125rem;
+  --t-meta: 0.75rem;
+  --t-lede: clamp(1.25rem, 1.02rem + 0.95vw, 1.75rem);
+  --t-head-3: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+  --t-head-2: clamp(1.75rem, 1.2rem + 2.2vw, 3rem);
+  --t-head-1: clamp(2.5rem, 1rem + 6vw, 6.25rem);
+  --t-display-s: clamp(2.75rem, 1.2rem + 7vw, 6.25rem);
+  --t-display-m: clamp(3.75rem, 1rem + 13vw, 11rem);
+  --t-display-l: clamp(5rem, 1rem + 22vw, 19rem);
+  --measure: 64ch;
+
+  /* Grid. Columns change with the viewport; margin and gutter are fluid. */
+  --cols: 4;
+  --margin: clamp(1rem, 4.2vw, 4.5rem);
+  --gutter: clamp(0.75rem, 1.7vw, 1.75rem);
+  --frame: 90rem;
+
+  /* Vertical rhythm. One 8px unit; sections breathe more than paragraphs. */
+  --rhythm: 0.5rem;
+  --space-section-s: clamp(3rem, 6vw, 5rem);
+  --space-section-m: clamp(4rem, 9vw, 8rem);
+  --space-section-l: clamp(6rem, 14vw, 13rem);
+
+  /* Layers. The ONLY z-index values in the codebase. Use .layer-* inside a
+     .stage (which isolates a stacking context) so they never leak. */
+  --layer-ground: 0;
+  --layer-paper: 10;
+  --layer-type-back: 20;
+  --layer-subject: 30;
+  --layer-type-front: 40;
+  --layer-collage: 50;
+  --layer-annotation: 60;
+  --layer-grain: 70;
+  --layer-navigation: 80;
+  --layer-cursor: 90;
+  --layer-modal: 100;
+
+  /* Motion. Two easings, four durations. Reduced motion zeroes the durations. */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-instant: 90ms;
+  --dur-quick: 160ms;
+  --dur-base: 280ms;
+  --dur-slow: 480ms;
+
+  /* Controlled chaos. Every rotation, nudge and overlap is multiplied by
+     --chaos, so Clean Copy is one variable set to 0. */
+  --chaos: 1;
+  --tilt-1: 0.8deg; /* block: barely off-axis */
+  --tilt-2: 1.6deg; /* block: clearly deliberate */
+  --tilt-3: 3deg; /* tape, tags */
+  --tilt-4: 6deg; /* stickers */
+  --nudge-1: 0.25rem;
+  --nudge-2: 0.625rem;
+  --nudge-3: 1.25rem;
+  --overlap-1: 1rem;
+  --overlap-2: 2.5rem;
+  --overlap-3: 5rem;
+
+  /* Focus, and default (paper) surface semantics; .surface-* rebinds these. */
+  --surface: var(--color-paper);
+  --on: var(--color-ink);
+  --on-soft: var(--color-ink-soft);
+  --accent: var(--color-red);
+  --accent-graphic: var(--color-red);
+  --rule: color-mix(in srgb, var(--color-ink) 22%, transparent);
+  --focus: var(--color-ink);
+
+  /* Display face: Big Shoulders Display (app/fonts/display.ts).
+     Measured advance widths, in em, at weight 800 and -0.01em tracking, for
+     fitting a word to a column: BLANKE 2.546, MATTHEW 3.369,
+     MATTHEW BLANKE 6.121, BUILDS THINGS 4.923, PEOPLE USE. 4.093.
+     A word fills its container at font-size = 100 / width-em (cqw). */
+  --display-weight: 800;
+  --display-track: -0.01em;
+  --display-leading: 0.86;
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --cols: 8;
+  }
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --cols: 12;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-instant: 0.01ms;
+    --dur-quick: 0.01ms;
+    --dur-base: 0.01ms;
+    --dur-slow: 0.01ms;
+  }
+}
+
+/* ------------------------------------------------------------------- 3. BASE */
+
+@layer base {
+  html {
+    font-family: var(--font-body);
+    font-size: 100%;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-size: var(--t-body);
+    line-height: 1.55;
+    font-kerning: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Touch: no double-tap-zoom delay on controls; a deliberate, subtle tap tint. */
+  html { -webkit-tap-highlight-color: color-mix(in srgb, var(--color-ink) 10%, transparent); }
+  :where(a, button, summary, [role="button"]) { touch-action: manipulation; }
+
+  ::selection {
+    background-color: var(--color-ink);
+    color: var(--color-paper);
+  }
+
+  /* Emphasis without a synthesized italic: italic is not loaded yet. */
+  em,
+  i {
+    font-style: normal;
+    font-weight: 650;
+  }
+
+  /* Visible focus everywhere, bound to the surface it sits on. */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  a {
+    color: inherit;
+    text-decoration-line: underline;
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.2em;
+    text-decoration-color: currentColor;
+    transition:
+      color var(--dur-quick) var(--ease-out),
+      text-decoration-color var(--dur-quick) var(--ease-out);
+  }
+
+  a:hover {
+    color: var(--accent);
+    text-decoration-color: var(--accent);
+  }
+}
+
+/* Skip link: first tab stop on public pages. */
+.skip-link {
+  position: absolute;
+  inset-block-start: 0.75rem;
+  inset-inline-start: 0.75rem;
+  z-index: var(--layer-modal);
+  padding: 0.75rem 1rem;
+  background-color: var(--color-ink);
+  color: var(--color-paper);
+  font-weight: 650;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: none;
+  outline: 3px solid var(--color-red);
+  outline-offset: 2px;
+}
+
+/* Type roles. Display roles are uppercase, tight, and use the display face;
+   everything else is Schibsted Grotesk. */
+@layer components {
+  .t-display {
+    font-family: var(--display-family, var(--font-display));
+    font-variation-settings: var(--display-vars, normal);
+    font-weight: var(--display-weight);
+    text-transform: uppercase;
+    letter-spacing: var(--display-track);
+    line-height: var(--display-leading);
+    font-kerning: normal;
+    text-wrap: balance;
+  }
+  .t-display-s { font-size: var(--t-display-s); }
+  .t-display-m { font-size: var(--t-display-m); }
+  .t-display-l { font-size: var(--t-display-l); }
+
+  .t-head-1,
+  .t-head-2,
+  .t-head-3 {
+    font-family: var(--font-body);
+    text-wrap: balance;
+    font-kerning: normal;
+  }
+  .t-head-1 { font-size: var(--t-head-1); font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+  .t-head-2 { font-size: var(--t-head-2); font-weight: 750; letter-spacing: -0.025em; line-height: 1.06; }
+  .t-head-3 { font-size: var(--t-head-3); font-weight: 700; letter-spacing: -0.015em; line-height: 1.2; }
+
+  .t-lede { font-size: var(--t-lede); font-weight: 500; line-height: 1.32; letter-spacing: -0.01em; text-wrap: pretty; }
+  .t-body { font-size: var(--t-body); font-weight: 400; line-height: 1.55; text-wrap: pretty; }
+  .t-small { font-size: var(--t-small); font-weight: 400; line-height: 1.5; }
+  .t-caption { font-size: var(--t-caption); font-weight: 450; line-height: 1.4; }
+
+  /* Folios, credits, plate numbers: the one place uppercase + tracking is used
+     for small text, because it is a print convention here, not decoration. */
+  .t-meta {
+    font-size: var(--t-meta);
+    font-weight: 650;
+    letter-spacing: 0.09em;
+    line-height: 1.3;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .t-soft { color: var(--on-soft); }
+  .measure { max-inline-size: var(--measure); }
+
+  /* Long-form reading. Applied to public page <main> and reading blocks. */
+  .copy { max-inline-size: var(--measure); }
+  .copy > * + * { margin-block-start: 1em; }
+  .copy > :first-child { margin-block-start: 0; }
+  .copy h1 { font-size: var(--t-head-1); font-weight: 800; letter-spacing: -0.03em; line-height: 1; text-wrap: balance; }
+  .copy h2 { font-size: var(--t-head-2); font-weight: 750; letter-spacing: -0.025em; line-height: 1.06; text-wrap: balance; margin-block-start: 1.6em; }
+  .copy h3 { font-size: var(--t-head-3); font-weight: 700; letter-spacing: -0.015em; line-height: 1.2; margin-block-start: 1.4em; }
+  .copy ul,
+  .copy ol { padding-inline-start: 1.25em; }
+  .copy ul { list-style: disc; }
+  .copy ol { list-style: decimal; }
+  .copy li + li { margin-block-start: 0.35em; }
+  .copy p { text-wrap: pretty; }
+
+  /* Controls. Square, ink or red, 44px minimum. No rounded corners, no shadows. */
+  .btn,
+  .btn-quiet {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-block-size: 2.75rem;
+    padding-inline: 1.25rem;
+    font-size: var(--t-small);
+    font-weight: 650;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    border: 2px solid var(--on);
+    cursor: pointer;
+    transition:
+      background-color var(--dur-quick) var(--ease-out),
+      color var(--dur-quick) var(--ease-out),
+      border-color var(--dur-quick) var(--ease-out);
+  }
+  .btn { background-color: var(--color-red); border-color: var(--color-red); color: var(--color-white); }
+  .btn:hover { background-color: var(--color-red-deep); border-color: var(--color-red-deep); color: var(--color-white); }
+  .btn-quiet { background-color: transparent; color: var(--on); }
+  .btn-quiet:hover { background-color: var(--on); color: var(--surface); }
+  .btn[aria-pressed="true"],
+  .btn-quiet[aria-pressed="true"] { background-color: var(--on); color: var(--surface); border-color: var(--on); }
+}
+
+/* -------------------------------------------------------------- 4. SURFACES */
+
+@layer components {
+  .surface-paper,
+  .surface-white,
+  .surface-ink,
+  .surface-red {
+    background-color: var(--surface);
+    color: var(--on);
+  }
+
+  .surface-paper {
+    --surface: var(--color-paper);
+    --on: var(--color-ink);
+    --on-soft: var(--color-ink-soft);
+    --accent: var(--color-red);
+    --accent-graphic: var(--color-red);
+    --rule: color-mix(in srgb, var(--color-ink) 22%, transparent);
+    --focus: var(--color-ink);
+  }
+  .surface-white {
+    --surface: var(--color-white);
+    --on: var(--color-ink);
+    --on-soft: var(--color-ink-soft);
+    --accent: var(--color-red);
+    --accent-graphic: var(--color-red);
+    --rule: color-mix(in srgb, var(--color-ink) 22%, transparent);
+    --focus: var(--color-ink);
+  }
+  /* Red on ink is only 3.76:1: fine for rules, marks and large type, never for
+     small text. Text accents on ink therefore fall back to paper. */
+  .surface-ink {
+    --surface: var(--color-ink);
+    --on: var(--color-paper);
+    --on-soft: color-mix(in srgb, var(--color-paper) 72%, var(--color-ink));
+    --accent: var(--color-paper);
+    --accent-graphic: var(--color-red);
+    --rule: color-mix(in srgb, var(--color-paper) 30%, transparent);
+    --focus: var(--color-paper);
+  }
+  .surface-red {
+    --surface: var(--color-red);
+    --on: var(--color-white);
+    --on-soft: color-mix(in srgb, var(--color-white) 86%, var(--color-red));
+    --accent: var(--color-white);
+    --accent-graphic: var(--color-ink);
+    --rule: color-mix(in srgb, var(--color-white) 45%, transparent);
+    --focus: var(--color-white);
+  }
+
+  .rule-t { border-block-start: 1px solid var(--rule); }
+  .rule-b { border-block-end: 1px solid var(--rule); }
+  .rule-heavy { border-block-start: 3px solid var(--on); }
+}
+
+/* ------------------------------------------------------------------ 5. GRID */
+
+@layer components {
+  /* 12 columns >= 1024px, 8 >= 768px, 4 below. Place items with Tailwind's
+     col-span-* / col-start-* (never arbitrary column values). */
+  .page-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    column-gap: var(--gutter);
+    padding-inline: var(--margin);
+    max-inline-size: calc(var(--frame) + var(--margin) * 2);
+    margin-inline: auto;
+  }
+
+  /* A single-column frame with the page margins: for pages that are not yet
+     composed on the 12-column grid (the barebones public pages). */
+  .page-frame {
+    padding-inline: var(--margin);
+    padding-block: var(--space-section-s);
+    max-inline-size: calc(var(--frame) + var(--margin) * 2);
+    margin-inline: auto;
+  }
+  nav.page-frame { padding-block: 0.75rem; }
+  nav.page-frame a { display: inline-flex; align-items: center; min-block-size: 2.75rem; }
+
+  .section-s { padding-block: var(--space-section-s); }
+  .section-m { padding-block: var(--space-section-m); }
+  .section-l { padding-block: var(--space-section-l); }
+
+  /* Grid violation 1: BLEED. Runs to the viewport edge from inside the grid. */
+  .bleed-start { margin-inline-start: calc(var(--margin) * var(--chaos) * -1); }
+  .bleed-end { margin-inline-end: calc(var(--margin) * var(--chaos) * -1); }
+  .bleed-x { margin-inline: calc(var(--margin) * var(--chaos) * -1); }
+
+  /* Grid violation 3: CROP. A fixed frame; the picture is cut to fit it. */
+  .crop { position: relative; overflow: clip; }
+  .crop > img,
+  .crop > .crop-fill { inline-size: 100%; block-size: 100%; object-fit: cover; object-position: var(--crop-x, 50%) var(--crop-y, 50%); }
+  .crop-portrait { aspect-ratio: 4 / 5; }
+  .crop-tall { aspect-ratio: 2 / 3; }
+  .crop-wide { aspect-ratio: 16 / 10; }
+  .crop-strip { aspect-ratio: 3 / 1; }
+}
+
+/* ------------------------------------------------- 6. CONTROLLED CHAOS (tiny) */
+
+/* A composition is a .stage: a stacking context, so .layer-* never leaks. */
+@layer components {
+  .stage { position: relative; isolation: isolate; }
+  .layer-ground { position: relative; z-index: var(--layer-ground); }
+  .layer-paper { position: relative; z-index: var(--layer-paper); }
+  .layer-type-back { position: relative; z-index: var(--layer-type-back); }
+  .layer-subject { position: relative; z-index: var(--layer-subject); }
+  .layer-type-front { position: relative; z-index: var(--layer-type-front); }
+  .layer-collage { position: relative; z-index: var(--layer-collage); }
+  .layer-annotation { position: relative; z-index: var(--layer-annotation); }
+  .layer-grain { position: relative; z-index: var(--layer-grain); }
+  .layer-navigation { position: relative; z-index: var(--layer-navigation); }
+  .layer-cursor { position: relative; z-index: var(--layer-cursor); }
+  .layer-modal { position: relative; z-index: var(--layer-modal); }
+
+  /* Grid violation 4: SLIGHT ROTATION. Named steps only, both directions. */
+  .tilt-cw-1 { rotate: calc(var(--tilt-1) * var(--chaos)); }
+  .tilt-ccw-1 { rotate: calc(var(--tilt-1) * var(--chaos) * -1); }
+  .tilt-cw-2 { rotate: calc(var(--tilt-2) * var(--chaos)); }
+  .tilt-ccw-2 { rotate: calc(var(--tilt-2) * var(--chaos) * -1); }
+  .tilt-cw-3 { rotate: calc(var(--tilt-3) * var(--chaos)); }
+  .tilt-ccw-3 { rotate: calc(var(--tilt-3) * var(--chaos) * -1); }
+  .tilt-cw-4 { rotate: calc(var(--tilt-4) * var(--chaos)); }
+  .tilt-ccw-4 { rotate: calc(var(--tilt-4) * var(--chaos) * -1); }
+
+  /* Deterministic offsets. Fixed steps in each direction; never computed. */
+  .nudge-r-1 { translate: calc(var(--nudge-1) * var(--chaos)) 0; }
+  .nudge-r-2 { translate: calc(var(--nudge-2) * var(--chaos)) 0; }
+  .nudge-r-3 { translate: calc(var(--nudge-3) * var(--chaos)) 0; }
+  .nudge-l-1 { translate: calc(var(--nudge-1) * var(--chaos) * -1) 0; }
+  .nudge-l-2 { translate: calc(var(--nudge-2) * var(--chaos) * -1) 0; }
+  .nudge-l-3 { translate: calc(var(--nudge-3) * var(--chaos) * -1) 0; }
+  .nudge-d-1 { translate: 0 calc(var(--nudge-1) * var(--chaos)); }
+  .nudge-d-2 { translate: 0 calc(var(--nudge-2) * var(--chaos)); }
+  .nudge-d-3 { translate: 0 calc(var(--nudge-3) * var(--chaos)); }
+  .nudge-u-1 { translate: 0 calc(var(--nudge-1) * var(--chaos) * -1); }
+  .nudge-u-2 { translate: 0 calc(var(--nudge-2) * var(--chaos) * -1); }
+  .nudge-u-3 { translate: 0 calc(var(--nudge-3) * var(--chaos) * -1); }
+
+  /* Grid violation 2: OVERLAP. Pull an element up over the one before it. */
+  .overlap-t-1 { margin-block-start: calc(var(--overlap-1) * var(--chaos) * -1); }
+  .overlap-t-2 { margin-block-start: calc(var(--overlap-2) * var(--chaos) * -1); }
+  .overlap-t-3 { margin-block-start: calc(var(--overlap-3) * var(--chaos) * -1); }
+  .overlap-l-1 { margin-inline-start: calc(var(--overlap-1) * var(--chaos) * -1); }
+  .overlap-l-2 { margin-inline-start: calc(var(--overlap-2) * var(--chaos) * -1); }
+  .overlap-l-3 { margin-inline-start: calc(var(--overlap-3) * var(--chaos) * -1); }
+}
+
+/* Torn paper: TEMPORARY vector edges (seeded once, committed as numbers). They
+   stand in for scanned edges from a later real-asset milestone. */
+:root {
+  --torn: 0.9rem;
+  /* torn-bottom-a */
+  --torn-bottom-a: polygon(0 0, 100% 0, 100.0% calc(100% - var(--torn) * 0.08), 97.2% calc(100% - var(--torn) * 0.21), 94.4% calc(100% - var(--torn) * 0.28), 91.7% calc(100% - var(--torn) * 0.08), 88.9% calc(100% - var(--torn) * 0.18), 86.1% calc(100% - var(--torn) * 0.06), 83.3% calc(100% - var(--torn) * 0.33), 80.6% calc(100% - var(--torn) * 0.24), 77.8% calc(100% - var(--torn) * 0.44), 75.0% calc(100% - var(--torn) * 0.54), 72.2% calc(100% - var(--torn) * 0.38), 69.4% calc(100% - var(--torn) * 0.58), 66.7% calc(100% - var(--torn) * 0.37), 63.9% calc(100% - var(--torn) * 0.82), 61.1% calc(100% - var(--torn) * 0.7), 58.3% calc(100% - var(--torn) * 0.8), 55.6% calc(100% - var(--torn) * 0.61), 52.8% calc(100% - var(--torn) * 0.64), 50.0% calc(100% - var(--torn) * 0.76), 47.2% calc(100% - var(--torn) * 0.67), 44.4% calc(100% - var(--torn) * 1), 41.7% calc(100% - var(--torn) * 1), 38.9% calc(100% - var(--torn) * 1), 36.1% calc(100% - var(--torn) * 1), 33.3% calc(100% - var(--torn) * 1), 30.6% calc(100% - var(--torn) * 1), 27.8% calc(100% - var(--torn) * 0.99), 25.0% calc(100% - var(--torn) * 0.77), 22.2% calc(100% - var(--torn) * 0.56), 19.4% calc(100% - var(--torn) * 0.63), 16.7% calc(100% - var(--torn) * 0.58), 13.9% calc(100% - var(--torn) * 0.4), 11.1% calc(100% - var(--torn) * 0.52), 8.3% calc(100% - var(--torn) * 0.72), 5.6% calc(100% - var(--torn) * 0.4), 2.8% calc(100% - var(--torn) * 0.18), 0.0% calc(100% - var(--torn) * 0.38));
+  /* torn-bottom-b */
+  --torn-bottom-b: polygon(0 0, 100% 0, 100.0% calc(100% - var(--torn) * 0.11), 97.2% calc(100% - var(--torn) * 0.06), 94.4% calc(100% - var(--torn) * 0.06), 91.7% calc(100% - var(--torn) * 0.06), 88.9% calc(100% - var(--torn) * 0.29), 86.1% calc(100% - var(--torn) * 0.06), 83.3% calc(100% - var(--torn) * 0.06), 80.6% calc(100% - var(--torn) * 0.06), 77.8% calc(100% - var(--torn) * 0.06), 75.0% calc(100% - var(--torn) * 0.06), 72.2% calc(100% - var(--torn) * 0.06), 69.4% calc(100% - var(--torn) * 0.07), 66.7% calc(100% - var(--torn) * 0.06), 63.9% calc(100% - var(--torn) * 0.32), 61.1% calc(100% - var(--torn) * 0.41), 58.3% calc(100% - var(--torn) * 0.53), 55.6% calc(100% - var(--torn) * 0.73), 52.8% calc(100% - var(--torn) * 0.96), 50.0% calc(100% - var(--torn) * 1), 47.2% calc(100% - var(--torn) * 1), 44.4% calc(100% - var(--torn) * 0.9), 41.7% calc(100% - var(--torn) * 1), 38.9% calc(100% - var(--torn) * 0.89), 36.1% calc(100% - var(--torn) * 1), 33.3% calc(100% - var(--torn) * 1), 30.6% calc(100% - var(--torn) * 1), 27.8% calc(100% - var(--torn) * 1), 25.0% calc(100% - var(--torn) * 1), 22.2% calc(100% - var(--torn) * 1), 19.4% calc(100% - var(--torn) * 1), 16.7% calc(100% - var(--torn) * 0.96), 13.9% calc(100% - var(--torn) * 1), 11.1% calc(100% - var(--torn) * 0.9), 8.3% calc(100% - var(--torn) * 1), 5.6% calc(100% - var(--torn) * 0.63), 2.8% calc(100% - var(--torn) * 0.47), 0.0% calc(100% - var(--torn) * 0.7));
+  /* torn-top-a */
+  --torn-top-a: polygon(0 100%, 100% 100%, 100.0% calc(var(--torn) * 0.08), 97.2% calc(var(--torn) * 0.21), 94.4% calc(var(--torn) * 0.28), 91.7% calc(var(--torn) * 0.08), 88.9% calc(var(--torn) * 0.18), 86.1% calc(var(--torn) * 0.06), 83.3% calc(var(--torn) * 0.33), 80.6% calc(var(--torn) * 0.24), 77.8% calc(var(--torn) * 0.44), 75.0% calc(var(--torn) * 0.54), 72.2% calc(var(--torn) * 0.38), 69.4% calc(var(--torn) * 0.58), 66.7% calc(var(--torn) * 0.37), 63.9% calc(var(--torn) * 0.82), 61.1% calc(var(--torn) * 0.7), 58.3% calc(var(--torn) * 0.8), 55.6% calc(var(--torn) * 0.61), 52.8% calc(var(--torn) * 0.64), 50.0% calc(var(--torn) * 0.76), 47.2% calc(var(--torn) * 0.67), 44.4% calc(var(--torn) * 1), 41.7% calc(var(--torn) * 1), 38.9% calc(var(--torn) * 1), 36.1% calc(var(--torn) * 1), 33.3% calc(var(--torn) * 1), 30.6% calc(var(--torn) * 1), 27.8% calc(var(--torn) * 0.99), 25.0% calc(var(--torn) * 0.77), 22.2% calc(var(--torn) * 0.56), 19.4% calc(var(--torn) * 0.63), 16.7% calc(var(--torn) * 0.58), 13.9% calc(var(--torn) * 0.4), 11.1% calc(var(--torn) * 0.52), 8.3% calc(var(--torn) * 0.72), 5.6% calc(var(--torn) * 0.4), 2.8% calc(var(--torn) * 0.18), 0.0% calc(var(--torn) * 0.38));
+}
+
+@layer components {
+  .torn-bottom-a { clip-path: var(--torn-bottom-a); padding-block-end: var(--torn); }
+  .torn-bottom-b { clip-path: var(--torn-bottom-b); padding-block-end: var(--torn); }
+  .torn-top-a { clip-path: var(--torn-top-a); padding-block-start: var(--torn); }
+
+  /* Paper that sits on paper: the darker sheet, with a hairline edge. */
+  .paper-shade { background-color: var(--color-paper-shade); color: var(--color-ink); }
+
+  /* Restrained tape: one strip, one place. Pure CSS, decorative. */
+  .tape { position: relative; }
+  .tape::before {
+    content: "";
+    position: absolute;
+    inset-block-start: -0.8rem;
+    inset-inline-start: 50%;
+    inline-size: 5.75rem;
+    block-size: 1.6rem;
+    translate: -50% 0;
+    rotate: calc(-3deg * var(--chaos));
+    z-index: var(--layer-collage);
+    background-color: color-mix(in srgb, var(--color-white) 62%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-ink) 16%, transparent);
+    clip-path: polygon(0 12%, 4% 0, 8% 14%, 12% 2%, 100% 2%, 96% 18%, 100% 34%, 95% 50%, 100% 66%, 96% 82%, 100% 98%, 12% 98%, 8% 86%, 4% 100%, 0 88%, 3% 70%, 0 52%, 4% 34%);
+  }
+
+  /* Photocopy grain: a tiny SVG turbulence tile, multiplied onto one surface. */
+  .grain { position: relative; }
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: var(--layer-grain);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 160px 160px;
+    mix-blend-mode: multiply;
+    opacity: 0.22;
+  }
+
+  /* Halftone: a dot screen for image treatment, ink on paper. */
+  .halftone { position: relative; }
+  .halftone::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: radial-gradient(circle at center, var(--color-ink) 0 0.85px, transparent 1.25px);
+    background-size: 5px 5px;
+    mix-blend-mode: multiply;
+    opacity: 0.32;
+  }
+
+  /* Image treatment for real photographs later: high-contrast photocopy. */
+  .photocopy { filter: grayscale(1) contrast(1.4) brightness(1.02); mix-blend-mode: multiply; }
+
+  /* Annotation layer: marks sit above everything but never take clicks. They
+     are decoration. Anything they "say" must also exist as real text. */
+  .annotation {
+    position: absolute;
+    z-index: var(--layer-annotation);
+    pointer-events: none;
+    color: var(--accent-graphic);
+    rotate: calc(var(--mark-tilt, 0deg) * var(--chaos));
+  }
+  .annotation svg { display: block; overflow: visible; }
+}
+
+/* Image placeholder: obviously temporary. Not a photograph, not a portrait. */
+@layer components {
+  .placeholder {
+    position: relative;
+    display: grid;
+    place-items: center;
+    background-color: var(--color-paper-shade);
+    background-image:
+      linear-gradient(to top right, transparent calc(50% - 0.5px), color-mix(in srgb, var(--color-ink) 28%, transparent) 50%, transparent calc(50% + 0.5px)),
+      linear-gradient(to bottom right, transparent calc(50% - 0.5px), color-mix(in srgb, var(--color-ink) 28%, transparent) 50%, transparent calc(50% + 0.5px));
+    color: var(--color-ink-soft);
+  }
+  .placeholder > span {
+    padding: 0.35rem 0.6rem;
+    background-color: var(--color-paper);
+    font-size: var(--t-meta);
+    font-weight: 650;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+}
+
+/* ----------------------------------------------------------- 7. CLEAN COPY */
+
+/* One switch: html[data-copy="clean"]. Zeroes the chaos multiplier, removes
+   nonessential ornament, straightens torn edges. Every word, image and control
+   stays. Set before first paint by the inline script in app/layout.tsx. */
+:root[data-copy="clean"] {
+  --chaos: 0;
+}
+
+:root[data-copy="clean"] .ornament,
+:root[data-copy="clean"] .tape::before,
+:root[data-copy="clean"] .grain::after,
+:root[data-copy="clean"] .halftone::after {
+  display: none;
+}
+
+:root[data-copy="clean"] .torn-bottom-a,
+:root[data-copy="clean"] .torn-bottom-b,
+:root[data-copy="clean"] .torn-top-a {
+  clip-path: none;
+}
+
+:root[data-copy="clean"] .photocopy { filter: none; mix-blend-mode: normal; }

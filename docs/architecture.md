@@ -6,7 +6,7 @@ Personal portfolio website showcasing my projects, technical experience, and cou
 
 ## Overview
 
-This is a full-stack personal portfolio site deployed on Vercel, backed by Convex for the database layer, and protected by WorkOS for authentication. The site features a CSS token-based design system with light/dark mode support, dynamically generated OG images, and a fully automated CI/CD pipeline. Feature development is AI-assisted via Claude Code, with Greptile providing automated code review before any changes reach `main`.
+This is a full-stack personal portfolio site deployed on Vercel, backed by Convex for the database layer, and protected by WorkOS for authentication. The site features a CSS token-based editorial design system (one light theme plus a Clean Copy preference), dynamically generated OG images, and a fully automated CI/CD pipeline. Feature development is AI-assisted via Claude Code, with Greptile providing automated code review before any changes reach `main`.
 
 ---
 
@@ -32,64 +32,48 @@ This is a full-stack personal portfolio site deployed on Vercel, backed by Conve
 ├── app/                    # Next.js App Router pages and layouts
 │   ├── (public)/           # Unauthenticated routes (portfolio, about, projects)
 │   ├── (admin)/            # Authenticated routes (content management)
-│   ├── globals.css         # Design tokens, theme variables, typography
-│   ├── layout.tsx          # Root layout with theme provider and auth wrapper
-│   ├── favicon.tsx         # SVG favicon generation (32×32 with initials)
+│   ├── proof/              # Internal proof sheet (404 on production)
+│   ├── fonts/              # Self-hosted variable fonts + next/font/local modules
+│   ├── globals.css         # Every design token and primitive (see ART_DIRECTION.md)
+│   ├── layout.tsx          # Root layout: fonts, global CSS, Clean Copy pre-paint script
+│   ├── favicon.ico         # Static favicon
 │   ├── opengraph-image.tsx # Static OG image for home page
 │   └── robots.ts           # SEO robots config, sitemap reference
-├── components/             # Shared React components (nav, theme toggle, etc.)
-├── lib/                    # Utility functions and shared logic
+├── components/             # Shared React components (design marks, Clean Copy toggle, admin UI)
+├── lib/                    # Site constants, admin access rules, lib/design (palette, contrast, seed)
 ├── convex/                 # All database logic — functions, schema, migrations
 │   ├── schema.ts           # Single source of truth for data model
 │   ├── migrations/         # Migration functions for destructive schema changes
 │   └── *.ts                # Query and mutation functions
+├── tests/                  # convex/ (authorization), lib/ (access rules), design/ (design guards)
+├── docs/                   # Architecture, PRD, ART_DIRECTION.md
 ├── public/                 # Static assets
 └── .github/
-    └── workflows/
-        └── deploy.yml      # Merge-to-main deployment pipeline
+    └── workflows/          # ci.yml (verify) and deploy.yml (gated production deploy)
 ```
 
 ---
 
 ## Design System
 
-The portfolio uses a **CSS custom property (token) system** for colors, typography, and transitions. This enables seamless theme switching and maintains consistent design across all components.
+The visual foundation is documented in **[docs/ART_DIRECTION.md](ART_DIRECTION.md)**, which is the source of truth for any public-facing visual decision. In short:
 
-**Colors (light mode defaults):**
-- `--color-bg: #ffffff` — Page background
-- `--color-bg-subtle: #f9fafb` — Subtle background (cards, inputs)
-- `--color-fg: #111827` — Primary text
-- `--color-fg-muted: #52525b` — Secondary text
-- `--color-fg-subtle: #a1a1aa` — Tertiary text
-- `--color-border: #f4f4f5` — Default borders
-- `--color-border-hover: #e4e4e7` — Hover border state
-- `--color-badge-bg: #f4f4f5` — Badge backgrounds
-- `--color-badge-fg: #3f3f46` — Badge text
+- **Tokens and primitives** live in one file, `app/globals.css`: palette (paper, hard white, ink, one red), type roles, the 12/8/4-column grid, the layer stack, motion tokens, and a small set of controlled-chaos utilities that are all scaled by a single `--chaos` variable.
+- **Fonts** are self-hosted variable woff2 files loaded with `next/font/local` (`app/fonts/`): Schibsted Grotesk carries body, UI and most hierarchy; Big Shoulders Display is a display instrument for mastheads, major section titles and oversized statements, not the default heading face.
+- **Clean Copy** is one attribute, `html[data-copy="clean"]`, set before first paint by an inline script in `app/layout.tsx`. It zeroes `--chaos` and hides decoration; content is untouched. It is infrastructure only: whether it becomes a visitor-facing control is undecided and deferred until real compositions exist. There is one theme (no dark mode).
+- **The proof sheet** at `/proof` renders the system (type, grid, color with computed contrast, materials, a clean and a marked-up composition). It is available locally and on Vercel previews and returns 404 on the production deployment.
+- **Guards** in `tests/design` enforce the rules that are easy to break by accident: no `Math.random()` for visible design, no `transition: all`, no raw z-index or hex outside the token file, no off-palette Tailwind colors on public code.
 
-**Typography:**
-- `--font-sans` — Main UI font (Geist Sans via Next.js)
-- `--font-mono` — Code font (Geist Mono)
-
-**Transitions:**
-- `--transition-fast: 150ms ease` — Hover states, brief interactions
-- `--transition-base: 200ms ease` — Page transitions, modal opens
-
-**Theme Implementation:**
-- Light/dark colors are defined in `app/globals.css` with both `@media (prefers-color-scheme: dark)` for system preference and `[data-theme='dark']` / `[data-theme='light']` for explicit selection
-- `ThemeProvider` component initializes theme from `localStorage` or system preference
-- `ThemeToggle` button (sun/moon icon) in navigation allows manual switching
-- All tokens are exposed to Tailwind via `@theme inline` block, enabling utility classes like `text-fg`, `bg-bg-subtle`, etc.
+Tailwind CSS v4 is loaded through `app/globals.css` (imported in the root layout). The default Tailwind palette remains only because the admin UI is authored with it.
 
 ---
 
 ## Features
 
-### Light/Dark Mode
-- Auto-detects system preference on first visit
-- Manual toggle via sun/moon icon in navigation
-- Selection persists to localStorage
-- All colors automatically adjust via CSS variables
-- Mobile menu animates smoothly with `motion-reduce:transition-none` support
+### Single theme, plus Clean Copy
+- One light theme: warm paper ground, near-black ink, one red accent
+- No dark mode or theme toggle. A **Clean Copy** preference (`html[data-copy="clean"]`, persisted in `localStorage`) removes rotation, tape, grain, halftone, marks and torn edges without changing any content
+- Both are applied before first paint, so there is no flash
 
 ### Open Graph Images
 Dynamic OG images are generated server-side using Next.js `ImageResponse`:
