@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { ContentFrame, PageFrame } from "@/components/shell/page";
+import { TAGLINE } from "@/lib/site";
 
 export const metadata = {
   title: "Matt Blanke",
@@ -6,18 +7,15 @@ export const metadata = {
   alternates: { canonical: "/" },
 };
 
+// Intentionally sparse until the cover (M3). The masthead already carries the
+// contents, so the old link list is gone.
 export default function Home() {
   return (
-    <div>
-      <h1>Matt Blanke</h1>
-      <p>CS student and software engineer.</p>
-      <ul>
-        <li><Link href="/projects">Projects</Link></li>
-        <li><Link href="/experience">Experience</Link></li>
-        <li><Link href="/coursework">Coursework</Link></li>
-        <li><Link href="/about">About</Link></li>
-        <li><a href="/admin">Admin</a></li>
-      </ul>
-    </div>
+    <PageFrame>
+      <ContentFrame>
+        <h1>Matt Blanke</h1>
+        <p>{TAGLINE}</p>
+      </ContentFrame>
+    </PageFrame>
   );
 }

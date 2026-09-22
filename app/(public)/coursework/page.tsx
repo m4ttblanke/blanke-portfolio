@@ -1,5 +1,6 @@
 import { fetchQuery } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
+import { ContentFrame, PageFrame, PageHeader } from "@/components/shell/page";
 
 export const metadata = {
   title: "Coursework — Matt Blanke",
@@ -11,24 +12,26 @@ export default async function CourseworkPage() {
   const coursework = await fetchQuery(api.coursework.listPublished);
 
   return (
-    <div>
-      <h1>Coursework</h1>
-
-      {coursework.length === 0 ? (
-        <p>Nothing published here yet.</p>
-      ) : (
-        <ul>
-          {coursework.map((course) => (
-            <li key={course._id}>
-              <strong>{course.title}</strong> — {course.institution}
-              <br />
-              {course.term}{course.grade && ` • Grade: ${course.grade}`}
-              <br />
-              {course.description}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+    <PageFrame>
+      <PageHeader section="resume" title="Coursework" path="/coursework" />
+      <ContentFrame>
+        {coursework.length === 0 ? (
+          <p>Nothing published here yet.</p>
+        ) : (
+          <ul>
+            {coursework.map((course) => (
+              <li key={course._id}>
+                <strong>{course.title}</strong> — {course.institution}
+                <br />
+                {course.term}
+                {course.grade && ` • Grade: ${course.grade}`}
+                <br />
+                {course.description}
+              </li>
+            ))}
+          </ul>
+        )}
+      </ContentFrame>
+    </PageFrame>
   );
 }

@@ -45,5 +45,6 @@ next-env.d.ts
 .claude/
 .agent/
 
-# M1 review screenshots (local artifacts)
+# Milestone review screenshots (local artifacts)
 /docs/m1-review/
+/docs/m2-review/

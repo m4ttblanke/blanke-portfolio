@@ -2,6 +2,7 @@ import Link from "next/link";
 import { fetchQuery } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
 import { notFound } from "next/navigation";
+import { ContentFrame, PageFrame, PageHeader } from "@/components/shell/page";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -29,23 +30,34 @@ export default async function ProjectDetailPage({ params }: Props) {
   }
 
   return (
-    <article>
-      <Link href="/projects">← Back to Projects</Link>
+    <PageFrame as="article">
+      <PageHeader section="work" title={project.title} />
+      <ContentFrame>
+        <Link href="/projects">← Back to Projects</Link>
 
-      <h1>{project.title}</h1>
-      <p>{project.startDate}{project.endDate && ` – ${project.endDate}`}</p>
-      <p>{project.description}</p>
+        <p>
+          {project.startDate}
+          {project.endDate && ` – ${project.endDate}`}
+        </p>
+        <p>{project.description}</p>
 
-      {project.stack.length > 0 && (
-        <p>Stack: {project.stack.join(", ")}</p>
-      )}
+        {project.stack.length > 0 && <p>Stack: {project.stack.join(", ")}</p>}
 
-      {project.repoUrl && (
-        <a href={project.repoUrl} target="_blank" rel="noopener noreferrer">View on GitHub →</a>
-      )}
-      {project.liveUrl && (
-        <> | <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">View Live Site →</a></>
-      )}
-    </article>
+        {project.repoUrl && (
+          <a href={project.repoUrl} target="_blank" rel="noopener noreferrer">
+            View on GitHub →
+          </a>
+        )}
+        {project.liveUrl && (
+          <>
+            {" "}
+            |{" "}
+            <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">
+              View Live Site →
+            </a>
+          </>
+        )}
+      </ContentFrame>
+    </PageFrame>
   );
 }
