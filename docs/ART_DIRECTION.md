@@ -488,3 +488,13 @@ and **never `redirect()` inside an admin page**.
   system: major compositions are art-directed by hand. Clean Copy stays as
   infrastructure; the public toggle is deferred. Global effects do not propagate
   into project spreads. Legacy public pages are not to be polished.
+- **M2 publication shell.** Built the permanent masthead, primary navigation,
+  page furniture and colophon (`components/shell/`). The public information
+  architecture moved from Home/Projects/Experience/Coursework/About/Sign in to
+  Work/File 001/Résumé/Contact, mapped onto the existing routes plus one new
+  one (`/contact`); Experience and Coursework are reached as Résumé's two
+  pages rather than staying top-level. Target was 85-90% editorial discipline:
+  the shell uses no display face, one red mark (the active-section square),
+  and one registration mark next to the issue number; nothing is sticky. The
+  legacy pages sit inside the shell with only a temporary folio/title entry —
+  their bodies are unchanged.

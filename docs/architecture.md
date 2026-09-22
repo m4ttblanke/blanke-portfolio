@@ -30,7 +30,7 @@ This is a full-stack personal portfolio site deployed on Vercel, backed by Conve
 ```
 /
 ├── app/                    # Next.js App Router pages and layouts
-│   ├── (public)/           # Unauthenticated routes (portfolio, about, projects)
+│   ├── (public)/           # Unauthenticated routes (portfolio, about, projects, contact)
 │   ├── (admin)/            # Authenticated routes (content management)
 │   ├── proof/              # Internal proof sheet (404 on production)
 │   ├── fonts/              # Self-hosted variable fonts + next/font/local modules
@@ -39,8 +39,11 @@ This is a full-stack personal portfolio site deployed on Vercel, backed by Conve
 │   ├── favicon.ico         # Static favicon
 │   ├── opengraph-image.tsx # Static OG image for home page
 │   └── robots.ts           # SEO robots config, sitemap reference
-├── components/             # Shared React components (design marks, Clean Copy toggle, admin UI)
-├── lib/                    # Site constants, admin access rules, lib/design (palette, contrast, seed)
+├── components/
+│   ├── shell/               # Publication shell (masthead, nav, page frame, colophon)
+│   ├── design/               # Design marks, Clean Copy toggle
+│   └── admin/                 # Admin UI
+├── lib/                    # Site constants, lib/shell (nav), lib/admin-access, lib/design (palette, contrast, seed)
 ├── convex/                 # All database logic — functions, schema, migrations
 │   ├── schema.ts           # Single source of truth for data model
 │   ├── migrations/         # Migration functions for destructive schema changes
@@ -62,6 +65,7 @@ The visual foundation is documented in **[docs/ART_DIRECTION.md](ART_DIRECTION.m
 - **Fonts** are self-hosted variable woff2 files loaded with `next/font/local` (`app/fonts/`): Schibsted Grotesk carries body, UI and most hierarchy; Big Shoulders Display is a display instrument for mastheads, major section titles and oversized statements, not the default heading face.
 - **Clean Copy** is one attribute, `html[data-copy="clean"]`, set before first paint by an inline script in `app/layout.tsx`. It zeroes `--chaos` and hides decoration; content is untouched. It is infrastructure only: whether it becomes a visitor-facing control is undecided and deferred until real compositions exist. There is one theme (no dark mode).
 - **The proof sheet** at `/proof` renders the system (type, grid, color with computed contrast, materials, a clean and a marked-up composition). It is available locally and on Vercel previews and returns 404 on the production deployment.
+- **The publication shell** (`components/shell/`) is the permanent public frame: masthead, primary navigation (`lib/shell/nav.ts` is the single source for the site's table of contents), page furniture (`PageFrame`/`PageHeader`/`ContentFrame`), and colophon. It is disciplined by design — almost no chaos primitives — so later milestones have something intact to disrupt.
 - **Guards** in `tests/design` enforce the rules that are easy to break by accident: no `Math.random()` for visible design, no `transition: all`, no raw z-index or hex outside the token file, no off-palette Tailwind colors on public code.
 
 Tailwind CSS v4 is loaded through `app/globals.css` (imported in the root layout). The default Tailwind palette remains only because the admin UI is authored with it.

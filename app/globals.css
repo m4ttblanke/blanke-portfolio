@@ -385,17 +385,6 @@
     margin-inline: auto;
   }
 
-  /* A single-column frame with the page margins: for pages that are not yet
-     composed on the 12-column grid (the barebones public pages). */
-  .page-frame {
-    padding-inline: var(--margin);
-    padding-block: var(--space-section-s);
-    max-inline-size: calc(var(--frame) + var(--margin) * 2);
-    margin-inline: auto;
-  }
-  nav.page-frame { padding-block: 0.75rem; }
-  nav.page-frame a { display: inline-flex; align-items: center; min-block-size: 2.75rem; }
-
   .section-s { padding-block: var(--space-section-s); }
   .section-m { padding-block: var(--space-section-m); }
   .section-l { padding-block: var(--space-section-l); }

@@ -7,7 +7,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const projects = await fetchQuery(api.projects.listPublished)
   const base = SITE_URL
 
-  const staticRoutes: MetadataRoute.Sitemap = ['/', '/projects', '/experience', '/coursework', '/about'].map(
+  const staticRoutes: MetadataRoute.Sitemap = ['/', '/projects', '/experience', '/coursework', '/about', '/contact'].map(
     (route) => ({
       url: `${base}${route}`,
       lastModified: new Date(),
