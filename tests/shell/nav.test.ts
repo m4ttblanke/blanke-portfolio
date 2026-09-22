@@ -96,7 +96,7 @@ describe("shell architecture", () => {
 
   it("links to /admin with a plain anchor so it is never prefetched", () => {
     const footer = strip(read("components/shell/site-footer.tsx"));
-    expect(footer).toMatch(/<a href="\/admin">/);
+    expect(footer).toMatch(/<a href="\/admin"/);
     expect(footer).not.toMatch(/<Link[^>]*href="\/admin/);
   });
 
