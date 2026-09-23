@@ -80,4 +80,27 @@ describe("cover.css", () => {
   it("uses only the sanctioned grid violations it claims (overlap, crop) -- no rotation", () => {
     expect(css).not.toMatch(/\brotate\s*:/);
   });
+
+  it("entrance animations use the site's reduced-motion-aware duration/easing tokens, not hardcoded ms", () => {
+    const animRules = [...css.matchAll(/animation:\s*([^;]+);/g)].map((m) => m[1]);
+    expect(animRules.length).toBeGreaterThan(0);
+    for (const rule of animRules) {
+      expect(rule).toMatch(/var\(--dur-(instant|quick|base|slow)\)/);
+      expect(rule).toMatch(/var\(--ease-(out|in-out)\)/);
+      expect(rule).not.toMatch(/\d+m?s\b/); // no literal duration anywhere in the shorthand
+    }
+  });
+
+  it("has no pointer-response or scroll-linked motion: no mouse/scroll listeners implied by CSS", () => {
+    expect(css).not.toMatch(/:hover.*translate|perspective|scroll-timeline|animation-timeline/);
+  });
+});
+
+describe("display typography stays homepage-scoped", () => {
+  it("no other public page renders display type", () => {
+    for (const route of ["about", "projects", "experience", "coursework", "contact"]) {
+      const src = read(`app/(public)/${route}/page.tsx`);
+      expect(src, route).not.toMatch(/t-display|font-display/);
+    }
+  });
 });

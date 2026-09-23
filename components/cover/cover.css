@@ -1,8 +1,7 @@
 /*
- * THE COVER (M3A, revised after visual review). Hand-art-directed; every
- * position below was chosen by eye, not derived from a utility or a formula,
- * except the type sizes (which use the documented "fit a word to a column"
- * technique — ART_DIRECTION.md §4).
+ * THE COVER. Hand-art-directed; every position below was chosen by eye, not
+ * derived from a utility or a formula, except the type sizes (which use the
+ * documented "fit a word to a column" technique — ART_DIRECTION.md §4).
  *
  * Layers used: type-back (the name), subject (the figure), type-front (the
  * statement and the factual rail) — the M1 stack, nothing new.
@@ -13,7 +12,18 @@
  * be judged before the real photograph exists. A real cutout will occlude
  * exactly where its own opaque pixels are; this previews that behavior.
  *
- * REPLACING THE PORTRAIT: see the file-level comment in cover.tsx.
+ * FROZEN (M3A, visually approved) — do not redesign without a new review:
+ * MATTHEW's treatment and hierarchy, BLANKE's scale and placement, the
+ * portrait-through-BLANKE relationship and roughly where it occurs (the N/K
+ * region), the statement's scale/wording/placement, the metadata content, the
+ * paper/ink palette (no red), the amount of negative space, and the clean
+ * (seamless) bottom boundary. When the real photograph replaces the
+ * placeholder it may change ITS OWN x/y/scale/crop to fit Matthew's actual
+ * proportions and pose — the rest of this composition is not rebuilt around
+ * it. See cover.tsx for the portrait replacement contract.
+ *
+ * M3B added only: entrance motion (this file, "entrance"). No pointer
+ * response, no scroll-linked behavior — both are explicitly out of scope.
  */
 
 .cover {
@@ -148,3 +158,26 @@
   .cover-lower { grid-column: 1 / 7; grid-row: 2; margin-block-start: clamp(0.25rem, 1vw, 0.5rem); }
   .cover-statement { max-inline-size: 78%; }
 }
+
+/* --------------------------------------------------------------- entrance */
+
+/* Printed elements settling into place, not a web component animating onto a
+   landing page: the name wipes down like a page dropping into register, the
+   subject and the statement resolve quietly after it. CSS only, no JS. Uses
+   the site's own motion tokens (app/globals.css), which `prefers-reduced-
+   motion: reduce` already zeroes to 0.01ms -- so under reduced motion this
+   still "runs," but finishes within a frame, which is indistinguishable from
+   immediate and needs no second, separate implementation. No element's
+   readability depends on the animation completing. */
+@keyframes cv-wipe-down {
+  from { clip-path: inset(0 0 100% 0); }
+  to { clip-path: inset(0 0 0% 0); }
+}
+@keyframes cv-settle {
+  from { opacity: 0; translate: 0 0.75rem; }
+  to { opacity: 1; translate: 0 0; }
+}
+
+.cover-name { animation: cv-wipe-down var(--dur-slow) var(--ease-out) both; }
+.cover-subject { animation: cv-settle var(--dur-base) var(--ease-out) var(--dur-quick) both; }
+.cover-lower { animation: cv-settle var(--dur-base) var(--ease-out) calc(var(--dur-quick) * 2) both; }
