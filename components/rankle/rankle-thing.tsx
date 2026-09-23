@@ -1,14 +1,18 @@
 import { RANKLE_FLOW } from "@/lib/work/rankle-content";
+import { RankleRankInteraction } from "./rankle-rank-interaction";
 
 // THE THING — the verified flow, understandable without animation or hover
-// (brief §14/§32). M5A adjustment pass: RANK leads as an oversized opening
-// move -- the dominant action, not one of five equal boxes -- and SUBMIT ->
-// COMPARE -> SHARE -> RETURN follow as a connected, arrow-linked chain (see
-// rankle.css for the desktop staircase cascade). Every word still traces to
-// the Rankle README (see rankle-content.ts's source map); nothing here
-// implies the interaction itself (no drag, no board -- that is M5B). The
-// card fan behind RANK is deliberately blank: no invented item names, no
-// tier color (items have no tier until a person ranks them).
+// for four of its five steps (brief §14/§32). M5A adjustment pass: RANK
+// leads as an oversized opening move -- the dominant action, not one of
+// five equal boxes -- and SUBMIT -> COMPARE -> SHARE -> RETURN follow as a
+// connected, arrow-linked chain (see rankle.css for the desktop staircase
+// cascade). M5B: the blank card-fan ornament that used to sit behind RANK
+// is now the signature interaction itself (RankleRankInteraction) -- the
+// one thing on this page a visitor can actually do, demonstrating the verb
+// "rank" with four abstract shapes, never a miniature Rankle client (see
+// rankle-rank-interaction.tsx's own header comment). SUBMIT through RETURN
+// stay purely typographic on purpose (brief §9 of the M5B milestone): the
+// asymmetry is intentional, not an oversight.
 export function RankleThing() {
   const [rank, ...chain] = RANKLE_FLOW;
 
@@ -22,16 +26,12 @@ export function RankleThing() {
       </header>
 
       <div className="rk-thing-rank">
-        <span className="rk-thing-cards ornament" aria-hidden="true">
-          <span className="rk-thing-card rk-thing-card-1" />
-          <span className="rk-thing-card rk-thing-card-2" />
-          <span className="rk-thing-card rk-thing-card-3" />
-        </span>
         <p className="rk-thing-rank-num" aria-hidden="true">
           01
         </p>
         <h3 className="rk-thing-rank-word">{rank.step}</h3>
         <p className="t-small rk-thing-rank-body">{rank.body}</p>
+        <RankleRankInteraction />
       </div>
 
       <ol className="rk-thing-chain">

@@ -38,17 +38,26 @@ describe("Rankle case study — route", () => {
     expect(read("app/sitemap.ts")).toContain("/projects/rankle");
   });
 
-  it("renders the static composition with no page-specific client JS (M5A is static-only)", () => {
+  it("the five editorial sections stay server-rendered (M5B's one client island lives elsewhere)", () => {
     for (const [name, src] of Object.entries(sources)) {
       expect(src, name).not.toMatch(/"use client"/);
-      expect(src, name).not.toMatch(/onClick|onMouseEnter|onMouseLeave|onDragStart|addEventListener|useState|useEffect/);
     }
   });
 
-  it("added no new dependency (no drag/animation/cursor library)", () => {
+  it("added no new dependency (no drag/animation/cursor library, no new devDependency either)", () => {
     const pkg = JSON.parse(read("package.json"));
     const deps = { ...pkg.dependencies, ...pkg.devDependencies };
-    for (const banned of ["framer-motion", "gsap", "motion", "react-spring", "@dnd-kit/core", "@dnd-kit/sortable"]) {
+    for (const banned of [
+      "framer-motion",
+      "gsap",
+      "motion",
+      "react-spring",
+      "@dnd-kit/core",
+      "@dnd-kit/sortable",
+      "react-dnd",
+      "jsdom",
+      "@testing-library/react",
+    ]) {
       expect(deps, banned).not.toHaveProperty(banned);
     }
   });
@@ -166,7 +175,7 @@ describe("Rankle case study — accessibility", () => {
   });
 
   it("decorative graphics are aria-hidden and non-semantic (.ornament)", () => {
-    for (const cls of ["rk-hero-stack", "rk-thing-cards", "rk-argument-compare"]) {
+    for (const cls of ["rk-hero-stack", "rk-argument-compare"]) {
       expect(allSource, cls).toMatch(new RegExp(`className="${cls} ornament"[^>]*aria-hidden="true"`));
     }
   });
@@ -223,6 +232,144 @@ describe("Rankle case study — color containment", () => {
   it("Rankle's rotation uses the site's own named .tilt-* utilities, never a raw rotate value", () => {
     const css2 = strip(read("components/rankle/rankle.css"));
     expect(css2).not.toMatch(/\brotate\s*:/);
+  });
+});
+
+describe("Rankle case study — M5B signature interaction", () => {
+  const interaction = strip(read("components/rankle/rankle-rank-interaction.tsx"));
+  const glyphs = strip(read("components/rankle/rank-glyphs.tsx"));
+  const rankDemo = strip(read("lib/work/rank-demo.ts"));
+  const thing = sources["rankle-thing.tsx"];
+
+  it("is the ONLY client component on the page -- everything else stays server-rendered", () => {
+    expect(interaction).toMatch(/^"use client";/);
+    for (const [name, src] of [
+      ["rank-glyphs.tsx", glyphs],
+      ["rankle-thing.tsx", thing],
+      ["rankle-case.tsx", sources["rankle-case.tsx"]],
+      ["rankle-hero.tsx", sources["rankle-hero.tsx"]],
+      ["rankle-argument.tsx", sources["rankle-argument.tsx"]],
+      ["rankle-system.tsx", sources["rankle-system.tsx"]],
+      ["rankle-receipt.tsx", sources["rankle-receipt.tsx"]],
+    ] as const) {
+      expect(src, name).not.toMatch(/"use client"/);
+    }
+  });
+
+  it("the state logic is a plain, framework-free module (no React import, no new test dependency needed)", () => {
+    expect(rankDemo).not.toMatch(/from ["']react["']/);
+    expect(rankDemo).not.toMatch(/useState|useEffect|useReducer/);
+  });
+
+  it("wires the interaction into the RANK block, replacing the old blank card-fan ornament", () => {
+    expect(thing).toContain("<RankleRankInteraction />");
+    expect(thing).not.toMatch(/rk-thing-cards|rk-thing-card\b/);
+    expect(read("components/rankle/rankle.css")).not.toMatch(/\.rk-thing-cards|\.rk-thing-card\b/);
+  });
+
+  it("makes no network, database, or auth call of any kind -- purely local state", () => {
+    for (const [name, src] of [
+      ["rankle-rank-interaction.tsx", interaction],
+      ["rank-demo.ts", rankDemo],
+    ] as const) {
+      expect(src, name).not.toMatch(/fetch\(|supabase|convex|XMLHttpRequest|axios|WebSocket|EventSource/i);
+      expect(src, name).not.toMatch(/localStorage|sessionStorage|indexedDB|document\.cookie/i);
+    }
+  });
+
+  it("never implies a real Rankle submission occurred", () => {
+    expect(interaction).not.toMatch(/submit(ted)?|rankle\.io|your ranking has been|saved|synced/i);
+    expect(interaction).toMatch(/RANKED\./);
+  });
+
+  it("uses exactly four abstract shapes -- no invented items, movies, foods, or people", () => {
+    expect(rankDemo).toMatch(/"circle"[\s\S]*"square"[\s\S]*"triangle"[\s\S]*"diamond"/);
+  });
+
+  it("the mechanism is real <button> elements (Tab + Enter/Space work natively), not synthesized click targets", () => {
+    expect(interaction).toMatch(/<button\s+type="button"/);
+    expect(interaction).not.toMatch(/<div[^>]*onClick/);
+    expect(interaction).not.toMatch(/draggable=\{?true\}?|onDragStart|onDrop/);
+  });
+
+  it("every tier button carries aria-pressed and a real accessible name; groups are labeled", () => {
+    expect(interaction).toMatch(/aria-pressed=\{item\.tier === tier\}/);
+    expect(interaction).toMatch(/aria-label=\{`\$\{item\.label\}, \$\{tier\} tier`\}/);
+    expect(interaction).toMatch(/role="group"\s+aria-label=\{`Rank \$\{item\.label\}`\}/);
+  });
+
+  it("the live region is a single concise status, not a growing log", () => {
+    expect(interaction).toMatch(/role="status"\s+aria-live="polite"/);
+    // exactly one status paragraph, not per-item live regions
+    expect((interaction.match(/aria-live="polite"/g) ?? []).length).toBe(1);
+  });
+
+  it("decorative glyphs are aria-hidden; the shape's real name is separate visible text", () => {
+    expect(interaction).toMatch(/className="rk-rank-glyph" aria-hidden="true"/);
+    expect(interaction).toMatch(/rk-rank-slip-name.*\{item\.label\}/);
+  });
+
+  it("motion, if any, rides the site's own reduced-motion-safe tokens -- no separate reduced-motion path, no hardcoded ms", () => {
+    const css = strip(read("components/rankle/rankle.css"));
+    const rankBlock = css.slice(css.indexOf(".rk-rank-demo"), css.indexOf(".rk-thing-chain"));
+    expect(rankBlock).not.toMatch(/\d+m?s\s+(ease|linear|cubic-bezier)/); // no raw duration values
+    expect(rankBlock).toMatch(/var\(--dur-quick\)/);
+    expect(rankBlock).not.toMatch(/@keyframes/);
+    expect(rankBlock).not.toMatch(/\brotate\s*:/);
+  });
+
+  it("touch targets meet the 44px minimum (ART_DIRECTION.md §11)", () => {
+    const css = read("components/rankle/rankle.css");
+    expect(css).toMatch(/\.rk-rank-pick\s*\{[^}]*min-inline-size:\s*2\.75rem/);
+    expect(css).toMatch(/\.rk-rank-pick\s*\{[^}]*min-block-size:\s*2\.75rem/);
+  });
+
+  it("restores keyboard focus after an item's DOM node relocates between tiers (regression: live Playwright testing found focus was silently lost on every move before this fix)", () => {
+    // Every tier button has a stable, predictable id so it can be re-found
+    // after React relocates its <li> into a different parent list.
+    expect(interaction).toMatch(/id=\{pickId\(item\.id, tier\)\}/);
+    expect(interaction).toMatch(/function pickId\(/);
+    // A pending-focus ref is set before the state update and consumed by an
+    // effect keyed on `items`, after the DOM has actually moved.
+    expect(interaction).toMatch(/const pendingFocusId = useRef/);
+    expect(interaction).toMatch(/useEffect\(\(\) => \{[\s\S]*pendingFocusId\.current[\s\S]*\}, \[items\]\)/);
+    // Reset removes its own trigger button (it only renders while
+    // `started`), so focus moves to the stable, never-unmounting container.
+    expect(interaction).toMatch(/tabIndex=\{-1\}/);
+    expect(interaction).toMatch(/containerRef\.current\?\.focus\(\)/);
+  });
+
+  it("the rank demo's tier bands use rk-rt-*, never bare rk-tier-* (regression: live testing found the Argument section's .rk-tier-c sets color:paper, which cascaded into a real interactive control here and made its label functionally invisible -- paper-on-white)", () => {
+    expect(interaction).toMatch(/`rk-rank-tier rk-rt-\$\{tier\.toLowerCase\(\)\}`/);
+    expect(interaction).not.toMatch(/rk-tier-\$\{tier/);
+    const css = strip(read("components/rankle/rankle.css"));
+    expect(css).toMatch(/\.rk-rank-tier\.rk-rt-s/);
+    expect(css).not.toMatch(/\.rk-rank-tier\.rk-tier-/);
+  });
+
+  it("no icon library or drag library was added; only platform APIs and React state", () => {
+    const pkg = JSON.parse(read("package.json"));
+    const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+    expect(Object.keys(deps).sort()).toEqual(
+      [
+        "@edge-runtime/vm",
+        "@tailwindcss/postcss",
+        "@types/node",
+        "@types/react",
+        "@types/react-dom",
+        "@workos-inc/authkit-nextjs",
+        "convex",
+        "convex-test",
+        "eslint",
+        "eslint-config-next",
+        "next",
+        "react",
+        "react-dom",
+        "tailwindcss",
+        "typescript",
+        "vitest",
+      ].sort()
+    );
   });
 });
 

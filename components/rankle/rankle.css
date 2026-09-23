@@ -98,10 +98,18 @@
  * -> SHARE -> RETURN follow as a connected, arrow-linked chain that cascades
  * rightward at desktop (a staircase, evoking descent through tiers) and
  * simply stacks at mobile -- never a flat horizontal timeline, never five
- * rounded cards. The small card fan behind RANK is an abstract, unlabeled
- * "items waiting to be ranked" artifact: blank on purpose (no invented item
- * names), ink-on-paper-shade only (not tier-colored -- items have no tier
- * until a person ranks them, which is the actual product truth).
+ * rounded cards.
+ *
+ * M5B: the blank card-fan ornament that used to sit behind RANK is now
+ * .rk-rank-demo -- the page's one signature interaction (see
+ * rankle-rank-interaction.tsx). It reads as an inset "specimen box" (paper-
+ * shade ground, ink border, like a printed insert), never a SaaS widget:
+ * no rounded chrome, no shadow, no new project colors -- the tier-letter
+ * buttons reuse only red/yellow/blue/ink/white, the same palette the rest
+ * of Rankle's spread uses. No rotation anywhere in this block; the one
+ * transform present is a brief press-feedback scale on assignment, using
+ * the site's own --dur-quick/--ease-out tokens (already zeroed under
+ * reduced motion sitewide -- no separate reduced-motion path needed here).
  */
 
 .rk-thing {
@@ -120,26 +128,6 @@
   padding-block-start: 1.5rem;
   border-block-start: 3px solid var(--rankle-blue);
 }
-
-.rk-thing-cards {
-  position: absolute;
-  inset-block-start: -0.5rem;
-  inset-inline-end: 0.5rem;
-  inline-size: 4.5rem;
-  block-size: 3.5rem;
-  display: none;
-}
-.rk-thing-card {
-  position: absolute;
-  inset: 0;
-  inline-size: 3rem;
-  block-size: 2.25rem;
-  background-color: var(--color-paper-shade);
-  border: 1.5px solid var(--on);
-}
-.rk-thing-card-1 { translate: 0 0.75rem; }
-.rk-thing-card-2 { translate: 0.75rem 0.375rem; }
-.rk-thing-card-3 { translate: 1.5rem 0; background-color: var(--color-white); }
 
 .rk-thing-rank-num {
   margin: 0;
@@ -164,6 +152,133 @@
   max-inline-size: 32ch;
   color: var(--on-soft);
 }
+
+/* ------------------------------------------------------------- rank demo */
+
+.rk-rank-demo {
+  margin-block-start: 1.5rem;
+  max-inline-size: 34rem;
+  background-color: var(--color-paper-shade);
+  border: 1.5px solid var(--on);
+  padding: 1.25rem;
+}
+
+.rk-rank-caption { color: var(--on-soft); margin: 0 0 0.875rem; }
+
+.rk-rank-pool,
+.rk-rank-tier-slot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  min-inline-size: 0;
+  flex: 1;
+}
+.rk-rank-pool { margin-block-end: 1rem; }
+
+.rk-rank-slip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.375rem;
+  background-color: var(--color-white);
+  border: 1.5px solid var(--on);
+  padding: 0.5rem 0.625rem;
+  /* Flex items default to min-inline-size: auto, which refuses to shrink
+     below the picker row's intrinsic width -- that's what overflowed at
+     320px instead of letting .rk-rank-picker's flex-wrap actually wrap. */
+  min-inline-size: 0;
+}
+
+.rk-rank-glyph { inline-size: 1.25rem; block-size: 1.25rem; color: var(--on); }
+.rk-rank-glyph svg { display: block; inline-size: 100%; block-size: 100%; }
+.rk-rank-slip-name { font-size: var(--t-caption); font-weight: 650; }
+
+/* Deliberately nowrap by default. flex-wrap alone here proved unreliable --
+   nested flex shrink-to-fit sizing (column-direction .rk-rank-slip inside a
+   wrapping .rk-rank-tier-slot) could settle a hair under the five buttons'
+   own content width even with generous room to spare, wrapping to two rows
+   at any viewport. A narrow-width override below is the one place it's
+   actually needed (confirmed by testing: inside a tier band, the label
+   sibling leaves too little room under ~26rem). */
+.rk-rank-picker { display: flex; flex-wrap: nowrap; gap: 0.25rem; }
+
+@media (max-width: 26rem) {
+  .rk-rank-picker { flex-wrap: wrap; max-inline-size: 10rem; }
+}
+.rk-rank-pick {
+  inline-size: 1.75rem;
+  block-size: 1.75rem;
+  min-inline-size: 2.75rem;
+  min-block-size: 2.75rem;
+  border: 2px solid var(--rule);
+  background-color: var(--color-paper);
+  color: var(--on-soft);
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: transform var(--dur-quick) var(--ease-out);
+}
+.rk-rank-pick:active { transform: scale(0.92); }
+.rk-rank-pick[aria-pressed="true"] { border-color: var(--color-ink); transform: scale(1.06); }
+.rk-rank-pick-s[aria-pressed="true"] { background-color: var(--rankle-red); color: var(--color-white); }
+.rk-rank-pick-a[aria-pressed="true"] { background-color: var(--rankle-yellow); color: var(--color-ink); }
+.rk-rank-pick-b[aria-pressed="true"] { background-color: var(--rankle-blue); color: var(--color-white); }
+.rk-rank-pick-c[aria-pressed="true"] { background-color: var(--color-ink); color: var(--color-paper); }
+.rk-rank-pick-f[aria-pressed="true"] { background-color: var(--color-white); color: var(--color-ink); }
+
+.rk-rank-tiers { display: flex; flex-direction: column; gap: 0.5rem; padding: 0; margin: 0; list-style: none; }
+.rk-rank-tier {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.625rem;
+  border: 1.5px solid var(--on);
+  min-block-size: 3.5rem;
+}
+.rk-rank-tier-label {
+  flex: none;
+  display: grid;
+  place-items: center;
+  inline-size: 2.25rem;
+  block-size: 2.25rem;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 1.125rem;
+}
+/*
+ * rk-rt-* (not rk-tier-*): a real bug, caught by live testing, not just
+ * review. The Argument section's decorative .rk-tier-s/a/b/c/f (below) sets
+ * `color` on whatever element carries that bare class name -- harmless for
+ * its own aria-hidden blocks, but this <li> is real, functional UI, and
+ * reusing the same class name let that color rule cascade down into
+ * .rk-rank-slip-name (paper-on-white, functionally invisible) inside the C
+ * tier band. Distinct class names, not scoping tricks, is the fix: nothing
+ * outside this component can ever collide with it again.
+ */
+.rk-rank-tier.rk-rt-s .rk-rank-tier-label { background-color: var(--rankle-red); color: var(--color-white); }
+.rk-rank-tier.rk-rt-a .rk-rank-tier-label { background-color: var(--rankle-yellow); color: var(--color-ink); }
+.rk-rank-tier.rk-rt-b .rk-rank-tier-label { background-color: var(--rankle-blue); color: var(--color-white); }
+.rk-rank-tier.rk-rt-c .rk-rank-tier-label { background-color: var(--color-ink); color: var(--color-paper); }
+.rk-rank-tier.rk-rt-f .rk-rank-tier-label { background-color: var(--color-white); color: var(--color-ink); border: 1.5px solid var(--on); }
+
+.rk-rank-controls { display: flex; align-items: center; gap: 1rem; margin-block-start: 1rem; min-block-size: 1.5rem; }
+.rk-rank-done { margin: 0; font-family: var(--font-body); font-weight: 800; letter-spacing: 0.02em; }
+.rk-rank-reset {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: var(--t-small);
+  color: var(--on-soft);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+.rk-rank-reset:hover { color: var(--on); }
 
 .rk-thing-chain {
   grid-column: 1 / -1;
@@ -206,10 +321,6 @@
 }
 .rk-thing-link p:last-child { color: var(--on-soft); margin: 0; }
 
-@media (min-width: 40rem) {
-  .rk-thing-cards { display: block; }
-}
-
 @media (min-width: 64rem) {
   /* The cascade: each link starts one column further right than the last,
      a staircase descending across the page -- never a flat equal-width row. */
@@ -218,7 +329,11 @@
   .rk-thing-link:nth-child(1) { grid-column: 1 / 8; }
   .rk-thing-link:nth-child(2) { grid-column: 3 / 10; }
   .rk-thing-link:nth-child(3) { grid-column: 5 / 12; }
-  .rk-thing-link:nth-child(4) { grid-column: 7 / 13; }
+  /* M5B: eased back one column from the previous 7/13 -- at the 64rem
+     breakpoint's narrow end (1024-1100px) the last step used to hug the
+     grid's right edge with zero margin; this leaves a full column of
+     breathing room at every width in the cascade's active range. */
+  .rk-thing-link:nth-child(4) { grid-column: 7 / 12; }
 }
 
 /* --------------------------------------------------------------- argument */
