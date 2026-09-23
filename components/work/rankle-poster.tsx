@@ -10,6 +10,10 @@ import { RANKLE } from "@/lib/work/projects";
 // same one that lets it own the cover→wall intrusion (see selected-work.css).
 // Deep Rankle art direction (real assets, playable ranking, results) is M5;
 // this is the cover, not the article.
+//
+// M4B added project-specific hover/focus (selected-work.css, "interaction"):
+// a few px of translate away from Plannr, the resting rotation easing partway
+// toward level, and the tier bands nudging inward with a small stagger.
 export function RankleWorkPoster() {
   return (
     <Link

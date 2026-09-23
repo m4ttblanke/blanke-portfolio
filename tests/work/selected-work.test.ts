@@ -184,3 +184,92 @@ describe("route regression", () => {
     expect(nav).not.toMatch(/"\/"/);
   });
 });
+
+describe("Selected Work — M4B interaction", () => {
+  const css = read("components/work/selected-work.css");
+
+  it("is CSS-only: no client component was introduced for hover/focus behavior", () => {
+    for (const src of [selectedWork, rankle, plannr]) {
+      expect(src).not.toMatch(/"use client"/);
+      expect(src).not.toMatch(/onClick|onMouseEnter|onMouseLeave|onTouchStart|addEventListener/);
+    }
+  });
+
+  it("no new dependency was added for interaction (no animation/drag/cursor library)", () => {
+    const pkg = JSON.parse(read("package.json"));
+    const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+    expect(deps).not.toHaveProperty("framer-motion");
+    expect(deps).not.toHaveProperty("gsap");
+    expect(deps).not.toHaveProperty("motion");
+    expect(deps).not.toHaveProperty("react-spring");
+  });
+
+  it("hover motion is gated behind (hover: hover) and (pointer: fine); focus-visible is not pointer-gated", () => {
+    const hoverBlock = css.slice(css.indexOf("(hover: hover) and (pointer: fine) {\n  .wall-rankle:hover"));
+    expect(hoverBlock).toMatch(/\.wall-rankle:hover\s*\{/);
+    expect(hoverBlock).toMatch(/\.wall-plannr:hover\s*\{/);
+    // :focus-visible rules exist outside any (hover: hover) block, so keyboard
+    // users on any device (including touch/no-hover) still get the state.
+    const focusRule = css.match(/@media \(prefers-reduced-motion: no-preference\) \{\s*\.wall-rankle:focus-visible/);
+    expect(focusRule).toBeTruthy();
+  });
+
+  it("all meaningful hover/focus motion is gated behind prefers-reduced-motion: no-preference", () => {
+    // The whole "interaction" section (everything between its own header
+    // comment and the next section, "tablet, 48rem+") must contain nothing
+    // at the top level except two no-preference-gated @media blocks: walk
+    // the text by brace depth and collect every top-level (depth-0) chunk of
+    // non-whitespace, non-comment text. If any .wall-*:hover/:focus-visible
+    // rule sat outside a gate, it would show up here as a top-level chunk
+    // starting with a selector instead of `@media`.
+    const interactionSection = css.slice(
+      css.indexOf("@media (prefers-reduced-motion: no-preference) {\n  .wall-rankle:focus-visible"),
+      css.indexOf("-------------------------------------------------------------- tablet, 48rem+")
+    );
+    const noComments = interactionSection.replace(/\/\*[\s\S]*?\*\//g, "");
+
+    let depth = 0;
+    let chunk = "";
+    const topLevelChunks: string[] = [];
+    for (const ch of noComments) {
+      if (ch === "{") {
+        if (depth === 0 && chunk.trim()) topLevelChunks.push(chunk.trim());
+        chunk = "";
+        depth++;
+      } else if (ch === "}") {
+        depth--;
+      } else if (depth === 0) {
+        chunk += ch;
+      }
+    }
+    expect(depth).toBe(0); // braces balance
+
+    expect(topLevelChunks.length).toBe(2);
+    for (const c of topLevelChunks) {
+      expect(c).toMatch(/^@media/);
+      expect(c).toContain("prefers-reduced-motion: no-preference");
+    }
+  });
+
+  it("Plannr never rotates: no `rotate:` in any .wall-plannr rule, including hover/focus", () => {
+    const plannrRules = [...css.matchAll(/\.wall-plannr(?::\S+)?\s*\{[^}]*\}/g)].map((m) => m[0]);
+    expect(plannrRules.length).toBeGreaterThan(0);
+    for (const rule of plannrRules) expect(rule).not.toMatch(/\brotate\s*:/);
+  });
+
+  it("hover/focus keep each poster's own text color pinned (no generic red link-hover leak)", () => {
+    expect(css).toMatch(/\.wall-rankle:hover[^{]*\{[^}]*color:\s*var\(--color-paper\)/);
+    expect(css).toMatch(/\.wall-plannr:hover[^{]*\{[^}]*color:\s*var\(--plannr-navy\)/);
+  });
+
+  it("decorative interaction elements (the alt calendar cell) stay inside .pl-grid's aria-hidden ornament", () => {
+    expect(plannr).toMatch(/pl-cell pl-cell-marked-alt/);
+    const gridSpan = plannr.slice(plannr.indexOf('className="pl-grid'), plannr.indexOf("</span>", plannr.indexOf("pl-cell-marked-alt")));
+    expect(gridSpan).toContain('aria-hidden="true"');
+  });
+
+  it("Rankle/Plannr accessible names are unchanged from the approved M4A composition", () => {
+    expect(RANKLE.accessibleName).toBe("Rankle — a daily ranking game");
+    expect(PLANNR.accessibleName).toBe("Plannr — turns a syllabus into a calendar, iOS, SwiftUI");
+  });
+});

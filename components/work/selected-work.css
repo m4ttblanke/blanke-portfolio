@@ -27,6 +27,12 @@
  * Plannr): only grid-row/grid-column placement moves the header visually,
  * never the `order` property, so keyboard and screen-reader order stays
  * exactly what the DOM says.
+ *
+ * M4B added project-specific hover/focus behavior on top of this frozen
+ * resting composition -- see the "interaction" block below the Plannr rules.
+ * Nothing in this file's layout geometry changed for M4B except what
+ * interaction itself required (transition/translate declarations on the two
+ * posters). CSS only: no JS, no new dependency, no client component.
  */
 
 .selected-work {
@@ -91,6 +97,14 @@
      page's paper background or Plannr's own light paper, never ink-on-ink. */
   justify-self: start;
   inline-size: 88%;
+  /* Interaction (M4B): translate/rotate are independent properties from the
+     resting .tilt-ccw-1 rotate, so touching them here never clobbers or
+     depends on the resting tilt -- see the "interaction" block below for the
+     actual hover/focus values (reduced-motion- and hover-capability-gated). */
+  translate: 0 0;
+  transition:
+    translate var(--dur-quick) var(--ease-out),
+    rotate var(--dur-quick) var(--ease-out);
 }
 
 /* A selected label, not the cover's edge-to-edge fit-to-column treatment
@@ -125,6 +139,9 @@
 .rk-band-1 { background-color: var(--rankle-red); color: var(--color-white); }
 .rk-band-2 { background-color: var(--rankle-yellow); color: var(--color-ink); }
 .rk-band-3 { background-color: var(--rankle-blue); color: var(--color-white); }
+.rk-band { translate: 0 0; transition: translate var(--dur-quick) var(--ease-out); }
+.rk-band-2 { transition-delay: 30ms; }
+.rk-band-3 { transition-delay: 60ms; }
 
 /* ---------------------------------------------------------------- Plannr */
 
@@ -140,6 +157,12 @@
      Rankle's at every width (never a floating-card shadow): paper lifting
      slightly off paper, not Material elevation. */
   box-shadow: 0 0.5rem 1rem -0.75rem color-mix(in srgb, var(--color-ink) 55%, transparent);
+  /* Interaction (M4B): orthogonal stays orthogonal -- no rotate here, ever.
+     Only a small upward translate and a slightly deeper contact shadow. */
+  translate: 0 0;
+  transition:
+    translate var(--dur-quick) var(--ease-out),
+    box-shadow var(--dur-quick) var(--ease-out);
 }
 
 .pl-title { color: var(--plannr-navy); font-size: clamp(2rem, 4vw, 3.5rem); margin-block-end: 0.125rem; }
@@ -167,6 +190,86 @@
   grid-column: 4;
   grid-row: 2;
   background-color: var(--plannr-gold);
+  opacity: 1;
+  transition: opacity var(--dur-quick) var(--ease-out);
+}
+/* The interaction's "the schedule changed" cell: present at rest (opacity 0,
+   so Clean Copy hiding the whole .pl-grid loses nothing extra) and crossfades
+   in on hover/focus while .pl-cell-marked crossfades out -- see the
+   "interaction" block below. Still inside .pl-grid, still aria-hidden with
+   it: decorative, never the only place any information exists. */
+.pl-cell-marked-alt {
+  grid-column: 5;
+  grid-row: 2;
+  background-color: var(--plannr-gold);
+  opacity: 0;
+  transition: opacity var(--dur-quick) var(--ease-out);
+}
+
+/* ------------------------------------------------------------ interaction */
+
+/*
+ * M4B: project-specific hover/focus, not a shared card-hover effect.
+ *
+ * Rankle (tactile / loose / competitive): a few pixels of translate AWAY
+ * from Plannr (up-left, never toward it -- the overlap only ever gets
+ * smaller on interaction, never awkward, per the M4B brief §12), its resting
+ * rotation eases part-way toward level, and the tier bands nudge inward with
+ * a small stagger -- evoking movement between tiers without becoming a game.
+ *
+ * Plannr (precise / structured / scheduled): stays orthogonal always (no
+ * rotate, ever). A small upward lift, a marginally deeper contact shadow,
+ * and the highlighted calendar cell crossfades to an adjacent one -- "the
+ * schedule changed," an abstract graphic response, not a real calendar.
+ *
+ * Both: gated behind `(hover: hover) and (pointer: fine)` for :hover (so
+ * touch/coarse pointers never receive hover-only motion -- a tap still just
+ * follows the link), and separately behind `:focus-visible` (unconditional
+ * on pointer capability, since keyboard users on any device deserve the
+ * same legible "this is interactive" signal). Both are gated behind
+ * `prefers-reduced-motion: no-preference`: under reduced motion neither
+ * translate/rotate/band-shift/cell-crossfade applies at all -- not merely
+ * shortened -- while the focus outline (a separate, unaffected property)
+ * remains exactly as visible as ever. `color` is repeated here even though
+ * it does not change, purely to keep both posters' text colors pinned
+ * against the sitewide `a:hover { color: var(--accent) }` rule, which
+ * otherwise wins on specificity (element+pseudo-class beats one class) --
+ * project colors must not get a global red tint bolted on by a generic link
+ * rule during the one moment a visitor is actually looking at the poster.
+ */
+
+@media (prefers-reduced-motion: no-preference) {
+  .wall-rankle:focus-visible {
+    translate: -0.2rem -0.25rem;
+    rotate: calc(var(--tilt-1) * 0.4 * var(--chaos) * -1);
+    color: var(--color-paper);
+  }
+  .wall-rankle:focus-visible .rk-band { translate: -0.2rem 0; }
+
+  .wall-plannr:focus-visible {
+    translate: 0 -0.2rem;
+    box-shadow: 0 0.75rem 1.25rem -0.75rem color-mix(in srgb, var(--color-ink) 62%, transparent);
+    color: var(--plannr-navy);
+  }
+  .wall-plannr:focus-visible .pl-cell-marked { opacity: 0; }
+  .wall-plannr:focus-visible .pl-cell-marked-alt { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+  .wall-rankle:hover {
+    translate: -0.2rem -0.25rem;
+    rotate: calc(var(--tilt-1) * 0.4 * var(--chaos) * -1);
+    color: var(--color-paper);
+  }
+  .wall-rankle:hover .rk-band { translate: -0.2rem 0; }
+
+  .wall-plannr:hover {
+    translate: 0 -0.2rem;
+    box-shadow: 0 0.75rem 1.25rem -0.75rem color-mix(in srgb, var(--color-ink) 62%, transparent);
+    color: var(--plannr-navy);
+  }
+  .wall-plannr:hover .pl-cell-marked { opacity: 0; }
+  .wall-plannr:hover .pl-cell-marked-alt { opacity: 1; }
 }
 
 /* -------------------------------------------------------------- tablet, 48rem+ */
