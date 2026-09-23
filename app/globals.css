@@ -576,6 +576,26 @@
     --plannr-paper: #f7f2e7;
     --plannr-wave: #3d7ede;
   }
+  /* .plannr-case (M6A) is the case study's own root scope: the same four
+     values as .wall-plannr (repeated, not merged, so M4's rule stays its own
+     untouched selector), plus two DERIVED values (a pen blue and a highlighter),
+     mixed from those four rather than invented, and the semantic tokens
+     rebound for this spread only (ART_DIRECTION.md 16: a spread may override
+     the semantic tokens on its own scope, never add global ones). Plannr has no
+     red: its marks are pen blue, its emphasis is gold. */
+  .plannr-case {
+    --plannr-navy: #002e61;
+    --plannr-gold: #fdb814;
+    --plannr-paper: #f7f2e7;
+    --plannr-wave: #3d7ede;
+    --plannr-pen: color-mix(in srgb, var(--plannr-navy) 55%, var(--plannr-wave));
+    --plannr-hl: color-mix(in srgb, var(--plannr-gold) 62%, var(--plannr-paper));
+    --surface: var(--plannr-paper);
+    --accent: var(--plannr-navy);
+    --accent-graphic: var(--plannr-pen);
+    background-color: var(--plannr-paper);
+    color: var(--color-ink);
+  }
 }
 
 /* Image placeholder: obviously temporary. Not a photograph, not a portrait. */

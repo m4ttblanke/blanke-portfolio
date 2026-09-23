@@ -143,3 +143,16 @@ Users/testers/installs/downloads, OAuth verification, revenue or paying customer
 4. A TestFlight screenshot / App Store Connect summary (with permission) if Matt wants tester counts to be publishable.
 5. Real survey/interview artifacts, if they exist outside these repos.
 6. Matt's real handwriting scans (M11): the pen layer here is deliberately geometric.
+
+## ASSETS AS SHIPPED (M6A)
+
+Served from `public/plannr/`, all downscaled to 760 px wide (source files untouched; next/image serves AVIF/WebP at 1 to 38 KB):
+
+| File | From | Change |
+|---|---|---|
+| `plannr-icon.png` (256²) | app icon `icon-1024.png` | resized |
+| `week-at-a-glance.png` | `Plannr Screenshots/Week at a Glance.png` | profile photo covered with a flat disc; resized |
+| `my-classes.png` | `Plannr Screenshots/My Classes.png` | same; shown cropped by CSS |
+| `review-sample.png` | `[SIM]` capture `D3` | resized. Sample course, no private data |
+
+Held back: `Calendar.png` (the Week at a Glance screen already carries the story). Rejected: the banner, the five slides, the ten older MANUAL images, all four real syllabi.

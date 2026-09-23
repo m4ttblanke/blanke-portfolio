@@ -1,0 +1,1259 @@
+/*
+ * PLANNR: the second flagship case study (M6A, static composition only).
+ *
+ * Rankle is loud. Plannr is an annotated course packet: paper, hairline rules,
+ * a registrar's forms, a highlighter and one blue pen. Its color world is the
+ * real product palette (navy, gold, paper, wave blue), declared once in
+ * app/globals.css under .plannr-case; this file only ever references those
+ * custom properties, the site's own tokens, or color-mix() of them.
+ * Global materials (tape, torn edges, halftone, the red mark) do NOT propagate
+ * here (ART_DIRECTION.md 16): Plannr's own marks are a highlighter on a date, a
+ * pen ring on the one date nobody states, a bracket on what is ignored, and a
+ * date stamp on the receipt. Each answers "why was this altered?" (see the
+ * comments on the components).
+ *
+ * Intensity rhythm (conceptual): hero ~35% · document ~30% · transformation
+ * ~25% · product ~20% · decisions ~10% · system ~10% · receipt ~25%. Calmer and
+ * more precise than Rankle on purpose. Every overlap and rotation is multiplied
+ * by --chaos, so Clean Copy realigns the lot.
+ *
+ * Class prefix pc- ("packet/case"): the M4 poster already owns pl-*.
+ */
+
+.plannr-case {
+  --pc-soft: color-mix(in srgb, var(--color-ink) 68%, var(--plannr-paper));
+  --pc-rule: color-mix(in srgb, var(--color-ink) 24%, transparent);
+  --pc-sheet: var(--color-white);
+  overflow-x: clip;
+}
+
+.plannr-case .stage {
+  padding-block: clamp(2.5rem, 5.5vw, 5rem);
+  align-content: start;
+}
+
+/* --------------------------------------------------------------- shared bits */
+
+.pc-link-solid,
+.pc-link-plain {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 2.75rem;
+  font-weight: 650;
+  text-decoration: none;
+  transition: background-color var(--dur-quick) var(--ease-out), color var(--dur-quick) var(--ease-out);
+}
+.pc-link-solid {
+  padding-inline: 1.25rem;
+  background-color: var(--plannr-navy);
+  border: 2px solid var(--plannr-navy);
+  color: var(--plannr-paper);
+}
+.pc-link-solid:hover {
+  background-color: var(--plannr-gold);
+  color: var(--plannr-navy);
+}
+.pc-link-plain {
+  color: var(--plannr-navy);
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.22em;
+}
+.pc-link-plain:hover {
+  color: var(--color-ink);
+  text-decoration-color: var(--plannr-gold);
+  text-decoration-thickness: 3px;
+}
+
+/* A margin note in pen. Real text in Schibsted (never a handwriting font);
+   the tick is the only decoration. */
+.pc-pen {
+  color: var(--plannr-pen);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.35;
+  margin: 0;
+}
+
+/* The highlighter: a stroke behind a phrase. Meaning, not texture: it marks
+   what Plannr will read as a deadline. */
+.pc-hl {
+  background-image: linear-gradient(transparent 14%, var(--plannr-hl) 14% 90%, transparent 90%);
+  padding-inline: 0.15em;
+  margin-inline: -0.15em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* ======================================================================= HERO */
+
+.pc-hero {
+  row-gap: 0;
+  padding-block-end: clamp(0.5rem, 2vw, 1.5rem);
+}
+
+.pc-hero-word {
+  grid-column: 1 / -1;
+  margin: 0;
+  container-type: inline-size;
+}
+.pc-hero-word .t-display {
+  display: block;
+  white-space: nowrap;
+  color: var(--plannr-navy);
+  font-size: 34cqw;
+  line-height: 0.84;
+}
+
+.pc-hero-lede {
+  grid-column: 1 / -1;
+  max-inline-size: 30ch;
+  margin-block: clamp(1.25rem, 3vw, 2rem) 0;
+}
+
+.pc-hero-links {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  align-items: center;
+  margin-block-start: 1.5rem;
+}
+
+.pc-hero-art {
+  grid-column: 1 / -1;
+  position: relative;
+  margin-block-start: clamp(2rem, 6vw, 3rem);
+  display: flex;
+  flex-direction: column;
+  /* The composition answers to its own width (ART_DIRECTION.md 3): it only
+     overlaps when the column is wide enough for the term grid to sit beside
+     the page's text instead of on it. */
+  container: pc-hero-art / inline-size;
+}
+.pc-hero-doc {
+  inline-size: min(100%, 22rem);
+}
+/* Narrow: the pieces stack (page, then the term), overlapping only by the
+   page's own padding, so no text is ever covered. */
+.pc-hero-grid {
+  position: relative;
+  align-self: flex-end;
+  inline-size: min(90%, 19rem);
+  margin-block-start: calc(var(--overlap-1) * var(--chaos) * -1);
+  /* cropped to a few weeks: the crop says "a piece of a bigger term". */
+  overflow: clip;
+}
+.pc-hero-arrow {
+  display: none;
+  position: absolute;
+  /* from the page's right edge down onto the term: deadlines -> dates. */
+  inset-block-start: 30%;
+  inset-inline-start: min(74%, 17.5rem);
+  inline-size: 3.75rem;
+  block-size: 1.9rem;
+  color: var(--plannr-pen);
+  --mark-tilt: 62deg;
+}
+.pc-hero-arrow svg {
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+/* The registrar's form: what it is, where it runs, where it came from. */
+.pc-form {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--gutter);
+  margin: clamp(2.5rem, 6vw, 4rem) 0 0;
+  border-block-start: 2px solid var(--color-ink);
+}
+.pc-form-product {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.pc-hero-icon {
+  display: block;
+  flex: none;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+}
+.pc-form-row {
+  padding-block: 0.75rem;
+  border-block-start: 1px solid var(--pc-rule);
+}
+.pc-form-row dt {
+  color: var(--pc-soft);
+  margin: 0 0 0.2rem;
+}
+.pc-form-row dd {
+  margin: 0;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+@media (min-width: 48rem) {
+  .pc-hero-lede {
+    grid-column: 1 / span 5;
+  }
+  .pc-hero-art {
+    grid-column: 3 / -1;
+    margin-block-start: 2.25rem;
+  }
+  .pc-hero-links {
+    grid-column: 1 / span 4;
+  }
+  .pc-form {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 64rem) {
+  .pc-hero-word {
+    grid-column: 1 / span 7;
+  }
+  .pc-hero-lede {
+    grid-column: 1 / span 5;
+  }
+  .pc-hero-links {
+    grid-column: 1 / span 5;
+  }
+  .pc-hero-art {
+    grid-column: 8 / -1;
+    grid-row: 1 / span 4;
+    margin-block-start: 0;
+  }
+}
+
+@container pc-hero-art (min-width: 28rem) {
+  .pc-hero-doc {
+    /* overlap: the page runs over the left edge of its column and under the term grid. */
+    margin-inline-start: calc(var(--overlap-2) * var(--chaos) * -1);
+  }
+  .pc-hero-grid {
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline-end: 0;
+    inline-size: min(68%, 14.75rem);
+    margin: 0;
+  }
+  .pc-hero-arrow {
+    display: block;
+    /* anchored to the grid it points into (bottom-right, a fixed rem size),
+       not to a percentage of the page: right at any width. */
+    inset-block-start: auto;
+    inset-inline-start: auto;
+    inset-block-end: 16rem;
+    inset-inline-end: 7.5rem;
+  }
+}
+
+/* ============================================================== THE DOCUMENT */
+
+/* The syllabus page: white paper on the paper ground, hairline edge, no shadow
+   (a photocopy has none). Never rotated: it is body text. */
+.pc-page {
+  position: relative;
+  background-color: var(--pc-sheet);
+  border: 1px solid var(--pc-rule);
+  padding: clamp(1.25rem, 3vw, 2rem) clamp(1rem, 2.5vw, 1.75rem) clamp(1.25rem, 3vw, 2rem) 3rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+.pc-page-lines {
+  padding-inline-start: clamp(1rem, 2.5vw, 1.5rem);
+}
+.pc-page-lines .pc-holes,
+.pc-page-fragment .pc-holes {
+  display: none;
+}
+.pc-page-fragment {
+  padding-inline-start: clamp(1rem, 2.5vw, 1.5rem);
+}
+
+/* Binder holes: it is a photocopied handout punched for a binder. */
+.pc-holes {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  pointer-events: none;
+}
+.pc-holes i {
+  display: block;
+  inline-size: 0.95rem;
+  block-size: 0.95rem;
+  border-radius: 50%;
+  background-color: var(--plannr-paper);
+  border: 1px solid var(--pc-rule);
+}
+
+.pc-page p {
+  margin: 0;
+}
+.pc-page-code {
+  font-weight: 750;
+  letter-spacing: -0.01em;
+  font-size: 1.0625rem;
+  margin-block-end: 0.25rem;
+}
+.pc-page-line {
+  color: var(--pc-soft);
+}
+.pc-page-rule {
+  margin-block: 1.1rem 0.6rem !important;
+  padding-block-end: 0.35rem;
+  border-block-end: 1px solid var(--color-ink);
+  color: var(--color-ink);
+}
+.pc-page-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.pc-page-list li {
+  padding-block: 0.32rem;
+}
+.pc-page-list li + li {
+  border-block-start: 1px dotted var(--pc-rule);
+}
+
+/* The one date nobody states: ringed in pen. */
+.pc-mark-host {
+  position: relative;
+  display: inline-block;
+  /* room for the ring: the sentence is spaced out around the circled phrase,
+     so the pen never runs through a neighbouring word. */
+  padding-inline: 1em 0.55em;
+  margin-inline: 0.6em 0.1em;
+}
+.pc-ring {
+  inset-block: -0.85em;
+  inset-inline: -0.5em;
+  color: var(--plannr-pen);
+  --mark-tilt: -3deg;
+}
+.pc-ring svg {
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+/* A bracket on the lines Plannr is told to leave alone. */
+.pc-page-ignored {
+  margin-block-start: 1.25rem;
+}
+.pc-ignored-lines {
+  position: relative;
+  padding-inline-start: 1.1rem;
+}
+.pc-bracket {
+  position: absolute;
+  inset-block: 0.15rem;
+  inset-inline-start: 0;
+  inline-size: 0.5rem;
+  border: 2px solid var(--plannr-pen);
+  border-inline-end: 0;
+}
+
+.pc-document-head {
+  grid-column: 1 / -1;
+}
+.pc-document-head h2 {
+  margin: 0.6rem 0 0;
+  max-inline-size: 22ch;
+}
+.pc-document-figure {
+  grid-column: 1 / -1;
+  margin: clamp(1.5rem, 4vw, 2.5rem) 0 0;
+}
+.pc-disclaimer {
+  margin-block-start: 0.6rem;
+  color: var(--pc-soft);
+}
+/* Margin notes, anchored to the line they are about: directly under it on
+   narrow screens, out in the margin beside it on wide ones. */
+.pc-line-note {
+  display: block;
+  position: relative;
+  margin-block-start: 0.4rem;
+  padding-inline-start: 0.75rem;
+  border-inline-start: 2px solid var(--plannr-pen);
+}
+.pc-pen-tick {
+  display: none;
+}
+
+.pc-document-prose {
+  grid-column: 1 / -1;
+  margin-block-start: 1.25rem;
+  display: grid;
+  gap: 1rem;
+  max-inline-size: 34rem;
+}
+.pc-document-prose p {
+  margin: 0;
+}
+
+@media (min-width: 64rem) {
+  .pc-document-head {
+    grid-column: 1 / span 7;
+    grid-row: 1;
+  }
+  .pc-document-prose {
+    grid-column: 9 / -1;
+    grid-row: 1;
+    align-self: end;
+    margin-block-start: 0;
+  }
+  .pc-document-figure {
+    grid-column: 1 / span 7;
+    grid-row: 2;
+  }
+  .pc-page {
+    font-size: 1rem;
+    padding-block: 2.25rem;
+    padding-inline: 4rem 2.5rem;
+  }
+  .pc-page-code {
+    font-size: 1.25rem;
+  }
+  .pc-holes {
+    inset-inline-start: 1.5rem;
+  }
+  .pc-holes i {
+    inline-size: 1.15rem;
+    block-size: 1.15rem;
+  }
+  .pc-page-list li,
+  .pc-page-ignored {
+    position: relative;
+  }
+  .pc-line-note {
+    position: absolute;
+    inset-block-start: 0.3rem;
+    /* out past the page's right edge (its own padding, 2.5rem, plus a gutter) */
+    inset-inline-start: calc(100% + 4.5rem);
+    inline-size: 17rem;
+    margin: 0;
+    padding-inline-start: 0.85rem;
+    font-size: 1.0625rem;
+  }
+  .pc-pen-tick {
+    display: block;
+    position: absolute;
+    inset-block-start: 0.7em;
+    inset-inline-start: -2.25rem;
+    inline-size: 2.25rem;
+    border-block-start: 2px solid var(--plannr-pen);
+  }
+  /* The final-exam note grows upward from its line, so it never runs into the
+     bracket's note just below it. */
+  .pc-line-note-up {
+    inset-block-start: auto;
+    inset-block-end: 0.1rem;
+    inline-size: 19rem;
+  }
+  .pc-line-note-up .pc-pen-tick {
+    inset-block-start: auto;
+    inset-block-end: 0.55em;
+  }
+}
+
+/* ========================================================== THE TRANSFORMATION */
+
+.pc-flow {
+  border-block-start: 2px solid var(--color-ink);
+  position: relative;
+}
+.pc-flow-head {
+  grid-column: 1 / -1;
+}
+.pc-flow-head h2 {
+  margin: 0.6rem 0 0;
+  max-inline-size: 26ch;
+}
+
+.pc-steps {
+  grid-column: 1 / -1;
+  list-style: none;
+  padding: 0;
+  margin: clamp(2rem, 5vw, 3.5rem) 0 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(2.5rem, 6vw, 3.5rem) var(--gutter);
+}
+.pc-step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  min-inline-size: 0;
+}
+.pc-step-word {
+  margin: 0;
+  color: var(--plannr-navy);
+  font-size: clamp(2.5rem, 2rem + 3.2vw, 4.25rem);
+  line-height: 0.86;
+}
+.pc-step-art {
+  margin: 0;
+}
+.pc-step-body {
+  margin: 0;
+  max-inline-size: 30ch;
+}
+
+/* EXTRACT: the records the document became. A ruled sheet, one line each. */
+.pc-slips {
+  list-style: none;
+  padding: 0;
+  background-color: var(--pc-sheet);
+  border: 1px solid var(--pc-rule);
+}
+.pc-slip {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 0.75rem;
+  row-gap: 0.1rem;
+  padding: 0.7rem 0.85rem;
+  align-items: baseline;
+}
+.pc-slip + .pc-slip {
+  border-block-start: 1px solid var(--pc-rule);
+}
+.pc-slip-type {
+  grid-column: 1 / -1;
+  color: var(--pc-soft);
+  font-size: 0.6875rem;
+}
+.pc-slip-title {
+  font-weight: 700;
+  line-height: 1.25;
+}
+.pc-slip-date {
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  color: var(--plannr-navy);
+  grid-row: 2;
+  grid-column: 2;
+}
+.pc-slip-from {
+  grid-column: 1 / -1;
+  color: var(--pc-soft);
+  font-size: 0.8125rem;
+}
+.pc-slip-flag {
+  grid-column: 1 / -1;
+  color: var(--plannr-pen);
+  font-size: 0.8125rem;
+  font-weight: 650;
+}
+
+/* REVIEW: the real screen, edged like a plate. No device, no shadow. */
+.pc-review-img {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: 19rem;
+  block-size: auto;
+  border: 1px solid var(--pc-rule);
+  background-color: var(--color-ink);
+}
+.pc-review figcaption,
+.pc-calendar figcaption {
+  margin-block-start: 0.5rem;
+  color: var(--pc-soft);
+}
+
+/* CALENDAR: the term as a registrar's planning sheet. */
+.pc-term {
+  background-color: var(--pc-sheet);
+  border: 1px solid var(--pc-rule);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.pc-term-head,
+.pc-term-row {
+  display: grid;
+  grid-template-columns: 2.1rem repeat(5, minmax(0, 1fr));
+}
+.pc-term-head > span {
+  padding: 0.4rem 0.2rem;
+  color: var(--pc-soft);
+  font-weight: 650;
+  text-align: center;
+  border-block-end: 1px solid var(--color-ink);
+}
+.pc-term-head .pc-term-corner {
+  font-size: 0.625rem;
+  letter-spacing: 0.04em;
+  text-align: start;
+  padding-inline-start: 0.35rem;
+  color: var(--color-ink);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.pc-term-week {
+  display: grid;
+  place-items: center;
+  color: var(--pc-soft);
+  font-weight: 650;
+  border-block-end: 1px solid var(--pc-rule);
+  border-inline-end: 1px solid var(--pc-rule);
+}
+.pc-cell {
+  position: relative;
+  min-block-size: 2.4rem;
+  padding: 0.3rem 0.3rem 0.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-block-end: 1px solid var(--pc-rule);
+  border-inline-end: 1px solid color-mix(in srgb, var(--color-ink) 10%, transparent);
+  color: var(--pc-soft);
+}
+.pc-cell-day {
+  white-space: nowrap;
+}
+.pc-cell-month {
+  display: block;
+  font-size: 0.625rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.1;
+  color: var(--color-ink);
+}
+.pc-cell-marked {
+  background-color: var(--plannr-hl);
+  outline: 2px solid var(--plannr-pen);
+  outline-offset: -2px;
+  color: var(--color-ink);
+}
+.pc-cell-tag {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--plannr-navy);
+}
+
+.pc-step-arrow {
+  display: none;
+}
+
+@media (min-width: 48rem) {
+  .pc-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Four columns need room: from 1280. Below that the steps stay two by two, in
+   the same reading order (syllabus, extract / review, calendar). */
+@media (min-width: 80rem) {
+  .pc-steps {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: start;
+  }
+  .pc-step-arrow {
+    display: block;
+    position: absolute;
+    inset-block-start: 0.9rem;
+    inset-inline-end: 0.5rem;
+    inline-size: 2.75rem;
+    block-size: 1.4rem;
+    color: var(--plannr-pen);
+  }
+}
+
+/* ========================================================== THE PRODUCT */
+
+/* The navy band: the app's own world. The dark screenshots sit on the brand
+   navy, and it runs to the viewport edges (bleed), undone by Clean Copy. */
+.pc-product {
+  background-color: var(--plannr-navy);
+  box-shadow: 0 0 0 100vmax var(--plannr-navy);
+  clip-path: inset(0 -100vmax);
+  color: var(--plannr-paper);
+  --on: var(--plannr-paper);
+  --on-soft: color-mix(in srgb, var(--plannr-paper) 76%, var(--plannr-navy));
+  --focus: var(--plannr-paper);
+  --pc-rule: color-mix(in srgb, var(--plannr-paper) 30%, transparent);
+  --pc-soft: color-mix(in srgb, var(--plannr-paper) 78%, var(--plannr-navy));
+  row-gap: clamp(2rem, 5vw, 3rem);
+}
+.pc-product .pc-pen {
+  color: var(--plannr-gold);
+}
+.pc-product-head {
+  grid-column: 1 / -1;
+}
+.pc-product-head h2 {
+  margin: 0.6rem 0 0;
+}
+.pc-product-lede {
+  margin: 0.75rem 0 0;
+  max-inline-size: 22ch;
+}
+.pc-keeps {
+  grid-column: 1 / -1;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 1.25rem;
+  align-content: start;
+}
+.pc-keeps li {
+  padding-block-start: 0.75rem;
+  border-block-start: 1px solid var(--pc-rule);
+}
+.pc-keeps h3 {
+  margin: 0 0 0.25rem;
+}
+.pc-keeps p {
+  margin: 0;
+  color: var(--pc-soft);
+}
+
+.pc-shot {
+  margin: 0;
+  grid-column: 1 / -1;
+  max-inline-size: 21rem;
+  min-inline-size: 0;
+}
+.pc-shot-body {
+  position: relative;
+}
+.pc-shot-img {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  border: 1px solid var(--pc-rule);
+}
+.pc-shot-crop {
+  overflow: clip;
+  aspect-ratio: 760 / 1010;
+}
+.pc-shot-crop .pc-shot-img {
+  border-block-end: 0;
+}
+.pc-shot figcaption {
+  margin-block-start: 0.6rem;
+  color: var(--pc-soft);
+}
+.pc-shot-notes {
+  list-style: none;
+  padding: 0;
+  margin: 0.9rem 0 0;
+  display: grid;
+  gap: 0.6rem;
+}
+.pc-shot-notes li {
+  padding-inline-start: 0.85rem;
+  border-inline-start: 2px solid var(--plannr-gold);
+}
+
+@media (min-width: 48rem) and (max-width: 79.9375rem) {
+  .pc-keeps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .pc-shot-week {
+    grid-column: 1 / span 5;
+  }
+  .pc-shot-classes {
+    grid-column: 6 / -1;
+    align-self: start;
+  }
+}
+
+/* The staggered spread with callouts in the margin needs 1280. */
+@media (min-width: 80rem) {
+  .pc-product {
+    row-gap: 0;
+    grid-template-rows: auto auto 1fr;
+  }
+  .pc-product-head {
+    grid-column: 1 / span 3;
+    grid-row: 1;
+  }
+  .pc-keeps {
+    grid-column: 1 / span 3;
+    grid-row: 2;
+    margin-block-start: 2.5rem;
+  }
+  .pc-shot {
+    max-inline-size: none;
+  }
+  .pc-shot-week {
+    grid-column: 6 / span 4;
+    grid-row: 1 / span 3;
+  }
+  .pc-shot-classes {
+    grid-column: 10 / -1;
+    grid-row: 1 / span 3;
+    align-self: start;
+    /* bleed: it runs off the right edge behind the dominant screen. */
+    margin-inline-end: calc(var(--margin) * var(--chaos) * -1);
+    margin-inline-start: calc(var(--overlap-2) * var(--chaos) * -1);
+    margin-block-start: clamp(4rem, 8vw, 7rem);
+  }
+  .pc-shot-classes .pc-shot-crop {
+    /* crop: it is cut short of its own bottom, as a plate is masked to its subject. */
+    aspect-ratio: 760 / 860;
+  }
+  .pc-shot-week .pc-shot-notes,
+  .pc-shot-classes .pc-shot-notes {
+    position: static;
+    display: block;
+    margin: 0;
+  }
+  .pc-shot-week .pc-shot-notes li {
+    position: absolute;
+    inset-block-start: var(--at);
+    inset-inline-end: calc(100% + 1.75rem);
+    inline-size: 12.5rem;
+    text-align: end;
+    padding: 0;
+    border: 0;
+  }
+  .pc-shot-week .pc-shot-notes li::after {
+    content: "";
+    position: absolute;
+    inset-block-start: 0.7em;
+    inset-inline-start: calc(100% + 0.25rem);
+    inline-size: 1.25rem;
+    border-block-start: 2px solid var(--plannr-gold);
+  }
+  .pc-shot-classes .pc-shot-notes {
+    margin-block-start: 0.9rem;
+  }
+}
+
+/* ============================================================= THE DECISIONS */
+
+.pc-decisions-head {
+  grid-column: 1 / -1;
+}
+.pc-decisions-head h2 {
+  margin: 0.6rem 0 0;
+}
+.pc-decisions-lede {
+  margin: 0.75rem 0 0;
+  max-inline-size: 32ch;
+}
+.pc-decision-list {
+  grid-column: 1 / -1;
+  list-style: none;
+  padding: 0;
+  margin: clamp(2rem, 5vw, 3.5rem) 0 0;
+}
+.pc-decision {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  padding-block: clamp(1.5rem, 4vw, 2.25rem);
+  border-block-start: 2px solid var(--color-ink);
+  row-gap: 1.25rem;
+}
+.pc-decision:last-child {
+  border-block-end: 1px solid var(--pc-rule);
+}
+.pc-decision-name {
+  margin: 0;
+  text-wrap: balance;
+  font-size: clamp(1.5rem, 1.05rem + 1.5vw, 2.25rem);
+}
+.pc-decision-note {
+  position: relative;
+  display: inline-block;
+  margin-block-start: 0.9rem;
+  padding-inline-start: 2.6rem;
+}
+.pc-pen-arrow {
+  position: absolute;
+  inset-block-start: 0.05em;
+  inset-inline-start: 0;
+  inline-size: 2.1rem;
+  block-size: 1.05rem;
+  color: var(--plannr-pen);
+  --mark-tilt: 4deg;
+}
+.pc-pen-arrow svg {
+  inline-size: 100%;
+  block-size: 100%;
+}
+.pc-decision-rows {
+  margin: 0;
+  display: grid;
+  gap: 0;
+}
+.pc-decision-rows > div {
+  display: grid;
+  gap: 0.25rem;
+  padding-block: 0.8rem;
+  border-block-start: 1px solid var(--pc-rule);
+}
+.pc-decision-rows > div:first-child {
+  border-block-start: 0;
+  padding-block-start: 0;
+}
+.pc-decision-rows dt {
+  color: var(--pc-soft);
+}
+.pc-decision-rows dd {
+  margin: 0;
+  max-inline-size: 46rem;
+}
+
+@media (min-width: 64rem) {
+  .pc-decision {
+    grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    column-gap: var(--gutter);
+  }
+  .pc-decision-claim {
+    grid-column: 1 / span 4;
+  }
+  .pc-decision-rows {
+    grid-column: 6 / -1;
+  }
+  .pc-decision-rows > div {
+    grid-template-columns: 9rem minmax(0, 1fr);
+    column-gap: var(--gutter);
+    align-items: baseline;
+  }
+}
+
+/* ============================================================= UNDER THE HOOD */
+
+.pc-system {
+  border-block-start: 2px solid var(--color-ink);
+}
+.pc-system-head {
+  grid-column: 1 / -1;
+}
+.pc-system-head h2 {
+  margin: 0.6rem 0 0;
+}
+
+.pc-seq {
+  grid-column: 1 / -1;
+  margin: clamp(1.75rem, 4vw, 2.5rem) 0 0;
+  background-color: var(--pc-sheet);
+  border: 1px solid var(--pc-rule);
+  padding: clamp(1rem, 3vw, 1.75rem) clamp(0.9rem, 3vw, 1.75rem);
+}
+.pc-seq-lanes {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  padding-block-end: 0.75rem;
+  border-block-end: 2px solid var(--color-ink);
+}
+.pc-lane-name {
+  grid-column: span 2;
+  text-align: center;
+  font-weight: 750;
+  font-size: 0.875rem;
+  line-height: 1.15;
+  text-wrap: balance;
+  padding-inline: 0.15rem;
+}
+
+.pc-hops {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  /* lane guides: hairlines through each lane's centre, behind the hops. */
+  background-image: linear-gradient(var(--pc-rule), var(--pc-rule)), linear-gradient(var(--pc-rule), var(--pc-rule)),
+    linear-gradient(var(--pc-rule), var(--pc-rule));
+  background-size: 1px 100%;
+  background-repeat: no-repeat;
+  background-position: 16.6667% 0, 50% 0, 83.3333% 0;
+}
+.pc-hop {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  padding-block: 0.95rem 0.9rem;
+  row-gap: 0.55rem;
+}
+.pc-hop + .pc-hop {
+  border-block-start: 1px dotted var(--pc-rule);
+}
+.pc-hop-label {
+  grid-column: 1 / -1;
+  margin: 0;
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+  font-size: 0.9375rem;
+  font-weight: 550;
+  line-height: 1.3;
+  text-wrap: pretty;
+}
+.pc-hop-text {
+  background-color: var(--pc-sheet);
+  padding-inline: 0.3rem;
+  margin-inline-start: -0.3rem;
+}
+.pc-hop-n {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  inline-size: 1.4rem;
+  block-size: 1.4rem;
+  border: 1.5px solid var(--color-ink);
+  font-size: 0.6875rem;
+  background-color: var(--plannr-paper);
+}
+.pc-hop-line {
+  position: relative;
+  block-size: 2px;
+  align-self: center;
+  background-color: var(--plannr-navy);
+  min-inline-size: 0;
+}
+.pc-hop-line::before,
+.pc-hop-line::after {
+  content: "";
+  position: absolute;
+  inset-block-start: 50%;
+  translate: 0 -50%;
+  inline-size: 0;
+  block-size: 0;
+  border-block: 6px solid transparent;
+  display: none;
+}
+.pc-hop[data-dir="right"] .pc-hop-line::after,
+.pc-hop[data-dir="both"] .pc-hop-line::after {
+  display: block;
+  inset-inline-end: -1px;
+  border-inline-start: 10px solid var(--plannr-navy);
+}
+.pc-hop[data-dir="left"] .pc-hop-line::before,
+.pc-hop[data-dir="both"] .pc-hop-line::before {
+  display: block;
+  inset-inline-start: -1px;
+  border-inline-end: 10px solid var(--plannr-navy);
+}
+
+.pc-lives {
+  grid-column: 1 / -1;
+  margin: 1.5rem 0 0;
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+.pc-lives > div {
+  padding-block-start: 0.6rem;
+  border-block-start: 1px solid var(--pc-rule);
+}
+.pc-lives dt {
+  color: var(--pc-soft);
+  margin-block-end: 0.2rem;
+}
+.pc-lives dd {
+  margin: 0;
+}
+.pc-system-notes {
+  grid-column: 1 / -1;
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.9rem;
+}
+.pc-system-notes .pc-pen {
+  padding-inline-start: 0.85rem;
+  border-inline-start: 2px solid var(--plannr-pen);
+  font-size: 1rem;
+}
+.pc-system-foot {
+  grid-column: 1 / -1;
+  margin-block-start: 2rem;
+  display: grid;
+  gap: 0.9rem;
+  padding-block-start: 1rem;
+  border-block-start: 1px solid var(--pc-rule);
+}
+.pc-system-foot p {
+  margin: 0;
+  max-inline-size: 48rem;
+}
+.pc-stack {
+  color: var(--pc-soft);
+  letter-spacing: 0.05em;
+}
+
+@media (min-width: 64rem) {
+  .pc-seq {
+    grid-column: 1 / span 8;
+  }
+  .pc-lives {
+    grid-column: 9 / -1;
+    grid-row: 2;
+    margin-block-start: clamp(1.75rem, 4vw, 2.5rem);
+  }
+  .pc-system-notes {
+    grid-column: 9 / -1;
+    grid-row: 3;
+    align-self: start;
+  }
+  .pc-lane-name {
+    font-size: 1rem;
+  }
+}
+
+/* ============================================================== THE RECEIPT */
+
+.pc-receipt-head {
+  grid-column: 1 / -1;
+}
+.pc-receipt-head h2 {
+  margin: 0.6rem 0 0;
+  max-inline-size: 24ch;
+}
+.pc-receipt-checked {
+  margin: 0.6rem 0 0;
+  color: var(--pc-soft);
+}
+.pc-sheet {
+  grid-column: 1 / -1;
+  position: relative;
+  margin-block-start: clamp(1.75rem, 4vw, 2.5rem);
+  background-color: var(--pc-sheet);
+  border: 1px solid var(--pc-rule);
+  padding: clamp(1rem, 3vw, 2rem);
+}
+
+/* The date stamp: an approval carries the date it was given. It is the one
+   reason the receipt is allowed a slightly crooked mark. Hidden by Clean Copy;
+   the same date is real text under the heading. */
+.pc-stamp {
+  position: absolute;
+  inset-block-start: -1.1rem;
+  inset-inline-end: clamp(0.75rem, 3vw, 2rem);
+  display: block;
+  padding: 0.3rem 0.7rem 0.35rem;
+  border: 3px double var(--plannr-pen);
+  color: var(--plannr-pen);
+  background-color: var(--plannr-paper);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.pc-ledger {
+  margin: 0;
+}
+.pc-ledger-row {
+  display: grid;
+  gap: 0.25rem;
+  padding-block: 0.85rem;
+  border-block-start: 1px solid var(--pc-rule);
+}
+.pc-ledger-row:first-child {
+  border-block-start: 0;
+  padding-block-start: 0;
+}
+.pc-ledger-row dt {
+  color: var(--pc-soft);
+}
+.pc-ledger-row dd {
+  margin: 0;
+  display: grid;
+  gap: 0.15rem;
+  justify-items: start;
+}
+.pc-not-on-file {
+  margin: 1.25rem 0 0;
+  padding-block-start: 1rem;
+  border-block-start: 2px solid var(--color-ink);
+  display: grid;
+  gap: 0.3rem;
+  max-inline-size: 44rem;
+}
+.pc-not-on-file .t-meta {
+  color: var(--plannr-pen);
+}
+
+.pc-credits {
+  grid-column: 1 / -1;
+  margin-block-start: clamp(2rem, 5vw, 3rem);
+}
+.pc-credits h3 {
+  margin: 0 0 0.9rem;
+}
+.pc-credits .pc-ledger-row:first-child {
+  border-block-start: 2px solid var(--color-ink);
+  padding-block-start: 0.85rem;
+}
+
+.pc-exit {
+  grid-column: 1 / -1;
+  margin-block-start: clamp(2rem, 5vw, 3rem);
+  padding-block-start: 1rem;
+  border-block-start: 1px solid var(--pc-rule);
+}
+.pc-exit a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 2.75rem;
+  font-weight: 650;
+  color: var(--plannr-navy);
+}
+
+@media (min-width: 48rem) {
+  .pc-ledger-row {
+    grid-template-columns: 8rem minmax(0, 1fr);
+    column-gap: var(--gutter);
+    align-items: baseline;
+  }
+}
+
+@media (min-width: 64rem) {
+  .pc-sheet {
+    grid-column: 1 / span 7;
+  }
+  .pc-credits {
+    grid-column: 9 / -1;
+    grid-row: 2;
+    margin-block-start: clamp(1.75rem, 4vw, 2.5rem);
+  }
+  .pc-credits .pc-ledger-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pc-exit {
+    grid-row: 3;
+  }
+}
+
+/* ============================================================== CLEAN COPY */
+
+/* .ornament (binder holes, pen marks, stamp, arrows) is already hidden by the
+   global switch. What stays is meaning: the highlighter falls back to a plain
+   underline (so the deadlines are still marked without color), the term grid
+   keeps its outlines and tags, and the full-bleed navy band stops bleeding. */
+:root[data-copy="clean"] .pc-hl {
+  background-image: none;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: var(--plannr-pen);
+}
+:root[data-copy="clean"] .pc-mark-host {
+  padding-inline: 0;
+  margin-inline: 0;
+}
+:root[data-copy="clean"] .pc-product {
+  box-shadow: none;
+  clip-path: none;
+}
+:root[data-copy="clean"] .pc-line-note,
+:root[data-copy="clean"] .pc-shot-notes li {
+  border-inline-start-width: 2px;
+}

@@ -498,3 +498,23 @@ and **never `redirect()` inside an admin page**.
   and one registration mark next to the issue number; nothing is sticky. The
   legacy pages sit inside the shell with only a temporary folio/title entry —
   their bodies are unchanged.
+- **M6A Plannr case study.** `/projects/plannr`: seven static spreads (course
+  packet hero, document, transformation, product, decisions, under the hood,
+  receipt) on one `.plannr-case` scope. Plannr is the ordered counterpart to
+  Rankle: paper, hairline rules, registrar forms, one highlighter and one blue
+  pen. Its palette is the real product's (navy, gold, paper, wave blue) plus a
+  pen blue and highlighter *derived* from them with `color-mix()`; it has no red.
+  The syllabus is the protagonist, but every real syllabus in the workspace
+  carries instructor names, emails or private Canvas URLs, so the page uses a
+  labelled fictitious illustration and real product captures instead (see
+  `docs/planning/m6-plannr-evidence.md`). Each mark answers "why was this
+  altered?": binder holes (a punched handout), highlighter (what the extractor
+  will read as a deadline), one pen ring (the one date nobody states), a bracket
+  (the lines Plannr ignores), a date stamp (an approval carries a date). No mark
+  is the only carrier of a fact: each has real text, and Clean Copy demotes the
+  highlighter to an underline. Body text is never rotated (there is no rotation on
+  the page at all). Desktop compositions that need room start at 1280; 768 to 1279
+  keeps the same reading order in two columns; the hero re-composes by its own
+  width (container query), not the viewport's. The transformation carries stable
+  `data-pl-*` hooks as the static foundation for M6B. Big Shoulders appears in two
+  moments only: the wordmark and the four step words.
