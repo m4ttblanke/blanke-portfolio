@@ -1,5 +1,4 @@
-import { ContentFrame, PageFrame } from "@/components/shell/page";
-import { TAGLINE } from "@/lib/site";
+import { Cover } from "@/components/cover/cover";
 
 export const metadata = {
   title: "Matt Blanke",
@@ -7,15 +6,8 @@ export const metadata = {
   alternates: { canonical: "/" },
 };
 
-// Intentionally sparse until the cover (M3). The masthead already carries the
-// contents, so the old link list is gone.
+// THE COVER (M3A). Replaces the placeholder "Matt Blanke / CS student and
+// software engineer." body. See components/cover/cover.tsx.
 export default function Home() {
-  return (
-    <PageFrame>
-      <ContentFrame>
-        <h1>Matt Blanke</h1>
-        <p>{TAGLINE}</p>
-      </ContentFrame>
-    </PageFrame>
-  );
+  return <Cover />;
 }
