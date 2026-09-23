@@ -9,12 +9,13 @@ import { PLANNR } from "@/lib/work/projects";
 // interaction) is M6; this is the cover, not the article.
 //
 // M4B added project-specific hover/focus (selected-work.css, "interaction"):
-// a small lift, a marginally deeper contact shadow, and .pl-cell-marked-alt
-// below -- a second, always-present but resting-invisible highlighted cell
-// that crossfades in on hover/focus while .pl-cell-marked crossfades out, so
-// "the schedule changed." Both cells stay inside .pl-grid's own
-// aria-hidden="true": decorative either way, never the only place any
-// information exists.
+// a small lift and .pl-cell-marked-alt below -- a second, always-present but
+// resting-invisible highlighted cell that crossfades in on hover/focus while
+// .pl-cell-marked crossfades out, so "the schedule changed." Both cells stay
+// inside .pl-grid's own aria-hidden="true": decorative either way, never the
+// only place any information exists. M4C removed the hover/focus contact-
+// shadow deepening the first pass had -- it read as generic card elevation
+// rather than anything Plannr-specific; the resting shadow is unchanged.
 export function PlannrWorkPoster() {
   return (
     // Plain anchor on purpose: /plannr/* is a next.config.ts rewrite to the

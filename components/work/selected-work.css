@@ -157,12 +157,12 @@
      Rankle's at every width (never a floating-card shadow): paper lifting
      slightly off paper, not Material elevation. */
   box-shadow: 0 0.5rem 1rem -0.75rem color-mix(in srgb, var(--color-ink) 55%, transparent);
-  /* Interaction (M4B): orthogonal stays orthogonal -- no rotate here, ever.
-     Only a small upward translate and a slightly deeper contact shadow. */
+  /* Interaction (M4B/M4C): orthogonal stays orthogonal -- no rotate here,
+     ever. Only a small upward translate; the shadow does not animate (M4C
+     decision, see the "interaction" comment below) -- it stays exactly as
+     set above, at rest and while hovered/focused alike. */
   translate: 0 0;
-  transition:
-    translate var(--dur-quick) var(--ease-out),
-    box-shadow var(--dur-quick) var(--ease-out);
+  transition: translate var(--dur-quick) var(--ease-out);
 }
 
 .pl-title { color: var(--plannr-navy); font-size: clamp(2rem, 4vw, 3.5rem); margin-block-end: 0.125rem; }
@@ -218,9 +218,15 @@
  * a small stagger -- evoking movement between tiers without becoming a game.
  *
  * Plannr (precise / structured / scheduled): stays orthogonal always (no
- * rotate, ever). A small upward lift, a marginally deeper contact shadow,
- * and the highlighted calendar cell crossfades to an adjacent one -- "the
- * schedule changed," an abstract graphic response, not a real calendar.
+ * rotate, ever). A small upward lift and the highlighted calendar cell
+ * crossfading to an adjacent one -- "the schedule changed," an abstract
+ * graphic response, not a real calendar. M4C removed the hover/focus contact-
+ * shadow deepening that the first M4B pass had: A/B comparison (lift+shadow+
+ * cell vs. lift+cell, resting shadow untouched) showed the animated shadow
+ * was the least project-specific part of the interaction -- any card can
+ * deepen its shadow on hover, and it read as generic Material/UI elevation
+ * rather than "a physical sheet." The resting contact shadow (justified
+ * because Plannr genuinely overlaps Rankle at rest) is unchanged.
  *
  * Both: gated behind `(hover: hover) and (pointer: fine)` for :hover (so
  * touch/coarse pointers never receive hover-only motion -- a tap still just
@@ -248,7 +254,6 @@
 
   .wall-plannr:focus-visible {
     translate: 0 -0.2rem;
-    box-shadow: 0 0.75rem 1.25rem -0.75rem color-mix(in srgb, var(--color-ink) 62%, transparent);
     color: var(--plannr-navy);
   }
   .wall-plannr:focus-visible .pl-cell-marked { opacity: 0; }
@@ -265,7 +270,6 @@
 
   .wall-plannr:hover {
     translate: 0 -0.2rem;
-    box-shadow: 0 0.75rem 1.25rem -0.75rem color-mix(in srgb, var(--color-ink) 62%, transparent);
     color: var(--plannr-navy);
   }
   .wall-plannr:hover .pl-cell-marked { opacity: 0; }
