@@ -407,6 +407,15 @@ describe("Rankle case study — M5B signature interaction", () => {
   });
 });
 
+describe("Rankle case study — M5 hardening pass", () => {
+  it("the Argument section's side labels are full-opacity white on blue (regression: an axe scan found a reduced opacity there failed WCAG AA color-contrast; every other white-on-blue text in this section is full-opacity and already passes)", () => {
+    const css = strip(read("components/rankle/rankle.css"));
+    const rule = css.slice(css.indexOf(".rk-argument-side-label {"), css.indexOf(".rk-argument-stack"));
+    expect(rule).toMatch(/color:\s*var\(--color-white\)/);
+    expect(rule).not.toMatch(/opacity\s*:\s*0\.\d/);
+  });
+});
+
 describe("Rankle case study — M2/M3 untouched", () => {
   it("the shell and cover were not modified by this milestone", () => {
     for (const f of ["components/shell/site-shell.tsx", "components/shell/site-header.tsx", "components/shell/site-footer.tsx"]) {
