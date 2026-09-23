@@ -155,118 +155,154 @@
 
 /* ------------------------------------------------------------- rank demo */
 
-.rk-rank-demo {
-  margin-block-start: 1.5rem;
-  max-inline-size: 34rem;
-  background-color: var(--color-paper-shade);
-  border: 1.5px solid var(--on);
-  padding: 1.25rem;
-}
+/*
+ * M5B visual adjustment: rebuilt from a "twenty permanently-visible buttons
+ * in bordered rows" form-panel into a SELECTED-OBJECT model -- pick a shape
+ * up, then choose one of five tier destinations (rankle-rank-interaction.tsx
+ * has the full interaction-model comment). Visually: no enclosing box, no
+ * saturated five-bar tier field -- tier color lives only in each small
+ * letter badge (the same stamp/tab language the hero's tier-stack already
+ * established), so the tier list itself stays paper, not five giant bars.
+ * rk-rt-* (not rk-tier-*) again: that bare class name in the Argument
+ * section sets `color`, which would cascade into real text here.
+ */
 
-.rk-rank-caption { color: var(--on-soft); margin: 0 0 0.875rem; }
+.rk-rank-demo { margin-block-start: 1.5rem; max-inline-size: 30rem; }
 
-.rk-rank-pool,
-.rk-rank-tier-slot {
+.rk-rank-caption { color: var(--on-soft); margin: 0 0 1rem; }
+
+.rk-rank-shapes {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.625rem;
+  gap: 1.25rem;
   padding: 0;
-  margin: 0;
+  margin: 0 0 1.75rem;
   list-style: none;
-  min-inline-size: 0;
-  flex: 1;
 }
-.rk-rank-pool { margin-block-end: 1rem; }
 
-.rk-rank-slip {
+/* A loose paper slip, not a form row: thin ink border, small hand-picked
+   tilt per shape (never Math.random, matching the site's own chaos rule),
+   scaled by --chaos so Clean Copy straightens it exactly like every other
+   tilt on the site. */
+.rk-rank-shape {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.375rem;
+  inline-size: 4.5rem;
+  padding: 0.625rem 0.5rem;
   background-color: var(--color-white);
   border: 1.5px solid var(--on);
-  padding: 0.5rem 0.625rem;
-  /* Flex items default to min-inline-size: auto, which refuses to shrink
-     below the picker row's intrinsic width -- that's what overflowed at
-     320px instead of letting .rk-rank-picker's flex-wrap actually wrap. */
-  min-inline-size: 0;
-}
-
-.rk-rank-glyph { inline-size: 1.25rem; block-size: 1.25rem; color: var(--on); }
-.rk-rank-glyph svg { display: block; inline-size: 100%; block-size: 100%; }
-.rk-rank-slip-name { font-size: var(--t-caption); font-weight: 650; }
-
-/* Deliberately nowrap by default. flex-wrap alone here proved unreliable --
-   nested flex shrink-to-fit sizing (column-direction .rk-rank-slip inside a
-   wrapping .rk-rank-tier-slot) could settle a hair under the five buttons'
-   own content width even with generous room to spare, wrapping to two rows
-   at any viewport. A narrow-width override below is the one place it's
-   actually needed (confirmed by testing: inside a tier band, the label
-   sibling leaves too little room under ~26rem). */
-.rk-rank-picker { display: flex; flex-wrap: nowrap; gap: 0.25rem; }
-
-@media (max-width: 26rem) {
-  .rk-rank-picker { flex-wrap: wrap; max-inline-size: 10rem; }
-}
-.rk-rank-pick {
-  inline-size: 1.75rem;
-  block-size: 1.75rem;
-  min-inline-size: 2.75rem;
-  min-block-size: 2.75rem;
-  border: 2px solid var(--rule);
-  background-color: var(--color-paper);
-  color: var(--on-soft);
+  color: var(--on);
   font-family: var(--font-body);
-  font-weight: 800;
-  font-size: 0.8125rem;
   cursor: pointer;
-  transition: transform var(--dur-quick) var(--ease-out);
+  transition: translate var(--dur-quick) var(--ease-out), border-width var(--dur-quick) var(--ease-out);
 }
-.rk-rank-pick:active { transform: scale(0.92); }
-.rk-rank-pick[aria-pressed="true"] { border-color: var(--color-ink); transform: scale(1.06); }
-.rk-rank-pick-s[aria-pressed="true"] { background-color: var(--rankle-red); color: var(--color-white); }
-.rk-rank-pick-a[aria-pressed="true"] { background-color: var(--rankle-yellow); color: var(--color-ink); }
-.rk-rank-pick-b[aria-pressed="true"] { background-color: var(--rankle-blue); color: var(--color-white); }
-.rk-rank-pick-c[aria-pressed="true"] { background-color: var(--color-ink); color: var(--color-paper); }
-.rk-rank-pick-f[aria-pressed="true"] { background-color: var(--color-white); color: var(--color-ink); }
 
-.rk-rank-tiers { display: flex; flex-direction: column; gap: 0.5rem; padding: 0; margin: 0; list-style: none; }
+/* Selected: lifted and squared up (picked up off the table), a small ink
+   registration mark instead of a generic focus-blue treatment. Rotation
+   isn't overridden here -- ShapeSlip simply omits the tilt class while
+   selected, so this never needs a raw `rotate:` of its own. */
+.rk-rank-shape[aria-pressed="true"] {
+  border-width: 2.5px;
+  translate: 0 -0.1875rem;
+  position: relative;
+}
+.rk-rank-shape[aria-pressed="true"]::after {
+  content: "";
+  position: absolute;
+  inset-block-start: -0.25rem;
+  inset-inline-end: -0.25rem;
+  inline-size: 0.5rem;
+  block-size: 0.5rem;
+  background-color: var(--rankle-blue);
+}
+
+.rk-rank-shape-compact {
+  inline-size: auto;
+  flex-direction: row;
+  gap: 0.375rem;
+  padding: 0.3125rem 0.5rem;
+}
+
+.rk-rank-glyph { inline-size: 1.25rem; block-size: 1.25rem; }
+.rk-rank-glyph svg { display: block; inline-size: 100%; block-size: 100%; }
+.rk-rank-shape-name { font-size: var(--t-caption); font-weight: 650; }
+.rk-rank-shape-compact .rk-rank-shape-name { font-size: 0.75rem; }
+
+/* One tier field: a ledger, not five input boxes. Color lives in the small
+   letter badge only -- the row itself stays paper. */
+.rk-rank-tiers { display: flex; flex-direction: column; gap: 0; padding: 0; margin: 0; list-style: none; border-block-start: 1px solid var(--rule); }
 .rk-rank-tier {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.75rem;
-  padding: 0.625rem;
-  border: 1.5px solid var(--on);
-  min-block-size: 3.5rem;
+  padding-block: 0.625rem;
+  border-block-end: 1px solid var(--rule);
+  min-block-size: 3.25rem;
 }
-.rk-rank-tier-label {
+
+.rk-rank-tier-letter {
   flex: none;
   display: grid;
   place-items: center;
-  inline-size: 2.25rem;
-  block-size: 2.25rem;
+  inline-size: 2rem;
+  block-size: 2rem;
   font-family: var(--font-body);
   font-weight: 800;
-  font-size: 1.125rem;
+  font-size: 1rem;
 }
-/*
- * rk-rt-* (not rk-tier-*): a real bug, caught by live testing, not just
- * review. The Argument section's decorative .rk-tier-s/a/b/c/f (below) sets
- * `color` on whatever element carries that bare class name -- harmless for
- * its own aria-hidden blocks, but this <li> is real, functional UI, and
- * reusing the same class name let that color rule cascade down into
- * .rk-rank-slip-name (paper-on-white, functionally invisible) inside the C
- * tier band. Distinct class names, not scoping tricks, is the fix: nothing
- * outside this component can ever collide with it again.
- */
-.rk-rank-tier.rk-rt-s .rk-rank-tier-label { background-color: var(--rankle-red); color: var(--color-white); }
-.rk-rank-tier.rk-rt-a .rk-rank-tier-label { background-color: var(--rankle-yellow); color: var(--color-ink); }
-.rk-rank-tier.rk-rt-b .rk-rank-tier-label { background-color: var(--rankle-blue); color: var(--color-white); }
-.rk-rank-tier.rk-rt-c .rk-rank-tier-label { background-color: var(--color-ink); color: var(--color-paper); }
-.rk-rank-tier.rk-rt-f .rk-rank-tier-label { background-color: var(--color-white); color: var(--color-ink); border: 1.5px solid var(--on); }
+.rk-rank-tier.rk-rt-s .rk-rank-tier-letter { background-color: var(--rankle-red); color: var(--color-white); }
+.rk-rank-tier.rk-rt-a .rk-rank-tier-letter { background-color: var(--rankle-yellow); color: var(--color-ink); }
+.rk-rank-tier.rk-rt-b .rk-rank-tier-letter { background-color: var(--rankle-blue); color: var(--color-white); }
+.rk-rank-tier.rk-rt-c .rk-rank-tier-letter { background-color: var(--color-ink); color: var(--color-paper); }
+.rk-rank-tier.rk-rt-f .rk-rank-tier-letter { background-color: var(--color-white); color: var(--color-ink); border: 1.5px solid var(--on); }
 
-.rk-rank-controls { display: flex; align-items: center; gap: 1rem; margin-block-start: 1rem; min-block-size: 1.5rem; }
-.rk-rank-done { margin: 0; font-family: var(--font-body); font-weight: 800; letter-spacing: 0.02em; }
+.rk-rank-tier-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+/* The destination: quiet and nearly invisible at rest (a hairline dashed
+   edge, not an empty input box), taking the remaining row width so the
+   whole strip is a comfortable, forgiving tap target once something is
+   picked up -- never a separate small button hunting for precision. */
+.rk-rank-tier-target {
+  flex: 1;
+  min-inline-size: 3rem;
+  min-block-size: 2.75rem;
+  background: none;
+  border: 1.5px dashed transparent;
+  color: transparent;
+  font-size: var(--t-caption);
+  cursor: default;
+  transition: border-color var(--dur-quick) var(--ease-out), background-color var(--dur-quick) var(--ease-out);
+}
+.rk-rank-tier-target:not(:disabled) {
+  border-color: var(--rule);
+  color: var(--on-soft);
+  cursor: pointer;
+}
+.rk-rank-tier.rk-rt-s .rk-rank-tier-target:not(:disabled) { background-color: color-mix(in srgb, var(--rankle-red) 10%, transparent); border-color: var(--rankle-red); }
+.rk-rank-tier.rk-rt-a .rk-rank-tier-target:not(:disabled) { background-color: color-mix(in srgb, var(--rankle-yellow) 14%, transparent); border-color: var(--rankle-yellow); }
+.rk-rank-tier.rk-rt-b .rk-rank-tier-target:not(:disabled) { background-color: color-mix(in srgb, var(--rankle-blue) 10%, transparent); border-color: var(--rankle-blue); }
+.rk-rank-tier.rk-rt-c .rk-rank-tier-target:not(:disabled) { background-color: color-mix(in srgb, var(--color-ink) 8%, transparent); border-color: var(--color-ink); }
+.rk-rank-tier.rk-rt-f .rk-rank-tier-target:not(:disabled) { background-color: color-mix(in srgb, var(--on) 6%, transparent); }
+.rk-rank-tier-target[aria-pressed="true"] { border-style: solid; font-weight: 650; }
+
+.rk-rank-controls { display: flex; align-items: center; gap: 1rem; margin-block-start: 1.25rem; min-block-size: 1.5rem; }
+.rk-rank-done {
+  margin: 0;
+  font-size: var(--t-meta);
+  font-weight: 650;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--on-soft);
+}
 .rk-rank-reset {
   background: none;
   border: none;

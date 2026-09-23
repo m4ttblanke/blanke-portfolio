@@ -292,10 +292,23 @@ describe("Rankle case study — M5B signature interaction", () => {
     expect(interaction).not.toMatch(/draggable=\{?true\}?|onDragStart|onDrop/);
   });
 
-  it("every tier button carries aria-pressed and a real accessible name; groups are labeled", () => {
-    expect(interaction).toMatch(/aria-pressed=\{item\.tier === tier\}/);
-    expect(interaction).toMatch(/aria-label=\{`\$\{item\.label\}, \$\{tier\} tier`\}/);
-    expect(interaction).toMatch(/role="group"\s+aria-label=\{`Rank \$\{item\.label\}`\}/);
+  it("shape buttons and tier destinations both carry aria-pressed and a real, concrete accessible name", () => {
+    // A shape's own button: pressed = currently selected/picked up.
+    expect(interaction).toMatch(/aria-pressed=\{selected\}/);
+    expect(interaction).toMatch(/`\$\{item\.label\}, ranked \$\{item\.tier\}\. Press to pick up\.`/);
+    // A tier destination: pressed = the selected shape is already here;
+    // its accessible name says exactly what activating it will do.
+    expect(interaction).toMatch(/aria-pressed=\{selected \? selected\.tier === tier : undefined\}/);
+    expect(interaction).toMatch(/`Move \$\{selected\.label\} to \$\{tier\} tier`/);
+  });
+
+  it("tier destinations are disabled -- not hidden -- until a shape is selected (brief's own preferred architecture: exposed, not removed, from a keyboard user's reach)", () => {
+    expect(interaction).toMatch(/disabled=\{!selected\}/);
+    // A disabled button is real markup, still in the accessibility tree and
+    // still discoverable by a screen reader moving through the page --
+    // merely not focusable/activatable until enabled. Never `display:none`
+    // or conditionally unrendered.
+    expect(interaction).not.toMatch(/\{selected &&[\s\S]{0,20}<button[^>]*rk-rank-tier-target/);
   });
 
   it("the live region is a single concise status, not a growing log", () => {
@@ -306,7 +319,25 @@ describe("Rankle case study — M5B signature interaction", () => {
 
   it("decorative glyphs are aria-hidden; the shape's real name is separate visible text", () => {
     expect(interaction).toMatch(/className="rk-rank-glyph" aria-hidden="true"/);
-    expect(interaction).toMatch(/rk-rank-slip-name.*\{item\.label\}/);
+    expect(interaction).toMatch(/rk-rank-shape-name.*\{item\.label\}/);
+  });
+
+  it("selecting a shape is a real, testable toggle (select / re-select-to-deselect), not just a click handler with no state contract", () => {
+    expect(rankDemo).toMatch(/export function announceSelect/);
+    expect(rankDemo).toMatch(/export function announceDeselect/);
+    expect(interaction).toMatch(/if \(selectedId === id\)/);
+  });
+
+  it("no 'TRY IT — NOT THE REAL GAME' debug-style disclaimer copy remains (brief: demote to something editorial, or nothing)", () => {
+    expect(interaction).not.toMatch(/TRY IT/i);
+    expect(interaction).not.toMatch(/NOT THE REAL GAME/i);
+  });
+
+  it("only one tier field exists -- five tier letters total, not five per shape", () => {
+    // RANK_DEMO_TIERS is mapped exactly once (the shared tier list), never
+    // once per rankable item as the earlier per-item-picker version did.
+    const mapCalls = (interaction.match(/RANK_DEMO_TIERS\.map/g) ?? []).length;
+    expect(mapCalls).toBe(1);
   });
 
   it("motion, if any, rides the site's own reduced-motion-safe tokens -- no separate reduced-motion path, no hardcoded ms", () => {
@@ -318,17 +349,15 @@ describe("Rankle case study — M5B signature interaction", () => {
     expect(rankBlock).not.toMatch(/\brotate\s*:/);
   });
 
-  it("touch targets meet the 44px minimum (ART_DIRECTION.md §11)", () => {
+  it("the tier destination -- the one precision-sensitive touch target -- meets the 44px minimum (ART_DIRECTION.md §11)", () => {
     const css = read("components/rankle/rankle.css");
-    expect(css).toMatch(/\.rk-rank-pick\s*\{[^}]*min-inline-size:\s*2\.75rem/);
-    expect(css).toMatch(/\.rk-rank-pick\s*\{[^}]*min-block-size:\s*2\.75rem/);
+    expect(css).toMatch(/\.rk-rank-tier-target\s*\{[^}]*min-block-size:\s*2\.75rem/);
   });
 
   it("restores keyboard focus after an item's DOM node relocates between tiers (regression: live Playwright testing found focus was silently lost on every move before this fix)", () => {
-    // Every tier button has a stable, predictable id so it can be re-found
+    // Every shape button has a stable, predictable id so it can be re-found
     // after React relocates its <li> into a different parent list.
-    expect(interaction).toMatch(/id=\{pickId\(item\.id, tier\)\}/);
-    expect(interaction).toMatch(/function pickId\(/);
+    expect(interaction).toMatch(/id=\{`rank-shape-\$\{item\.id\}`\}/);
     // A pending-focus ref is set before the state update and consumed by an
     // effect keyed on `items`, after the DOM has actually moved.
     expect(interaction).toMatch(/const pendingFocusId = useRef/);
@@ -337,6 +366,11 @@ describe("Rankle case study — M5B signature interaction", () => {
     // `started`), so focus moves to the stable, never-unmounting container.
     expect(interaction).toMatch(/tabIndex=\{-1\}/);
     expect(interaction).toMatch(/containerRef\.current\?\.focus\(\)/);
+  });
+
+  it("focus also follows a fresh selection to the first tier destination (select, then choose a tier, reads as one continuous keyboard motion)", () => {
+    expect(interaction).toMatch(/const firstTierTargetRef = useRef/);
+    expect(interaction).toMatch(/useEffect\(\(\) => \{\s*if \(selectedId\) firstTierTargetRef\.current\?\.focus\(\);\s*\}, \[selectedId\]\)/);
   });
 
   it("the rank demo's tier bands use rk-rt-*, never bare rk-tier-* (regression: live testing found the Argument section's .rk-tier-c sets color:paper, which cascaded into a real interactive control here and made its label functionally invisible -- paper-on-white)", () => {

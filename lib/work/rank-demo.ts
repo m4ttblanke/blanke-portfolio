@@ -59,3 +59,14 @@ export function hasStarted(items: readonly RankDemoItem[]): boolean {
 export function announce(item: RankDemoItem): string {
   return item.tier ? `${item.label} moved to ${item.tier} tier.` : `${item.label} returned to unranked.`;
 }
+
+/** Selected-object model (M5B visual adjustment): pick one shape up, then
+ * choose its tier. These two announcements cover the "picked up" and
+ * "put back down without placing" halves of that flow; `announce` above
+ * still covers the actual placement. */
+export function announceSelect(item: RankDemoItem): string {
+  return `${item.label} selected. Choose a tier.`;
+}
+export function announceDeselect(item: RankDemoItem): string {
+  return `${item.label} deselected.`;
+}

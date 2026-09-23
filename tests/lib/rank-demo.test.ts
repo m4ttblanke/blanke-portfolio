@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   RANK_DEMO_TIERS,
   announce,
+  announceDeselect,
+  announceSelect,
   assignTier,
   hasStarted,
   initialRankDemoItems,
@@ -93,6 +95,12 @@ describe("rank demo — announcements", () => {
   it("announces an un-rank distinctly", () => {
     const item = { id: "circle" as const, label: "Circle", tier: null };
     expect(announce(item)).toBe("Circle returned to unranked.");
+  });
+
+  it("announces picking a shape up, and putting it back down without placing it", () => {
+    const item = { id: "square" as const, label: "Square", tier: null };
+    expect(announceSelect(item)).toBe("Square selected. Choose a tier.");
+    expect(announceDeselect(item)).toBe("Square deselected.");
   });
 });
 
