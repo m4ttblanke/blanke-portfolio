@@ -57,8 +57,7 @@
   --fit-matthew: 29.2; /* MATTHEW 3.369em */
 }
 
-.fit { container-type: inline-size; }
-.fit > .t-display { display: block; white-space: nowrap; }
+/* .fit itself now lives in app/globals.css (the cover uses it too). */
 .fit-blanke { font-size: calc(var(--fit-blanke) * 1cqw); }
 .fit-matthew { font-size: calc(var(--fit-matthew) * 1cqw); }
 

@@ -245,6 +245,13 @@
   .t-display-m { font-size: var(--t-display-m); }
   .t-display-l { font-size: var(--t-display-l); }
 
+  /* Fitting a word to a column (ART_DIRECTION.md, "Typography"): a container
+     of any width, sized by cqw so the word fills it. font-size = 100 / (word's
+     measured em-width) in `cqw`, re-measured per face/tracking in a real
+     browser. The proof sheet demonstrated this; the cover is its first real use. */
+  .fit { container-type: inline-size; }
+  .fit > .t-display { display: block; white-space: nowrap; }
+
   .t-head-1,
   .t-head-2,
   .t-head-3 {
