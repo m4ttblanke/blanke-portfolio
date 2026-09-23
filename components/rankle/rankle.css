@@ -92,9 +92,21 @@
 
 /* ------------------------------------------------------------------ thing */
 
+/*
+ * M5A adjustment pass: RANK leads as an oversized opening move (the brief's
+ * "dominant opening action"), not one of five equal boxes. SUBMIT -> COMPARE
+ * -> SHARE -> RETURN follow as a connected, arrow-linked chain that cascades
+ * rightward at desktop (a staircase, evoking descent through tiers) and
+ * simply stacks at mobile -- never a flat horizontal timeline, never five
+ * rounded cards. The small card fan behind RANK is an abstract, unlabeled
+ * "items waiting to be ranked" artifact: blank on purpose (no invented item
+ * names), ink-on-paper-shade only (not tier-colored -- items have no tier
+ * until a person ranks them, which is the actual product truth).
+ */
+
 .rk-thing {
   padding-block: var(--space-section-m);
-  row-gap: clamp(1.5rem, 3vw, 2.5rem);
+  row-gap: clamp(2rem, 4vw, 3rem);
 }
 
 .rk-thing-heading {
@@ -102,44 +114,111 @@
 }
 .rk-thing-heading .t-meta { color: var(--on-soft); }
 
-.rk-thing-flow {
+.rk-thing-rank {
   grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0;
-  border-block-start: 1px solid var(--rule);
+  position: relative;
+  padding-block-start: 1.5rem;
+  border-block-start: 3px solid var(--rankle-blue);
 }
 
-.rk-thing-step {
-  padding-block: 1.25rem;
-  padding-inline-end: 1.25rem;
-  border-block-end: 1px solid var(--rule);
+.rk-thing-cards {
+  position: absolute;
+  inset-block-start: -0.5rem;
+  inset-inline-end: 0.5rem;
+  inline-size: 4.5rem;
+  block-size: 3.5rem;
+  display: none;
 }
+.rk-thing-card {
+  position: absolute;
+  inset: 0;
+  inline-size: 3rem;
+  block-size: 2.25rem;
+  background-color: var(--color-paper-shade);
+  border: 1.5px solid var(--on);
+}
+.rk-thing-card-1 { translate: 0 0.75rem; }
+.rk-thing-card-2 { translate: 0.75rem 0.375rem; }
+.rk-thing-card-3 { translate: 1.5rem 0; background-color: var(--color-white); }
 
-.rk-thing-step-label {
-  display: flex;
-  align-items: baseline;
-  column-gap: 0.5rem;
-  margin-block-end: 0.375rem;
-}
-.rk-thing-step-num {
+.rk-thing-rank-num {
+  margin: 0;
   font-family: var(--font-body);
   font-weight: 800;
-  font-size: 0.875rem;
+  font-size: var(--t-meta);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
   color: var(--rankle-blue);
   font-variant-numeric: tabular-nums;
 }
-.rk-thing-step-name {
+.rk-thing-rank-word {
+  margin: 0.25rem 0 0;
+  font-family: var(--font-body);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 0.95;
+  font-size: clamp(3rem, 4rem + 4vw, 7rem);
+}
+.rk-thing-rank-body {
+  margin-block-start: 0.75rem;
+  max-inline-size: 32ch;
+  color: var(--on-soft);
+}
+
+.rk-thing-chain {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: clamp(1.5rem, 3vw, 2rem);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.rk-thing-link { position: relative; padding-inline-start: 1.5rem; max-inline-size: 34ch; }
+/* A small downward triangle drawn from a border trick (the same technique as
+   .rk-arch-arrow below), never a `rotate:` -- that token is reserved for the
+   site's named .tilt-* chaos primitives, not icon drawing. */
+.rk-thing-arrow {
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: 0.15em;
+  inline-size: 0;
+  block-size: 0;
+  border-inline: 5px solid transparent;
+  border-block-start: 7px solid var(--rankle-blue);
+}
+.rk-thing-link-label {
+  display: flex;
+  align-items: baseline;
+  column-gap: 0.5rem;
+  margin: 0 0 0.375rem;
+}
+.rk-thing-link-num {
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 0.8125rem;
+  color: var(--on-soft);
+  font-variant-numeric: tabular-nums;
+}
+.rk-thing-link-name {
   font-family: var(--font-body);
   font-weight: 750;
-  font-size: 1.0625rem;
+  font-size: clamp(1.25rem, 1.5vw + 1rem, 1.75rem);
 }
-.rk-thing-step p:last-child { color: var(--on-soft); margin: 0; }
+.rk-thing-link p:last-child { color: var(--on-soft); margin: 0; }
 
-@media (min-width: 48rem) {
-  .rk-thing-flow { grid-template-columns: repeat(5, 1fr); }
-  .rk-thing-step { border-inline-end: 1px solid var(--rule); }
-  .rk-thing-step:last-child { border-inline-end: none; }
+@media (min-width: 40rem) {
+  .rk-thing-cards { display: block; }
+}
+
+@media (min-width: 64rem) {
+  /* The cascade: each link starts one column further right than the last,
+     a staircase descending across the page -- never a flat equal-width row. */
+  .rk-thing-rank { grid-column: 1 / 9; }
+  .rk-thing-chain { grid-column: 1 / -1; grid-template-columns: repeat(12, 1fr); column-gap: var(--gutter); row-gap: clamp(2rem, 3vw, 2.75rem); }
+  .rk-thing-link:nth-child(1) { grid-column: 1 / 8; }
+  .rk-thing-link:nth-child(2) { grid-column: 3 / 10; }
+  .rk-thing-link:nth-child(3) { grid-column: 5 / 12; }
+  .rk-thing-link:nth-child(4) { grid-column: 7 / 13; }
 }
 
 /* --------------------------------------------------------------- argument */
@@ -159,18 +238,72 @@
   margin: 0;
 }
 
+/*
+ * M5A adjustment pass: YOU vs EVERYONE ELSE -- the same five tier letters,
+ * stacked in two different orders, so the composition itself demonstrates
+ * "people disagree" without a single invented number, name or result. Tier
+ * blocks reuse only colors already established for Rankle (red/yellow/blue
+ * plus ink/white) -- no new hex. Fully decorative (ornament + aria-hidden):
+ * the real claim already exists as real text in the lede and the points
+ * below, so nothing is lost if this composition is hidden or removed.
+ */
+.rk-argument-compare {
+  grid-column: 1 / -1;
+  margin-block-start: clamp(2.5rem, 6vw, 4rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+.rk-argument-side { display: flex; flex-direction: column; align-items: center; gap: 0.625rem; }
+.rk-argument-side-label {
+  margin: 0;
+  font-size: var(--t-meta);
+  font-weight: 650;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-white);
+  opacity: 0.75;
+}
+.rk-argument-stack { display: flex; flex-direction: column; gap: 0.375rem; padding: 0; margin: 0; list-style: none; }
+.rk-tier-block {
+  inline-size: 3.25rem;
+  block-size: 2.25rem;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 1.125rem;
+  border: 2px solid var(--color-ink);
+}
+.rk-tier-s { background-color: var(--rankle-red); color: var(--color-white); }
+.rk-tier-a { background-color: var(--rankle-yellow); color: var(--color-ink); }
+.rk-tier-b { background-color: var(--rankle-blue); color: var(--color-white); border-color: var(--color-white); }
+.rk-tier-c { background-color: var(--color-ink); color: var(--color-paper); }
+.rk-tier-f { background-color: var(--color-white); color: var(--color-ink); }
+
+.rk-argument-clash {
+  inline-size: 2.25rem;
+  block-size: 2.25rem;
+  color: var(--rankle-yellow);
+  flex: none;
+}
+.rk-argument-clash svg { display: block; inline-size: 100%; block-size: 100%; }
+
+/* Annotations, not three equal columns: staggered widths/positions at
+   desktop, each tied to one of the tier-block colors above by its own tab. */
 .rk-argument-points {
   grid-column: 1 / -1;
-  margin-block-start: clamp(2rem, 5vw, 3rem);
+  margin-block-start: clamp(2.5rem, 6vw, 4rem);
   display: grid;
-  gap: clamp(1.25rem, 3vw, 2rem);
+  gap: clamp(1.5rem, 3vw, 2rem);
   padding: 0;
   list-style: none;
 }
 .rk-argument-point {
   position: relative;
-  padding-inline-start: 2.5rem;
-  max-inline-size: 42ch;
+  padding-inline-start: 1.75rem;
+  max-inline-size: 38ch;
   font-size: var(--t-lede);
   font-weight: 500;
   line-height: 1.32;
@@ -179,45 +312,37 @@
   content: "";
   position: absolute;
   inset-inline-start: 0;
-  inset-block-start: 0.5em;
-  inline-size: 1.5rem;
-  block-size: 3px;
-  background-color: var(--rankle-yellow);
+  inset-block-start: 0.2em;
+  inline-size: 0.875rem;
+  block-size: 0.875rem;
+  border: 2px solid var(--color-white);
+}
+.rk-argument-point-1::before { background-color: var(--rankle-red); }
+.rk-argument-point-2::before { background-color: var(--rankle-yellow); }
+.rk-argument-point-3::before { background-color: var(--rankle-blue); }
+
+@media (min-width: 40rem) {
+  .rk-argument-compare { flex-direction: row; align-items: flex-end; justify-content: center; gap: clamp(2rem, 6vw, 4.5rem); }
 }
 
-/* Opposing tier marks: two disagreeing stacks, design language only -- never
-   real user data (brief §15: "clearly design language, not evidence"). */
-.rk-argument-marks {
-  grid-column: 1 / -1;
-  margin-block-start: clamp(2rem, 5vw, 3rem);
-  display: flex;
-  align-items: center;
-  column-gap: 1rem;
-}
-.rk-argument-letter {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(2.5rem, 6vw, 4rem);
-  line-height: 1;
-  color: var(--color-white);
-}
-.rk-argument-vs {
-  position: relative;
-  inline-size: 2.5rem;
-  block-size: 2.5rem;
-  color: var(--rankle-red);
-}
-.rk-argument-vs svg { display: block; inline-size: 100%; block-size: 100%; }
-
-@media (min-width: 48rem) {
-  .rk-argument-points { grid-template-columns: repeat(3, 1fr); }
+@media (min-width: 64rem) {
+  .rk-tier-block { inline-size: 4rem; block-size: 2.75rem; font-size: 1.25rem; }
+  .rk-argument-clash { inline-size: 3rem; block-size: 3rem; }
+  .rk-argument-points { grid-template-columns: repeat(12, 1fr); column-gap: var(--gutter); }
   .rk-argument-point { max-inline-size: none; }
+  .rk-argument-point-1 { grid-column: 1 / 6; }
+  .rk-argument-point-2 { grid-column: 4 / 10; margin-block-start: 1.5rem; }
+  .rk-argument-point-3 { grid-column: 8 / 13; }
 }
 
 /* ----------------------------------------------------------------- system */
 
 .rk-system {
-  padding-block: var(--space-section-l);
+  /* M5A adjustment pass: the arrival stays generous (quiet-after-loud), but
+     the exit no longer stacks a full section-l on top of Receipt's own
+     section-m top padding -- that double breathing room read as an
+     unfinished gap rather than a deliberate quiet beat. */
+  padding-block: var(--space-section-l) var(--space-section-m);
   row-gap: clamp(2rem, 5vw, 3.5rem);
 }
 
@@ -299,21 +424,43 @@
   margin: 0;
 }
 
-.rk-stats-row {
+/*
+ * M5A adjustment pass: a ledger, not a KPI strip. Full-width line items
+ * (index, count, label, hairline rule) read as a production checklist or a
+ * printed receipt -- the same tabular-numeral, uppercase-index convention
+ * ART_DIRECTION.md already uses for folios and plate numbers elsewhere on
+ * the site, reused rather than inventing a new motif.
+ */
+.rk-ledger {
   grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
+  gap: 0;
+  padding: 0;
+  margin: 0;
+  list-style: none;
   border-block-start: 1px solid var(--rule);
-  padding-block-start: clamp(1.5rem, 3vw, 2rem);
 }
-.rk-stat { display: flex; flex-direction: column; }
-.rk-stat-n { margin: 0; font-family: var(--font-body); font-weight: 800; font-size: clamp(1.75rem, 3vw, 2.5rem); font-variant-numeric: tabular-nums; }
-.rk-stat-label { margin: 0; font-size: var(--t-small); color: var(--on-soft); }
-
-@media (min-width: 48rem) {
-  .rk-stats-row { grid-template-columns: repeat(5, 1fr); }
+.rk-ledger-row {
+  display: flex;
+  align-items: baseline;
+  column-gap: 1rem;
+  padding-block: 0.875rem;
+  border-block-end: 1px solid var(--rule);
 }
+.rk-ledger-index {
+  flex: none;
+  inline-size: 1.75rem;
+  color: var(--on-soft);
+}
+.rk-ledger-n {
+  flex: none;
+  inline-size: 3.5rem;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: clamp(1.375rem, 1.5vw + 1rem, 1.75rem);
+  font-variant-numeric: tabular-nums;
+}
+.rk-ledger-label { color: var(--on-soft); }
 
 .rk-exit {
   grid-column: 1 / -1;

@@ -8,6 +8,11 @@ import { RANKLE_META, RANKLE_RECEIPT_STATS } from "@/lib/work/rankle-content";
 // repository and a real deployment are the receipt (brief §20/§56). Exits
 // cleanly back to Work; no fake "Next: Plannr" (Plannr's case study is M6
 // and does not exist yet -- brief §49).
+//
+// M5A adjustment pass: the five counts are now a ledger (index, count, label,
+// hairline rule per row) instead of a KPI-dashboard grid -- a production
+// checklist, not analytics. Counts are unchanged and still exactly what
+// lib/work/rankle-content.ts's source map verified.
 export function RankleReceipt() {
   return (
     <section className="stage page-grid rk-receipt" aria-labelledby="rankle-receipt-heading">
@@ -32,14 +37,17 @@ export function RankleReceipt() {
         </a>
       </div>
 
-      <dl className="rk-stats-row">
-        {RANKLE_RECEIPT_STATS.map((stat) => (
-          <div key={stat.label} className="rk-stat">
-            <dt className="rk-stat-n">{stat.n}</dt>
-            <dd className="rk-stat-label">{stat.label}</dd>
-          </div>
+      <ol className="rk-ledger">
+        {RANKLE_RECEIPT_STATS.map((stat, i) => (
+          <li key={stat.label} className="rk-ledger-row">
+            <span className="rk-ledger-index t-meta" aria-hidden="true">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <span className="rk-ledger-n">{stat.n}</span>
+            <span className="rk-ledger-label">{stat.label}</span>
+          </li>
         ))}
-      </dl>
+      </ol>
 
       <div className="rk-exit">
         <Link href="/projects">← Back to Work</Link>

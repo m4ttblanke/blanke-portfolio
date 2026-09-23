@@ -2,14 +2,13 @@ import { MarkX } from "@/components/design/marks";
 import { RANKLE_ARGUMENT } from "@/lib/work/rankle-content";
 
 // THE ARGUMENT — the loudest spread (brief §15, ~60-70% chaos), but every
-// sentence still traces to verified product behavior (guest access, the
-// spoiler gate, guest-to-account claiming -- see rankle-content.ts's source
-// map). The S/F opposition is real tier vocabulary (docs/DESIGN.md, the
-// product's own S-A-B-C-F scale), used as design language, not as a claim
-// about any real disagreement or real user data. The mark is MarkX -- the
-// site's own temporary marker vocabulary (components/design/marks.tsx) --
-// recolored to Rankle red via currentColor, never the global red accent
-// (ART_DIRECTION.md §16: red carries no meaning inside Rankle's own red).
+// sentence still traces to verified product behavior (see rankle-content.ts's
+// source map). M5A adjustment pass: YOU vs EVERYONE ELSE, the same five tier
+// letters stacked in two different orders -- the composition itself shows
+// "people disagree" without inventing a single number, name or result. The
+// order below is fixed presentation-only design grammar, not a claim about
+// any real ranking. Fully decorative (ornament + aria-hidden): the real
+// claim already exists as real text in the lede and the three points.
 export function RankleArgument() {
   return (
     <section className="stage page-grid rk-argument" aria-labelledby="rankle-argument-heading">
@@ -17,17 +16,37 @@ export function RankleArgument() {
         {RANKLE_ARGUMENT.lede}
       </h2>
 
-      <div className="rk-argument-marks ornament" aria-hidden="true">
-        <span className="rk-argument-letter">S</span>
-        <span className="rk-argument-vs">
+      <div className="rk-argument-compare ornament" aria-hidden="true">
+        <div className="rk-argument-side">
+          <p className="rk-argument-side-label">You</p>
+          <ol className="rk-argument-stack">
+            {(["S", "A", "B", "C", "F"] as const).map((t) => (
+              <li key={t} className={`rk-tier-block rk-tier-${t.toLowerCase()}`}>
+                {t}
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        <span className="rk-argument-clash">
           <MarkX />
         </span>
-        <span className="rk-argument-letter">F</span>
+
+        <div className="rk-argument-side">
+          <p className="rk-argument-side-label">Everyone else</p>
+          <ol className="rk-argument-stack">
+            {(["B", "F", "S", "C", "A"] as const).map((t) => (
+              <li key={t} className={`rk-tier-block rk-tier-${t.toLowerCase()}`}>
+                {t}
+              </li>
+            ))}
+          </ol>
+        </div>
       </div>
 
       <ul className="rk-argument-points">
-        {RANKLE_ARGUMENT.points.map((point) => (
-          <li key={point} className="rk-argument-point">
+        {RANKLE_ARGUMENT.points.map((point, i) => (
+          <li key={point} className={`rk-argument-point rk-argument-point-${i + 1}`}>
             {point}
           </li>
         ))}

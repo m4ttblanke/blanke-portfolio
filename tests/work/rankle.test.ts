@@ -122,6 +122,41 @@ describe("Rankle case study — content truth", () => {
   });
 });
 
+describe("Rankle case study — M5A adjustment pass", () => {
+  it("The Thing: RANK leads, the remaining four form the chain -- same five verified steps, no step invented or dropped", () => {
+    const thing = sources["rankle-thing.tsx"];
+    expect(thing).toMatch(/const \[rank, \.\.\.chain\] = RANKLE_FLOW;/);
+  });
+
+  it("The Argument: YOU and EVERYONE ELSE are the same five tier letters in a different order -- a reorder, not new data", () => {
+    const arg = sources["rankle-argument.tsx"];
+    const you = arg.match(/\["S", "A", "B", "C", "F"\] as const/);
+    const others = arg.match(/\["B", "F", "S", "C", "A"\] as const/);
+    expect(you, "you order").toBeTruthy();
+    expect(others, "everyone-else order").toBeTruthy();
+    expect([...(you as RegExpMatchArray)[0].matchAll(/[A-Z]/g)].map((m) => m[0]).sort()).toEqual(
+      [...(others as RegExpMatchArray)[0].matchAll(/[A-Z]/g)].map((m) => m[0]).sort()
+    );
+  });
+
+  it("The Receipt is a ledger (index/count/label rows), not a stat-card grid", () => {
+    const receipt = sources["rankle-receipt.tsx"];
+    expect(receipt).toContain('className="rk-ledger"');
+    expect(receipt).not.toMatch(/rk-stats-row|rk-stat\b/);
+    expect(read("components/rankle/rankle.css")).not.toMatch(/rk-stats-row/);
+  });
+
+  it("the receipt still renders the exact five verified counts, unchanged by the restyle", () => {
+    expect(RANKLE_RECEIPT_STATS.map((s) => s.n)).toEqual(["15", "36", "12", "5", "10"]);
+  });
+
+  it("no icon-drawing rotate crept into rankle.css outside the named .tilt-* system (the Thing arrow uses a border-triangle, not rotate)", () => {
+    const css = strip(read("components/rankle/rankle.css"));
+    expect(css).not.toMatch(/\brotate\s*:/);
+    expect(css).toMatch(/\.rk-thing-arrow\s*\{[^}]*border-block-start:\s*7px solid/);
+  });
+});
+
 describe("Rankle case study — accessibility", () => {
   it("has exactly one h1 (the wordmark) and one h2 per spread", () => {
     const h1s = allSource.match(/<h1\b/g) ?? [];
@@ -131,9 +166,15 @@ describe("Rankle case study — accessibility", () => {
   });
 
   it("decorative graphics are aria-hidden and non-semantic (.ornament)", () => {
-    for (const cls of ["rk-hero-stack", "rk-argument-marks"]) {
+    for (const cls of ["rk-hero-stack", "rk-thing-cards", "rk-argument-compare"]) {
       expect(allSource, cls).toMatch(new RegExp(`className="${cls} ornament"[^>]*aria-hidden="true"`));
     }
+  });
+
+  it("The Thing gives RANK a real heading; SUBMIT/COMPARE/SHARE/RETURN stay plain text (the visual asymmetry is real, not decorative-only)", () => {
+    const thing = sources["rankle-thing.tsx"];
+    expect(thing).toMatch(/<h3 className="rk-thing-rank-word">\{rank\.step\}<\/h3>/);
+    expect((thing.match(/<h3\b/g) ?? []).length).toBe(1);
   });
 
   it("the one real image has honest, non-invented alt text and explicit dimensions", () => {
