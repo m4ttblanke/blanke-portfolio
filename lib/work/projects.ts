@@ -35,12 +35,16 @@ export type FlagshipProject = {
 export const RANKLE: FlagshipProject = {
   id: "rankle",
   name: "Rankle",
-  descriptor: "A ranking game, argued about in the open.",
+  // Kept plainly descriptive on the wall (visual review, M4A adjustment
+  // pass): explain the product immediately. The social/argumentative
+  // personality documented in ART_DIRECTION.md §16 is for M5 to communicate
+  // through actual interaction and artifacts, not wall copy.
+  descriptor: "A daily ranking game.",
   meta: "Ranking · Tiers",
   // No dedicated route exists yet (M5 builds the case study). /projects is a
   // real, working destination rather than a fabricated or broken one.
   href: "/projects",
-  accessibleName: "Rankle — a ranking game, argued about in the open",
+  accessibleName: "Rankle — a daily ranking game",
 };
 
 export const PLANNR: FlagshipProject = {

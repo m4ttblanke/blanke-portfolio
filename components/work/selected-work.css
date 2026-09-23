@@ -15,18 +15,26 @@
  * below never exceeds 2.25rem, so the poster can never reach the meta text.
  * Nothing in cover.tsx or cover.css changes; the wall owns its own overlap.
  *
- * Rankle is placed in the SECTION'S OWN first grid row (`grid-row: 1`) so its
- * negative margin reaches straight up past the section's own top edge into
- * Cover's tail. The heading stays first in DOM/tab order (screen-reader and
- * keyboard users meet "Selected Work" before the posters, per §37's "boring,
- * predictable" reading order) but is placed in `grid-row: 2` visually, below
- * Rankle -- the brief's own allowance that "the visual z-order does not need
- * to equal DOM order" (§37), applied to row order rather than stacking.
+ * THE CLUSTER (M4A adjustment pass, visual review): Rankle, the heading and
+ * Plannr are one composition, not three stacked rows. Rankle occupies the
+ * section's own first grid row so its negative margin reaches Cover; the
+ * heading sits BESIDE it, in the columns Rankle's own width doesn't use, at
+ * >=48rem (mobile has no room for a side column, so it stays a simple row
+ * there); Plannr sits in the next row but is pulled up with a stronger
+ * negative margin so its own top-left corner overlaps Rankle's lower-right
+ * corner by a small, deliberate amount -- two artifacts placed on one sheet,
+ * not a grid of cards. DOM/reading order is untouched (header, Rankle,
+ * Plannr): only grid-row/grid-column placement moves the header visually,
+ * never the `order` property, so keyboard and screen-reader order stays
+ * exactly what the DOM says.
  */
 
 .selected-work {
   --sw-intrusion: clamp(-2.25rem, -3vw, -1.25rem);
-  grid-template-rows: auto auto auto auto;
+  /* Mobile uses 3 stacked rows (Rankle, header, Plannr); >=48rem only 2 are
+     ever occupied (Rankle+header share row 1, Plannr takes row 2) -- the
+     3rd mobile row is created implicitly, same auto sizing either way. */
+  grid-template-rows: auto auto;
   row-gap: clamp(1.5rem, 4vw, 3rem);
   padding-block-end: var(--space-section-m);
 }
@@ -44,12 +52,6 @@
 .sw-title {
   font-family: var(--font-body);
   font-weight: 750;
-}
-
-/* .sw-wall groups the two posters in the component tree without breaking
-   their direct participation in .selected-work's own grid. */
-.sw-wall {
-  display: contents;
 }
 
 /* -------------------------------------------------------------- the poster */
@@ -167,25 +169,31 @@
   background-color: var(--plannr-gold);
 }
 
-/* ---------------------------------------------------------------- index */
-
-.work-index {
-  grid-column: 1 / -1;
-  grid-row: 4;
-  text-align: end;
-  margin: 0;
-}
-.work-index a { text-decoration-thickness: 0.06em; }
-
 /* -------------------------------------------------------------- tablet, 48rem+ */
 
 @media (min-width: 48rem) {
-  .sw-header { grid-column: 1 / 5; }
+  /* The header moves beside Rankle (grid-row: 1, same row, disjoint columns)
+     instead of sitting in its own full-width row between the two posters --
+     it now lives in the negative space Rankle's own width doesn't use,
+     anchored to the top of the row so Plannr's modest rise from below never
+     reaches it (Rankle's row is far taller than the header's own content). */
+  .sw-header { grid-column: 7 / 9; grid-row: 1; align-self: start; }
 
-  .wall-rankle { grid-column: 1 / 7; inline-size: 100%; min-block-size: 20rem; }
-  .wall-plannr { grid-column: 4 / 9; inline-size: 100%; min-block-size: 16rem; margin-block-start: clamp(-2rem, -3vw, -1rem); }
-
-  .work-index { grid-column: 6 / 9; }
+  .wall-rankle { grid-column: 1 / 7; inline-size: 100%; min-block-size: 22rem; }
+  .wall-plannr {
+    /* Row 2, not 3: the header vacated row 2 to sit beside Rankle in row 1
+       above, so Plannr moves up to fill it -- otherwise an empty collapsed
+       row-gap sits between Rankle and Plannr and silently eats the negative
+       margin below before it can reach Rankle at all. */
+    grid-row: 2;
+    grid-column: 3 / 9;
+    inline-size: 100%;
+    min-block-size: 19rem;
+    /* A small, real overlap: Plannr's own top-left corner rises into
+       Rankle's lower-right corner (column 3-7 overlap, a modest vertical
+       reach) -- two artifacts on one sheet, not two independent sections. */
+    margin-block-start: clamp(-6rem, -7vw, -4rem);
+  }
 }
 
 /* ------------------------------------------------------------- desktop, 64rem+ */
@@ -193,19 +201,18 @@
 @media (min-width: 64rem) {
   .selected-work { row-gap: clamp(1rem, 2vw, 1.5rem); }
 
-  .sw-header { grid-column: 1 / 5; }
+  .sw-header { grid-column: 9 / 13; grid-row: 1; align-self: start; }
 
   /* The two flagships, comparable in editorial weight but not identical:
-     Rankle wider and taller, off-axis; Plannr narrower, orthogonal, offset
-     down and right so the pair reads as an asymmetric spread, not a pair of
-     matched cards (brief §8/§25). */
-  .wall-rankle { grid-column: 1 / 8; min-block-size: 22rem; inline-size: 100%; }
+     Rankle wide and off-axis; Plannr now substantially larger than the
+     first pass and pulled up/left so its corner overlaps Rankle's, instead
+     of sitting far below it as an independent card (brief §8/§25, and the
+     M4A visual-review adjustment). */
+  .wall-rankle { grid-column: 1 / 8; min-block-size: 23rem; inline-size: 100%; }
   .wall-plannr {
-    grid-column: 7 / 13;
+    grid-column: 6 / 13;
     inline-size: 100%;
-    min-block-size: 17rem;
-    margin-block-start: clamp(-3.5rem, -4vw, -2rem);
+    min-block-size: 22rem;
+    margin-block-start: clamp(-6.5rem, -7vw, -5rem);
   }
-
-  .work-index { grid-column: 9 / 13; }
 }

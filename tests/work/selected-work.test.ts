@@ -29,6 +29,16 @@ describe("Selected Work — content truth", () => {
     expect(read("docs/PRD.md")).toMatch(/SwiftUI \+ FastAPI iOS app/);
   });
 
+  it("Rankle's descriptor is plainly explanatory, not interpretive (M4A adjustment pass)", () => {
+    expect(RANKLE.descriptor).toBe("A daily ranking game.");
+    expect(RANKLE.accessibleName).toMatch(/daily ranking game/i);
+  });
+
+  it("keeps Plannr's copy unchanged", () => {
+    expect(PLANNR.descriptor).toBe("Turns a syllabus into a calendar.");
+    expect(PLANNR.meta).toBe("iOS · SwiftUI");
+  });
+
   it("every flagship links somewhere real: no route is fabricated", () => {
     // Rankle has no dedicated route yet (M5); /projects is real and functional.
     expect(RANKLE.href).toBe("/projects");
@@ -50,6 +60,33 @@ describe("Selected Work — the homepage", () => {
     // unmodified, and no file in components/cover was touched by this change
     // (verified by review, not scriptable from content alone).
     expect(read("components/cover/cover.tsx")).toContain("cover-name-blanke");
+  });
+});
+
+describe("Selected Work — M4A adjustment pass", () => {
+  it("no 'More in the index' CTA on the wall (removed; WORK nav still reaches /projects)", () => {
+    expect(selectedWork).not.toMatch(/more in the index/i);
+    expect(read("lib/shell/nav.ts")).toMatch(/href: "\/projects"/);
+  });
+
+  it("the work-index component was removed, not just unused", () => {
+    expect(() => read("components/work/work-index.tsx")).toThrow();
+  });
+
+  it("DOM order stays header -> Rankle -> Plannr; only grid placement (not the `order` property) moves the header visually", () => {
+    const headerIdx = selectedWork.indexOf("<header");
+    const rankleIdx = selectedWork.indexOf("<RankleWorkPoster");
+    const plannrIdx = selectedWork.indexOf("<PlannrWorkPoster");
+    expect(headerIdx).toBeLessThan(rankleIdx);
+    expect(rankleIdx).toBeLessThan(plannrIdx);
+    const css = read("components/work/selected-work.css");
+    expect(css).not.toMatch(/(?<!--)\border\s*:\s*\d/); // no flex/grid `order` property
+  });
+
+  it("Plannr sits in the same grid row the header vacates at >=48rem (no silent double row-gap)", () => {
+    const css = read("components/work/selected-work.css");
+    const tabletBlock = css.slice(css.indexOf("48rem"), css.indexOf("64rem"));
+    expect(tabletBlock).toMatch(/\.wall-plannr\s*\{[^}]*grid-row:\s*2/);
   });
 });
 
