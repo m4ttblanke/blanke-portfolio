@@ -48,38 +48,43 @@
 /* A thin registration frame, not a solid card: only the figure itself should
    read as opaque. Letters behind the empty part of the frame stay visible.
    No top edge: the frame overlaps BLANKE at every width, and a dashed line
-   slicing across the letters reads as a bug, not a boundary. The frame is
-   open where the figure rises into the name -- it stands out of, not on top
-   of, the canvas. */
+   slicing across the letters reads as a bug, not a boundary.
+   The figure sizes intrinsically from its own 2:3 viewBox (a percentage width,
+   auto height) rather than stretching to fill a separately-sized frame -- an
+   earlier flex-grow version let the SVG's box grow taller than its own
+   content and silently letterboxed the figure toward the bottom of empty
+   space, so the overlap amount was unpredictable per breakpoint. This is a
+   fixed, legible shape every time. */
 .cover-subject {
   grid-column: 1 / -1;
   grid-row: 2;
   margin-block-start: clamp(-3.5rem, -9vw, -1.75rem);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
   border-inline: 1px dashed var(--rule);
   border-block-end: 1px dashed var(--rule);
   padding-block-end: 0.625rem;
+  text-align: center;
 }
 
 .cover-figure {
-  inline-size: 62%;
+  display: block;
+  margin-inline: auto;
+  inline-size: 64%;
   block-size: auto;
-  flex: 1 1 auto;
-  min-block-size: 0;
   fill: var(--color-paper-shade);
   stroke: var(--on-soft);
   stroke-width: 2;
   stroke-linejoin: round;
 }
 
-.cover-subject-label { margin-block-start: 0.5rem; text-align: center; }
+.cover-subject-label { display: block; margin-block-start: 0.5rem; }
 
 /* --------------------------------------------------------- lower / statement */
 
-.cover-lower { grid-column: 1 / -1; grid-row: 3; margin-block-start: clamp(1rem, 3vw, 2rem); }
+/* Pulled up close to the subject's legs (visual review, M3A pass 3): the
+   statement belongs to the same cover as the portrait, not a second spread
+   beginning below it. Negative space moves beside the statement, not between
+   it and the portrait. */
+.cover-lower { grid-column: 1 / -1; grid-row: 3; margin-block-start: clamp(0.25rem, 1vw, 0.5rem); }
 
 /* Reduced to roughly two-thirds of the name's scale (visual review, M3A pass
    2): a narrower column for the same fit-to-column technique, so the two
@@ -110,23 +115,29 @@
   /* One meaningful relationship, not the full desktop overlap: the figure
      begins to rise into BLANKE's lower region rather than sitting beside it. */
   .cover-subject { margin-block-start: clamp(-6rem, -11vw, -4rem); grid-column: 1 / 6; }
+  .cover-lower { margin-block-start: clamp(0.5rem, 1.5vw, 1rem); }
 }
 
 /* ------------------------------------------------------- desktop, 64rem+ */
 
 @media (min-width: 64rem) {
+  /* Only two rows here (name+subject share row 1; the statement is row 2), so
+     tightening this doesn't touch mobile's name-to-subject spacing. */
+  .cover { row-gap: clamp(0.5rem, 1.5vw, 1rem); }
+
   .cover-name { grid-column: 1 / -1; grid-row: 1; }
   .cover-name-matthew { max-inline-size: min(44%, 30rem); }
 
   /* The one deliberate OVERLAP (a sanctioned grid violation): the subject
      shares BLANKE's own row and is grounded to its baseline, so the figure's
-     head and shoulders rise well into the word's later letters (the N/K/E
+     head and shoulders rise well into the word's later letters (the N/K
      region) -- a real photographic cutout standing in front of the name, not
-     beside it. BLANKE stays fully legible: only the figure's own opaque
-     shapes occlude anything, and they cover roughly a third of the word's
-     width, not the word's meaning. */
+     beside it. Widened and shifted left from the first pass (visual review,
+     M3A pass 3: "co-dominant with BLANKE, not a small person in front of
+     enormous signage"). BLANKE stays fully legible: only the figure's own
+     opaque shapes occlude anything, not the word's meaning. */
   .cover-subject {
-    grid-column: 6 / 11;
+    grid-column: 5 / 11;
     grid-row: 1;
     align-self: end;
     margin-block-start: 0;
@@ -134,6 +145,6 @@
     padding-block-end: 0;
   }
 
-  .cover-lower { grid-column: 1 / 7; grid-row: 2; margin-block-start: clamp(1.5rem, 3vw, 2.5rem); }
+  .cover-lower { grid-column: 1 / 7; grid-row: 2; margin-block-start: clamp(0.25rem, 1vw, 0.5rem); }
   .cover-statement { max-inline-size: 78%; }
 }

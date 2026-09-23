@@ -32,7 +32,7 @@ export function Cover() {
         </div>
       </h1>
 
-      <div className="cover-subject crop crop-tall layer-subject" aria-hidden="true">
+      <div className="cover-subject layer-subject" aria-hidden="true">
         <svg className="cover-figure" viewBox="0 0 200 300" preserveAspectRatio="xMidYMax meet" focusable="false">
           <circle cx="100" cy="44" r="27" />
           <path d="M 63 98 C 63 83 137 83 137 98 L 148 192 L 52 192 Z" />
