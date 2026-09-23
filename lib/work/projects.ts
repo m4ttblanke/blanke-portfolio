@@ -4,8 +4,11 @@
 //
 // - Rankle: documented in docs/ART_DIRECTION.md §16 ("Project color worlds")
 //   as a real flagship with an established palette and vibe (ranking/tier
-//   language, social-game energy). No live route, repo or screenshot exists
-//   in this codebase yet, so none is claimed. Its deep case study is M5.
+//   language, social-game energy). M5A built its real case-study route
+//   (/projects/rankle, lib/work/rankle-content.ts) against the live product
+//   at github.com/m4ttblanke/rankle and rankle.io, so the poster now links
+//   there instead of the placeholder /projects index -- the only M4
+//   behavior change M5A makes; the poster's own visuals are untouched.
 // - Plannr: confirmed in docs/PRD.md ("Plannr, a SwiftUI + FastAPI iOS app
 //   with Google Calendar integration") and has a real, working destination
 //   already wired in this repo (next.config.ts proxies /plannr/* to the
@@ -41,9 +44,8 @@ export const RANKLE: FlagshipProject = {
   // through actual interaction and artifacts, not wall copy.
   descriptor: "A daily ranking game.",
   meta: "Ranking · Tiers",
-  // No dedicated route exists yet (M5 builds the case study). /projects is a
-  // real, working destination rather than a fabricated or broken one.
-  href: "/projects",
+  // The real case-study route, built in M5A. See lib/work/rankle-content.ts.
+  href: "/projects/rankle",
   accessibleName: "Rankle — a daily ranking game",
 };
 

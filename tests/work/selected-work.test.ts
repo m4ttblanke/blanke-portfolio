@@ -40,8 +40,8 @@ describe("Selected Work — content truth", () => {
   });
 
   it("every flagship links somewhere real: no route is fabricated", () => {
-    // Rankle has no dedicated route yet (M5); /projects is real and functional.
-    expect(RANKLE.href).toBe("/projects");
+    // Rankle's real case-study route, built in M5A (app/(public)/projects/rankle).
+    expect(RANKLE.href).toBe("/projects/rankle");
     // Plannr links straight to the real, live product (next.config.ts rewrite).
     expect(PLANNR.href).toBe("/plannr/");
     expect(read("next.config.ts")).toMatch(/plannr/);

@@ -551,9 +551,21 @@
    palette stays exactly paper/white/ink/red. Rankle's black and white reuse
    the site's own --color-ink / --color-white rather than inventing
    near-duplicates. Plannr's four values are its real, already-documented
-   product palette, copied verbatim. */
+   product palette, copied verbatim.
+
+   .rankle-case (M5A) is the flagship case study's own root scope: the exact
+   same three values as .wall-rankle, so the case study is a continuation of
+   M4's poster, not a near-duplicate palette invented for the article --
+   repeated rather than combined into one selector so .wall-rankle stays its
+   own untouched rule (M4 is frozen; tests/work/selected-work.test.ts checks
+   its exact shape). */
 @layer components {
   .wall-rankle {
+    --rankle-red: #e5332a;
+    --rankle-yellow: #f6c221;
+    --rankle-blue: #2452d9;
+  }
+  .rankle-case {
     --rankle-red: #e5332a;
     --rankle-yellow: #f6c221;
     --rankle-blue: #2452d9;
