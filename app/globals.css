@@ -540,6 +540,32 @@
   .annotation svg { display: block; overflow: visible; }
 }
 
+/* ------------------------------------------------- 6b. PROJECT COLOR WORLDS */
+
+/* Rankle and Plannr's own palettes (ART_DIRECTION.md §16, "Project color
+   worlds"): documented, project-specific, and deliberately NOT global tokens
+   -- they are declared once here (the one file allowed raw hex) but scoped
+   under each poster's own class, never under :root or @theme, so
+   tests/design/tokens.test.ts's "no project colors leak into the tokens"
+   guard (which only walks --color-* names) keeps passing and the site-wide
+   palette stays exactly paper/white/ink/red. Rankle's black and white reuse
+   the site's own --color-ink / --color-white rather than inventing
+   near-duplicates. Plannr's four values are its real, already-documented
+   product palette, copied verbatim. */
+@layer components {
+  .wall-rankle {
+    --rankle-red: #e5332a;
+    --rankle-yellow: #f6c221;
+    --rankle-blue: #2452d9;
+  }
+  .wall-plannr {
+    --plannr-navy: #002e61;
+    --plannr-gold: #fdb814;
+    --plannr-paper: #f7f2e7;
+    --plannr-wave: #3d7ede;
+  }
+}
+
 /* Image placeholder: obviously temporary. Not a photograph, not a portrait. */
 @layer components {
   .placeholder {

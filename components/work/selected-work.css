@@ -1,0 +1,211 @@
+/*
+ * SELECTED WORK — the wall (M4A, static composition only).
+ *
+ * Hand-art-directed, like the cover: Rankle and Plannr's positions, sizes and
+ * rotation are chosen by eye, not derived from a grid formula or a
+ * deterministic-chaos preset (ART_DIRECTION.md §9). The only chaos utility in
+ * use is Rankle's own .tilt-ccw-1, applied once, by hand.
+ *
+ * THE INTRUSION (§4/§26 of the M4A brief): Rankle's poster (.wall-rankle)
+ * carries its own negative top margin, always present (not zeroed by Clean
+ * Copy, the same way the cover's own portrait/BLANKE overlap is structural
+ * rather than decorative -- see cover.css). It rises into M3's bottom
+ * padding only: M3's meta rail sits above `clamp(2rem, 5vw, 3.5rem)` of its
+ * own padding-block-end at every width down to 320px, and --sw-intrusion
+ * below never exceeds 2.25rem, so the poster can never reach the meta text.
+ * Nothing in cover.tsx or cover.css changes; the wall owns its own overlap.
+ *
+ * Rankle is placed in the SECTION'S OWN first grid row (`grid-row: 1`) so its
+ * negative margin reaches straight up past the section's own top edge into
+ * Cover's tail. The heading stays first in DOM/tab order (screen-reader and
+ * keyboard users meet "Selected Work" before the posters, per §37's "boring,
+ * predictable" reading order) but is placed in `grid-row: 2` visually, below
+ * Rankle -- the brief's own allowance that "the visual z-order does not need
+ * to equal DOM order" (§37), applied to row order rather than stacking.
+ */
+
+.selected-work {
+  --sw-intrusion: clamp(-2.25rem, -3vw, -1.25rem);
+  grid-template-rows: auto auto auto auto;
+  row-gap: clamp(1.5rem, 4vw, 3rem);
+  padding-block-end: var(--space-section-m);
+}
+
+/* ------------------------------------------------------------------ header */
+
+.sw-header {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  row-gap: 0.25rem;
+}
+
+.sw-title {
+  font-family: var(--font-body);
+  font-weight: 750;
+}
+
+/* .sw-wall groups the two posters in the component tree without breaking
+   their direct participation in .selected-work's own grid. */
+.sw-wall {
+  display: contents;
+}
+
+/* -------------------------------------------------------------- the poster */
+
+.work-poster {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+  min-block-size: 17rem;
+  padding: 1.5rem;
+}
+
+.work-poster-body {
+  position: relative;
+  display: block;
+}
+
+.work-poster:hover .work-poster-body { text-decoration: none; }
+
+.work-poster-body p { margin: 0; }
+.work-poster-body p + p { margin-block-start: 0.375rem; }
+
+/* ---------------------------------------------------------------- Rankle */
+
+.wall-rankle {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  margin-block-start: var(--sw-intrusion);
+  background-color: var(--color-ink);
+  color: var(--color-paper);
+  --on-soft: color-mix(in srgb, var(--color-paper) 72%, var(--color-ink));
+  /* --focus stays the inherited default (ink): the poster's own exterior,
+     where the focus ring actually draws (outline-offset: 3px), is always the
+     page's paper background or Plannr's own light paper, never ink-on-ink. */
+  justify-self: start;
+  inline-size: 88%;
+}
+
+/* A selected label, not the cover's edge-to-edge fit-to-column treatment
+   (ART_DIRECTION.md §4): a fluid poster-scale headline sized to the card, not
+   the viewport. */
+.rk-title { color: var(--color-paper); font-size: clamp(2rem, 4vw, 3.5rem); margin-block-end: 0.125rem; }
+.rk-meta { color: var(--rankle-yellow); }
+.rk-descriptor { color: var(--on-soft); max-inline-size: 22ch; }
+
+/* Tier bands: a vertical strip of three color blocks along the trailing edge,
+   standing in for ranking cards until real product assets exist (M5). Large,
+   bold numerals only -- never small text -- keep every band's contrast at
+   least 3:1 (AA for large/graphic text), the same rule the site's own
+   red-on-ink marks follow. */
+.rk-bands {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  inline-size: 3.25rem;
+  display: flex;
+  flex-direction: column;
+}
+.rk-band {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}
+.rk-band-1 { background-color: var(--rankle-red); color: var(--color-white); }
+.rk-band-2 { background-color: var(--rankle-yellow); color: var(--color-ink); }
+.rk-band-3 { background-color: var(--rankle-blue); color: var(--color-white); }
+
+/* ---------------------------------------------------------------- Plannr */
+
+.wall-plannr {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  background-color: var(--plannr-paper);
+  color: var(--plannr-navy);
+  justify-self: end;
+  inline-size: 82%;
+  margin-block-start: clamp(-1.5rem, -2.5vw, -0.75rem);
+  /* A contact shadow, only because Plannr's sheet physically overlaps
+     Rankle's at every width (never a floating-card shadow): paper lifting
+     slightly off paper, not Material elevation. */
+  box-shadow: 0 0.5rem 1rem -0.75rem color-mix(in srgb, var(--color-ink) 55%, transparent);
+}
+
+.pl-title { color: var(--plannr-navy); font-size: clamp(2rem, 4vw, 3.5rem); margin-block-end: 0.125rem; }
+.pl-meta { color: var(--plannr-navy); }
+.pl-descriptor { color: var(--plannr-navy); max-inline-size: 24ch; }
+
+/* A quiet calendar-grid graphic: 4x7 cells plus one marked date, standing in
+   for the real product screenshot until one exists (M6). Faint on purpose --
+   texture stays subordinate to the title and descriptor (brief §13). */
+.pl-grid {
+  position: absolute;
+  inset-block-start: 1.25rem;
+  inset-inline-end: 1.25rem;
+  inline-size: 7rem;
+  block-size: 4rem;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 2px;
+}
+.pl-cell {
+  background-color: color-mix(in srgb, var(--plannr-navy) 12%, transparent);
+}
+.pl-cell-marked {
+  grid-column: 4;
+  grid-row: 2;
+  background-color: var(--plannr-gold);
+}
+
+/* ---------------------------------------------------------------- index */
+
+.work-index {
+  grid-column: 1 / -1;
+  grid-row: 4;
+  text-align: end;
+  margin: 0;
+}
+.work-index a { text-decoration-thickness: 0.06em; }
+
+/* -------------------------------------------------------------- tablet, 48rem+ */
+
+@media (min-width: 48rem) {
+  .sw-header { grid-column: 1 / 5; }
+
+  .wall-rankle { grid-column: 1 / 7; inline-size: 100%; min-block-size: 20rem; }
+  .wall-plannr { grid-column: 4 / 9; inline-size: 100%; min-block-size: 16rem; margin-block-start: clamp(-2rem, -3vw, -1rem); }
+
+  .work-index { grid-column: 6 / 9; }
+}
+
+/* ------------------------------------------------------------- desktop, 64rem+ */
+
+@media (min-width: 64rem) {
+  .selected-work { row-gap: clamp(1rem, 2vw, 1.5rem); }
+
+  .sw-header { grid-column: 1 / 5; }
+
+  /* The two flagships, comparable in editorial weight but not identical:
+     Rankle wider and taller, off-axis; Plannr narrower, orthogonal, offset
+     down and right so the pair reads as an asymmetric spread, not a pair of
+     matched cards (brief §8/§25). */
+  .wall-rankle { grid-column: 1 / 8; min-block-size: 22rem; inline-size: 100%; }
+  .wall-plannr {
+    grid-column: 7 / 13;
+    inline-size: 100%;
+    min-block-size: 17rem;
+    margin-block-start: clamp(-3.5rem, -4vw, -2rem);
+  }
+
+  .work-index { grid-column: 9 / 13; }
+}
