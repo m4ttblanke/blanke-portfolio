@@ -1,0 +1,325 @@
+/*
+ * SELECTED WORK — the wall (M4A, static composition only).
+ *
+ * Hand-art-directed, like the cover: Rankle and Plannr's positions, sizes and
+ * rotation are chosen by eye, not derived from a grid formula or a
+ * deterministic-chaos preset (ART_DIRECTION.md §9). The only chaos utility in
+ * use is Rankle's own .tilt-ccw-1, applied once, by hand.
+ *
+ * THE INTRUSION (§4/§26 of the M4A brief): Rankle's poster (.wall-rankle)
+ * carries its own negative top margin, always present (not zeroed by Clean
+ * Copy, the same way the cover's own portrait/BLANKE overlap is structural
+ * rather than decorative -- see cover.css). It rises into M3's bottom
+ * padding only: M3's meta rail sits above `clamp(2rem, 5vw, 3.5rem)` of its
+ * own padding-block-end at every width down to 320px, and --sw-intrusion
+ * below never exceeds 2.25rem, so the poster can never reach the meta text.
+ * Nothing in cover.tsx or cover.css changes; the wall owns its own overlap.
+ *
+ * THE CLUSTER (M4A adjustment pass, visual review): Rankle, the heading and
+ * Plannr are one composition, not three stacked rows. Rankle occupies the
+ * section's own first grid row so its negative margin reaches Cover; the
+ * heading sits BESIDE it, in the columns Rankle's own width doesn't use, at
+ * >=48rem (mobile has no room for a side column, so it stays a simple row
+ * there); Plannr sits in the next row but is pulled up with a stronger
+ * negative margin so its own top-left corner overlaps Rankle's lower-right
+ * corner by a small, deliberate amount -- two artifacts placed on one sheet,
+ * not a grid of cards. DOM/reading order is untouched (header, Rankle,
+ * Plannr): only grid-row/grid-column placement moves the header visually,
+ * never the `order` property, so keyboard and screen-reader order stays
+ * exactly what the DOM says.
+ *
+ * M4B added project-specific hover/focus behavior on top of this frozen
+ * resting composition -- see the "interaction" block below the Plannr rules.
+ * Nothing in this file's layout geometry changed for M4B except what
+ * interaction itself required (transition/translate declarations on the two
+ * posters). CSS only: no JS, no new dependency, no client component.
+ */
+
+.selected-work {
+  --sw-intrusion: clamp(-2.25rem, -3vw, -1.25rem);
+  /* Mobile uses 3 stacked rows (Rankle, header, Plannr); >=48rem only 2 are
+     ever occupied (Rankle+header share row 1, Plannr takes row 2) -- the
+     3rd mobile row is created implicitly, same auto sizing either way. */
+  grid-template-rows: auto auto;
+  row-gap: clamp(1.5rem, 4vw, 3rem);
+  padding-block-end: var(--space-section-m);
+}
+
+/* ------------------------------------------------------------------ header */
+
+.sw-header {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  row-gap: 0.25rem;
+}
+
+.sw-title {
+  font-family: var(--font-body);
+  font-weight: 750;
+}
+
+/* -------------------------------------------------------------- the poster */
+
+.work-poster {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+  min-block-size: 17rem;
+  padding: 1.5rem;
+}
+
+.work-poster-body {
+  position: relative;
+  display: block;
+}
+
+.work-poster:hover .work-poster-body { text-decoration: none; }
+
+.work-poster-body p { margin: 0; }
+.work-poster-body p + p { margin-block-start: 0.375rem; }
+
+/* ---------------------------------------------------------------- Rankle */
+
+.wall-rankle {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  margin-block-start: var(--sw-intrusion);
+  background-color: var(--color-ink);
+  color: var(--color-paper);
+  --on-soft: color-mix(in srgb, var(--color-paper) 72%, var(--color-ink));
+  /* --focus stays the inherited default (ink): the poster's own exterior,
+     where the focus ring actually draws (outline-offset: 3px), is always the
+     page's paper background or Plannr's own light paper, never ink-on-ink. */
+  justify-self: start;
+  inline-size: 88%;
+  /* Interaction (M4B): translate/rotate are independent properties from the
+     resting .tilt-ccw-1 rotate, so touching them here never clobbers or
+     depends on the resting tilt -- see the "interaction" block below for the
+     actual hover/focus values (reduced-motion- and hover-capability-gated). */
+  translate: 0 0;
+  transition:
+    translate var(--dur-quick) var(--ease-out),
+    rotate var(--dur-quick) var(--ease-out);
+}
+
+/* A selected label, not the cover's edge-to-edge fit-to-column treatment
+   (ART_DIRECTION.md §4): a fluid poster-scale headline sized to the card, not
+   the viewport. */
+.rk-title { color: var(--color-paper); font-size: clamp(2rem, 4vw, 3.5rem); margin-block-end: 0.125rem; }
+.rk-meta { color: var(--rankle-yellow); }
+.rk-descriptor { color: var(--on-soft); max-inline-size: 22ch; }
+
+/* Tier bands: a vertical strip of three color blocks along the trailing edge,
+   standing in for ranking cards until real product assets exist (M5). Large,
+   bold numerals only -- never small text -- keep every band's contrast at
+   least 3:1 (AA for large/graphic text), the same rule the site's own
+   red-on-ink marks follow. */
+.rk-bands {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  inline-size: 3.25rem;
+  display: flex;
+  flex-direction: column;
+}
+.rk-band {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}
+.rk-band-1 { background-color: var(--rankle-red); color: var(--color-white); }
+.rk-band-2 { background-color: var(--rankle-yellow); color: var(--color-ink); }
+.rk-band-3 { background-color: var(--rankle-blue); color: var(--color-white); }
+.rk-band { translate: 0 0; transition: translate var(--dur-quick) var(--ease-out); }
+.rk-band-2 { transition-delay: 30ms; }
+.rk-band-3 { transition-delay: 60ms; }
+
+/* ---------------------------------------------------------------- Plannr */
+
+.wall-plannr {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  background-color: var(--plannr-paper);
+  color: var(--plannr-navy);
+  justify-self: end;
+  inline-size: 82%;
+  margin-block-start: clamp(-1.5rem, -2.5vw, -0.75rem);
+  /* A contact shadow, only because Plannr's sheet physically overlaps
+     Rankle's at every width (never a floating-card shadow): paper lifting
+     slightly off paper, not Material elevation. */
+  box-shadow: 0 0.5rem 1rem -0.75rem color-mix(in srgb, var(--color-ink) 55%, transparent);
+  /* Interaction (M4B/M4C): orthogonal stays orthogonal -- no rotate here,
+     ever. Only a small upward translate; the shadow does not animate (M4C
+     decision, see the "interaction" comment below) -- it stays exactly as
+     set above, at rest and while hovered/focused alike. */
+  translate: 0 0;
+  transition: translate var(--dur-quick) var(--ease-out);
+}
+
+.pl-title { color: var(--plannr-navy); font-size: clamp(2rem, 4vw, 3.5rem); margin-block-end: 0.125rem; }
+.pl-meta { color: var(--plannr-navy); }
+.pl-descriptor { color: var(--plannr-navy); max-inline-size: 24ch; }
+
+/* A quiet calendar-grid graphic: 4x7 cells plus one marked date, standing in
+   for the real product screenshot until one exists (M6). Faint on purpose --
+   texture stays subordinate to the title and descriptor (brief §13). */
+.pl-grid {
+  position: absolute;
+  inset-block-start: 1.25rem;
+  inset-inline-end: 1.25rem;
+  inline-size: 7rem;
+  block-size: 4rem;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 2px;
+}
+.pl-cell {
+  background-color: color-mix(in srgb, var(--plannr-navy) 12%, transparent);
+}
+.pl-cell-marked {
+  grid-column: 4;
+  grid-row: 2;
+  background-color: var(--plannr-gold);
+  opacity: 1;
+  transition: opacity var(--dur-quick) var(--ease-out);
+}
+/* The interaction's "the schedule changed" cell: present at rest (opacity 0,
+   so Clean Copy hiding the whole .pl-grid loses nothing extra) and crossfades
+   in on hover/focus while .pl-cell-marked crossfades out -- see the
+   "interaction" block below. Still inside .pl-grid, still aria-hidden with
+   it: decorative, never the only place any information exists. */
+.pl-cell-marked-alt {
+  grid-column: 5;
+  grid-row: 2;
+  background-color: var(--plannr-gold);
+  opacity: 0;
+  transition: opacity var(--dur-quick) var(--ease-out);
+}
+
+/* ------------------------------------------------------------ interaction */
+
+/*
+ * M4B: project-specific hover/focus, not a shared card-hover effect.
+ *
+ * Rankle (tactile / loose / competitive): a few pixels of translate AWAY
+ * from Plannr (up-left, never toward it -- the overlap only ever gets
+ * smaller on interaction, never awkward, per the M4B brief §12), its resting
+ * rotation eases part-way toward level, and the tier bands nudge inward with
+ * a small stagger -- evoking movement between tiers without becoming a game.
+ *
+ * Plannr (precise / structured / scheduled): stays orthogonal always (no
+ * rotate, ever). A small upward lift and the highlighted calendar cell
+ * crossfading to an adjacent one -- "the schedule changed," an abstract
+ * graphic response, not a real calendar. M4C removed the hover/focus contact-
+ * shadow deepening that the first M4B pass had: A/B comparison (lift+shadow+
+ * cell vs. lift+cell, resting shadow untouched) showed the animated shadow
+ * was the least project-specific part of the interaction -- any card can
+ * deepen its shadow on hover, and it read as generic Material/UI elevation
+ * rather than "a physical sheet." The resting contact shadow (justified
+ * because Plannr genuinely overlaps Rankle at rest) is unchanged.
+ *
+ * Both: gated behind `(hover: hover) and (pointer: fine)` for :hover (so
+ * touch/coarse pointers never receive hover-only motion -- a tap still just
+ * follows the link), and separately behind `:focus-visible` (unconditional
+ * on pointer capability, since keyboard users on any device deserve the
+ * same legible "this is interactive" signal). Both are gated behind
+ * `prefers-reduced-motion: no-preference`: under reduced motion neither
+ * translate/rotate/band-shift/cell-crossfade applies at all -- not merely
+ * shortened -- while the focus outline (a separate, unaffected property)
+ * remains exactly as visible as ever. `color` is repeated here even though
+ * it does not change, purely to keep both posters' text colors pinned
+ * against the sitewide `a:hover { color: var(--accent) }` rule, which
+ * otherwise wins on specificity (element+pseudo-class beats one class) --
+ * project colors must not get a global red tint bolted on by a generic link
+ * rule during the one moment a visitor is actually looking at the poster.
+ */
+
+@media (prefers-reduced-motion: no-preference) {
+  .wall-rankle:focus-visible {
+    translate: -0.2rem -0.25rem;
+    rotate: calc(var(--tilt-1) * 0.4 * var(--chaos) * -1);
+    color: var(--color-paper);
+  }
+  .wall-rankle:focus-visible .rk-band { translate: -0.2rem 0; }
+
+  .wall-plannr:focus-visible {
+    translate: 0 -0.2rem;
+    color: var(--plannr-navy);
+  }
+  .wall-plannr:focus-visible .pl-cell-marked { opacity: 0; }
+  .wall-plannr:focus-visible .pl-cell-marked-alt { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+  .wall-rankle:hover {
+    translate: -0.2rem -0.25rem;
+    rotate: calc(var(--tilt-1) * 0.4 * var(--chaos) * -1);
+    color: var(--color-paper);
+  }
+  .wall-rankle:hover .rk-band { translate: -0.2rem 0; }
+
+  .wall-plannr:hover {
+    translate: 0 -0.2rem;
+    color: var(--plannr-navy);
+  }
+  .wall-plannr:hover .pl-cell-marked { opacity: 0; }
+  .wall-plannr:hover .pl-cell-marked-alt { opacity: 1; }
+}
+
+/* -------------------------------------------------------------- tablet, 48rem+ */
+
+@media (min-width: 48rem) {
+  /* The header moves beside Rankle (grid-row: 1, same row, disjoint columns)
+     instead of sitting in its own full-width row between the two posters --
+     it now lives in the negative space Rankle's own width doesn't use,
+     anchored to the top of the row so Plannr's modest rise from below never
+     reaches it (Rankle's row is far taller than the header's own content). */
+  .sw-header { grid-column: 7 / 9; grid-row: 1; align-self: start; }
+
+  .wall-rankle { grid-column: 1 / 7; inline-size: 100%; min-block-size: 22rem; }
+  .wall-plannr {
+    /* Row 2, not 3: the header vacated row 2 to sit beside Rankle in row 1
+       above, so Plannr moves up to fill it -- otherwise an empty collapsed
+       row-gap sits between Rankle and Plannr and silently eats the negative
+       margin below before it can reach Rankle at all. */
+    grid-row: 2;
+    grid-column: 3 / 9;
+    inline-size: 100%;
+    min-block-size: 19rem;
+    /* A small, real overlap: Plannr's own top-left corner rises into
+       Rankle's lower-right corner (column 3-7 overlap, a modest vertical
+       reach) -- two artifacts on one sheet, not two independent sections. */
+    margin-block-start: clamp(-6rem, -7vw, -4rem);
+  }
+}
+
+/* ------------------------------------------------------------- desktop, 64rem+ */
+
+@media (min-width: 64rem) {
+  .selected-work { row-gap: clamp(1rem, 2vw, 1.5rem); }
+
+  .sw-header { grid-column: 9 / 13; grid-row: 1; align-self: start; }
+
+  /* The two flagships, comparable in editorial weight but not identical:
+     Rankle wide and off-axis; Plannr now substantially larger than the
+     first pass and pulled up/left so its corner overlaps Rankle's, instead
+     of sitting far below it as an independent card (brief §8/§25, and the
+     M4A visual-review adjustment). */
+  .wall-rankle { grid-column: 1 / 8; min-block-size: 23rem; inline-size: 100%; }
+  .wall-plannr {
+    grid-column: 6 / 13;
+    inline-size: 100%;
+    min-block-size: 22rem;
+    margin-block-start: clamp(-6.5rem, -7vw, -5rem);
+  }
+}
