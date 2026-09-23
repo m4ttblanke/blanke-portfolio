@@ -43,8 +43,13 @@ describe("the cover", () => {
     expect(cover).toMatch(/final asset pending/i);
   });
 
-  it("the exit seam is pure ornament: aria-hidden and Clean-Copy-hidden", () => {
-    expect(stripped).toMatch(/<div className="cover-seam ornament[^"]*"[^>]*aria-hidden="true"/);
+  it("has no exit seam: the cover terminates cleanly (visual review, M3A pass 2)", () => {
+    expect(stripped).not.toMatch(/cover-seam/);
+  });
+
+  it("the development figure is abstract, not a rendering of a person", () => {
+    expect(stripped).toMatch(/<svg className="cover-figure"/);
+    expect(stripped).not.toMatch(/<img\b|next\/image/);
   });
 
   it("uses Big Shoulders only for the name and the statement, never for the factual rail", () => {
