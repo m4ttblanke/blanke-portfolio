@@ -531,3 +531,22 @@ and **never `redirect()` inside an admin page**.
   positioning plate around the review screenshot (`data-pl-review`) and unique
   hooks. Clean Copy: the hero's registrar form moves into the space the decoration
   leaves; wide margin notes keep a pen rule.
+- **M6B Plannr trace.** One product-specific interaction on the Transformation
+  spread, "trace a deadline": select a highlighted phrase on the syllabus, its
+  record activates, a review slip represents it, ACCEPT places its cell on the
+  term grid. It progressively enhances the approved static spread (at rest it is
+  the same composition; the frozen spreads are byte-identical) and is an editorial
+  demonstration of the verified workflow, not Plannr running in the page. The real
+  review screenshot stays an inert bitmap: its sample data (2026-10-09) is not this
+  illustration's (2027-01-15), so the slip is a separate portfolio-level sheet laid
+  over the week strip (the one band of the capture with no review information),
+  drawn nothing like the app (white paper, navy rule, square uppercase buttons; the
+  tilt is on the slab behind the words, scaled by `--chaos`). States use the
+  packet's own vocabulary (stronger highlighter, pen underline, registration mark,
+  pen rule, stamp, check), never a SaaS state, and each is also carried by text or
+  shape. One client island (`components/plannr/plannr-trace.tsx`), state in a pure
+  module (`lib/work/plannr-trace.ts`), no persistence, no request, no dependency.
+  Focus stays where the visitor put it (the alternative, jumping to ACCEPT, saves
+  keystrokes but moves focus off a control the visitor just pressed). Motion is
+  `--dur-quick` transitions on named properties only, so reduced motion is
+  immediate; no keyframes; nothing animates on its own.

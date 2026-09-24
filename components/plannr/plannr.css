@@ -526,6 +526,7 @@
   border-block-start: 1px solid var(--pc-rule);
 }
 .pc-slip-type {
+  grid-row: 1;
   grid-column: 1 / -1;
   color: var(--pc-soft);
   font-size: 0.6875rem;
@@ -672,6 +673,356 @@
     block-size: 1.4rem;
     color: var(--plannr-pen);
   }
+}
+
+/* ---------------------------------------------------------------- THE TRACE (M6B)
+   One interaction on the transformation: follow a deadline from its phrase on the
+   syllabus, to its record, to a review slip, to its cell on the term grid. Every
+   state is drawn in the packet's own vocabulary (a stronger highlighter, a pen
+   underline, a registration mark, a pen rule, a stamp), never a SaaS button
+   state: no glow, no fill-on-focus, no scale. Transitions are local and short
+   (--dur-quick, 120ms), only on the properties that change, and every duration
+   is zeroed by prefers-reduced-motion in app/globals.css, so the state changes
+   are immediate there and nothing depends on movement. */
+
+.pc-flow {
+  --pc-hl-strong: color-mix(in srgb, var(--plannr-gold) 88%, var(--plannr-paper));
+}
+
+/* The status line: the last thing that happened, in words, and also the live
+   region. Its height is reserved (four lines of caption) so a longer message
+   never moves the page. */
+.pc-trace-status {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem 0.75rem;
+  min-block-size: calc(4 * 1.4em);
+  font-size: 0.8125rem;
+}
+.pc-trace-msg {
+  margin: 0;
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  color: var(--pc-soft);
+}
+.pc-trace-clear {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 2.75rem;
+  margin-block: -0.75rem;
+  padding: 0 0.15rem;
+  background: none;
+  border: 0;
+  color: var(--plannr-pen);
+  font: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.22em;
+  cursor: pointer;
+}
+.pc-trace-clear:not([data-pl-shown]) {
+  visibility: hidden;
+}
+
+/* A: the traced phrases. The highlighted title IS a button, but it stays the
+   document's own highlighter: no border, fill, padding or size of a control. The
+   hit area is stretched over the whole row (::after), so the type never changes
+   to reach a touch target, and the row is what you press. */
+.pc-page-list li[data-pl-trace] {
+  position: relative;
+}
+.pc-trace-btn {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+.pc-trace-btn::after {
+  content: "";
+  position: absolute;
+  inset-block: -0.35rem;
+  inset-inline: 0;
+}
+@media (pointer: coarse) {
+  .pc-page-list li[data-pl-trace] {
+    padding-block: 0.7rem;
+  }
+}
+/* At rest, the only sign that a phrase can be pressed: a dotted pen underline. */
+:root:not([data-copy="clean"]) .pc-trace-btn .pc-hl {
+  text-decoration: underline dotted;
+  text-decoration-color: var(--plannr-pen);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.2em;
+}
+.pc-page-list .pc-hl {
+  transition: background-image var(--dur-quick) var(--ease-out), text-decoration-color var(--dur-quick) var(--ease-out);
+}
+/* Hover and focus strengthen the highlighter (focus also has the global outline). */
+.pc-trace-btn:hover .pc-hl,
+.pc-trace-btn:hover ~ .pc-hl,
+.pc-trace-btn:focus-visible .pc-hl {
+  background-image: linear-gradient(transparent 8%, var(--pc-hl-strong) 8% 92%, transparent 92%);
+}
+/* Selected: stronger highlighter on the title and its written date, a solid pen
+   underline, and a registration mark in the margin. */
+.pc-page-list li[data-pl-selected] .pc-hl {
+  background-image: linear-gradient(transparent 4%, var(--pc-hl-strong) 4% 96%, transparent 96%);
+  text-decoration: underline solid;
+  text-decoration-color: var(--plannr-pen);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
+}
+.pc-page-list li[data-pl-selected]::before,
+.pc-page-list li[data-pl-verdict]:not([data-pl-selected])::before {
+  content: "";
+  position: absolute;
+  inset-block-start: 0.62rem;
+  inset-inline-start: -0.95rem;
+  inline-size: 0.6rem;
+  block-size: 0.6rem;
+  pointer-events: none;
+}
+.pc-page-list li[data-pl-selected]::before {
+  border: 1.5px solid var(--plannr-pen);
+  border-radius: 50%;
+  background: linear-gradient(var(--plannr-pen), var(--plannr-pen)) center / 100% 1.5px no-repeat,
+    linear-gradient(var(--plannr-pen), var(--plannr-pen)) center / 1.5px 100% no-repeat;
+}
+/* A verdict already given is a small pen mark in the same place: a check, or a dash. */
+.pc-page-list li[data-pl-verdict="accepted"]:not([data-pl-selected])::before {
+  background-color: var(--plannr-pen);
+  clip-path: polygon(0 55%, 14% 40%, 38% 62%, 86% 0, 100% 16%, 38% 100%);
+}
+.pc-page-list li[data-pl-verdict="declined"]:not([data-pl-selected])::before {
+  block-size: 0;
+  border-block-start: 2px solid var(--plannr-pen);
+  inset-block-start: 0.85rem;
+}
+
+/* B: the extracted records. The active one takes ink, a pen rule, the phrase in
+   the highlighter (the same words the syllabus row carries) and an underlined
+   date; the rest go quieter in colour only, and stay readable. */
+.pc-slip {
+  position: relative;
+  transition: background-color var(--dur-quick) var(--ease-out), box-shadow var(--dur-quick) var(--ease-out);
+}
+.pc-slip-title,
+.pc-slip-date,
+.pc-slip-from {
+  transition: color var(--dur-quick) var(--ease-out);
+}
+.pc-slips[data-pl-focus] .pc-slip:not([data-pl-active]) .pc-slip-title,
+.pc-slips[data-pl-focus] .pc-slip:not([data-pl-active]) .pc-slip-date {
+  color: var(--pc-soft);
+}
+.pc-slip[data-pl-active] {
+  background-color: color-mix(in srgb, var(--plannr-hl) 32%, var(--pc-sheet));
+  box-shadow: inset 3px 0 0 var(--plannr-pen);
+}
+.pc-slip[data-pl-active] .pc-slip-from {
+  align-self: start;
+  justify-self: start;
+  color: var(--color-ink);
+  background-image: linear-gradient(transparent 8%, var(--pc-hl-strong) 8% 92%, transparent 92%);
+  padding-inline: 0.15em;
+  margin-inline: -0.15em;
+}
+.pc-slip[data-pl-active] .pc-slip-date {
+  text-decoration: underline solid;
+  text-decoration-color: var(--plannr-pen);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
+}
+.pc-slip-verdict {
+  grid-row: 1;
+  grid-column: 2;
+  justify-self: end;
+  color: var(--plannr-navy);
+  font-size: 0.6875rem;
+}
+.pc-slip[data-pl-verdict="declined"] .pc-slip-title {
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
+
+/* C: the review slip. An editor's sheet laid over the spread, NOT part of the
+   screenshot (a real bitmap, inert): white paper, a navy top rule, square
+   registrar buttons, nothing like the app's dark rounded pills. It sits on the
+   week strip, the one band of the capture that carries no review information,
+   so it never covers an event card, a control or the Sync button. The sheet is
+   pasted down a little crooked (the tilt is on the slab BEHIND the words, never
+   the words), and hangs a little past the plate: an overlap, scaled by --chaos so
+   Clean Copy squares it up. */
+.pc-rs {
+  position: absolute;
+  inset-block-start: 19%;
+  inset-inline: calc(-0.6rem * var(--chaos));
+  block-size: 28%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.3rem;
+  padding: 0.55rem 0.75rem 0.5rem;
+  transition: opacity var(--dur-quick) var(--ease-out), translate var(--dur-quick) var(--ease-out);
+}
+@starting-style {
+  .pc-rs {
+    opacity: 0;
+    translate: 0 0.4rem;
+  }
+}
+.pc-rs::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: var(--pc-sheet);
+  border: 1px solid var(--pc-rule);
+  border-block-start: 3px solid var(--plannr-navy);
+  rotate: calc(var(--tilt-1) * var(--chaos) * -1);
+}
+.pc-rs > * {
+  position: relative;
+  margin: 0;
+}
+.pc-rs-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: var(--plannr-navy);
+  font-size: 0.6875rem;
+}
+.pc-rs-stamp {
+  padding: 0.05rem 0.4rem;
+  border: 1.5px solid var(--plannr-pen);
+  color: var(--plannr-pen);
+  font-size: 0.625rem;
+  transition: background-color var(--dur-quick) var(--ease-out), color var(--dur-quick) var(--ease-out);
+}
+.pc-rs[data-pl-verdict="accepted"] .pc-rs-stamp {
+  background-color: var(--plannr-navy);
+  border-color: var(--plannr-navy);
+  color: var(--plannr-paper);
+}
+.pc-rs[data-pl-verdict="declined"] .pc-rs-stamp {
+  border-style: dashed;
+  color: var(--color-ink);
+  border-color: var(--color-ink);
+  text-decoration: line-through;
+}
+.pc-rs-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.pc-rs-title {
+  font-weight: 750;
+  line-height: 1.2;
+}
+.pc-rs-date {
+  flex: none;
+  color: var(--plannr-navy);
+  font-size: 0.9375rem;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+.pc-rs-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+.pc-rs-btn {
+  min-block-size: 2.75rem;
+  padding: 0 0.25rem;
+  background-color: var(--pc-sheet);
+  border: 1.5px solid var(--color-ink);
+  border-radius: 0;
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color var(--dur-quick) var(--ease-out), color var(--dur-quick) var(--ease-out);
+}
+.pc-rs-btn:hover {
+  background-color: var(--plannr-hl);
+}
+.pc-rs-btn[aria-pressed="true"] {
+  background-color: var(--plannr-navy);
+  border-color: var(--plannr-navy);
+  color: var(--plannr-paper);
+}
+/* Decline pressed is marked by its label being struck, not only by colour. */
+.pc-rs-btn[aria-pressed="true"]:last-child {
+  background-color: var(--color-ink);
+  border-color: var(--color-ink);
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
+.pc-rs-note {
+  color: var(--pc-soft);
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+/* D: the term grid. Once anything is being traced, cells not yet accepted go
+   quiet (the grid still shows where every date falls); the one under review
+   waits in a dashed pen outline; accepted cells are placed in solid gold with a
+   heavier outline and a check; a declined one is struck through. The tag and
+   the check are text and shape, so colour is never the only carrier. */
+.pc-cell {
+  transition: background-color var(--dur-quick) var(--ease-out), outline-color var(--dur-quick) var(--ease-out);
+}
+.pc-term-traced .pc-cell-marked:not([data-pl-state]) {
+  background-color: transparent;
+  outline-color: color-mix(in srgb, var(--plannr-pen) 38%, transparent);
+  color: var(--pc-soft);
+}
+.pc-term-traced .pc-cell-marked:not([data-pl-state]) .pc-cell-tag {
+  color: var(--pc-soft);
+}
+.pc-cell[data-pl-state="awaiting"] {
+  background-color: transparent;
+  outline-style: dashed;
+}
+.pc-cell[data-pl-state="accepted"] {
+  background-color: var(--plannr-gold);
+  outline: 3px solid var(--plannr-navy);
+  outline-offset: -3px;
+}
+.pc-cell[data-pl-state="accepted"]::after {
+  content: "";
+  position: absolute;
+  inset-block-start: 0.28rem;
+  inset-inline-end: 0.28rem;
+  inline-size: 0.6rem;
+  block-size: 0.5rem;
+  background-color: var(--plannr-navy);
+  clip-path: polygon(0 55%, 14% 40%, 38% 62%, 86% 0, 100% 16%, 38% 100%);
+}
+.pc-cell[data-pl-state="declined"] {
+  background-color: transparent;
+  outline-style: dotted;
+  background-image: linear-gradient(
+    to top right,
+    transparent calc(50% - 1px),
+    var(--plannr-pen) calc(50% - 1px) calc(50% + 1px),
+    transparent calc(50% + 1px)
+  );
+}
+.pc-cell[data-pl-state="declined"] .pc-cell-tag {
+  text-decoration: line-through;
 }
 
 /* ========================================================== THE PRODUCT */
@@ -1392,4 +1743,18 @@
 :root[data-copy="clean"] .pc-line-note,
 :root[data-copy="clean"] .pc-shot-notes li {
   border-inline-start-width: 2px;
+}
+
+/* Clean Copy, the trace (M6B). The pen ring, registration marks and the slab's
+   tilt are decoration and go (--chaos is 0). What stays is state: the selected
+   phrase gets a heavier underline than the plain highlighted ones (which Clean
+   Copy already underlines), the record keeps its pen rule and words, the slip
+   keeps its stamp and buttons, and the calendar keeps its outlines and check. */
+:root[data-copy="clean"] .pc-page-list li[data-pl-selected]::before,
+:root[data-copy="clean"] .pc-page-list li[data-pl-verdict]:not([data-pl-selected])::before {
+  display: none;
+}
+:root[data-copy="clean"] .pc-page-list li[data-pl-selected] .pc-hl {
+  background-image: none;
+  text-decoration-thickness: 4px;
 }

@@ -7,7 +7,7 @@ import { PlannrDecisions } from "./plannr-decisions";
 import { PlannrSystem } from "./plannr-system";
 import { PlannrReceipt } from "./plannr-receipt";
 
-// PLANNR: the second flagship case study (M6A, static composition only).
+// PLANNR: the second flagship case study (M6A composition, M6B one interaction).
 // Rankle is loud, social, argumentative. Plannr is ordered, academic,
 // documentary: an annotated course packet. Seven spreads on one .plannr-case
 // scope (app/globals.css, "6b. PROJECT COLOR WORLDS"), the palette of the real
@@ -21,8 +21,10 @@ import { PlannrReceipt } from "./plannr-receipt";
 //   system          how a syllabus travels
 //   receipt         what exists, checked, and who built it
 //
-// Everything is server-rendered. There is no client component, no listener and
-// no animation here: the interaction belongs to M6B, the choreography to M9.
+// Everything is server-rendered except ONE narrow client island inside the
+// transformation (M6B, components/plannr/plannr-trace.tsx: "trace a deadline").
+// This file, the page and every other spread stay server components; the
+// choreography belongs to M9.
 // The M2 shell (masthead, navigation, footer) is untouched; this renders
 // straight inside <main>, exactly as the Rankle case does.
 export function PlannrCase() {

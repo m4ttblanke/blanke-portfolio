@@ -1,6 +1,27 @@
 import { MarkCircle } from "@/components/design/marks";
 import { DEADLINES, DOCUMENT_NOISE, DOCUMENT_NOTES } from "@/lib/work/plannr-content";
 
+/** M6B: the rows that are controls, and what the visitor has done to them. Only the copy inside the transformation passes it; without it the page renders exactly as before. */
+export type DocumentTrace = {
+  /** Deadline ids whose title is a button. The other rows stay plain highlighted text. */
+  ids: readonly string[];
+  selected: string | null;
+  /** Per traced id: "unreviewed" | "accepted" | "declined". */
+  verdicts: Readonly<Record<string, string>>;
+  onSelect: (id: string) => void;
+};
+
+/** Row attributes for a traced deadline: which row is a control, which is selected, and what was decided. Nothing at all on rows that are not, or without `trace`. */
+function rowState(trace: DocumentTrace | undefined, id: string) {
+  if (!trace?.ids.includes(id)) return {};
+  const verdict = trace.verdicts[id];
+  return {
+    "data-pl-trace": "",
+    ...(trace.selected === id ? { "data-pl-selected": "" } : {}),
+    ...(verdict && verdict !== "unreviewed" ? { "data-pl-verdict": verdict } : {}),
+  };
+}
+
 // THE DOCUMENT: the syllabus as the page's protagonist. An ILLUSTRATION, and
 // labelled so where it is used (DOCUMENT_DISCLAIMER): a fictitious course
 // composed from the sample syllabus built into the app, because every real
@@ -19,11 +40,13 @@ export function DocumentPage({
   variant = "full",
   notes = false,
   hooks = false,
+  trace,
 }: {
   variant?: "full" | "fragment" | "lines";
   notes?: boolean;
   /** Carry the data-pl-deadline hooks. Only the copy inside the transformation does: the hooks must be unique on the page, so hero and document leave them off. */
   hooks?: boolean;
+  trace?: DocumentTrace;
 }) {
   const full = variant === "full";
   const shown = variant === "fragment" ? DEADLINES.slice(0, 3) : DEADLINES;
@@ -48,10 +71,26 @@ export function DocumentPage({
       <p className="pc-page-rule t-meta">Schedule of graded work</p>
       <ul className="pc-page-list">
         {shown.map((d) => (
-          <li key={d.id}>
-            <span className="pc-hl" {...(hooks ? { "data-pl-deadline": d.id } : {})}>
-              {d.title}
-            </span>
+          <li key={d.id} {...rowState(trace, d.id)}>
+            {trace?.ids.includes(d.id) ? (
+              // The highlighted phrase IS the control: a real button that looks like the document's own
+              // highlighter. Its hit area is stretched over the row in CSS (.pc-trace-btn::after), so the
+              // type is never resized to reach a touch target. The name carries the deadline's meaning.
+              <button
+                type="button"
+                className="pc-trace-btn"
+                data-pl-deadline={d.id}
+                aria-pressed={trace.selected === d.id}
+                aria-label={`Trace ${d.title}, ${d.written}`}
+                onClick={() => trace.onSelect(d.id)}
+              >
+                <span className="pc-hl">{d.title}</span>
+              </button>
+            ) : (
+              <span className="pc-hl" {...(hooks ? { "data-pl-deadline": d.id } : {})}>
+                {d.title}
+              </span>
+            )}
             {" — "}
             <span className="pc-hl" {...(hooks ? { "data-pl-deadline-when": d.id } : {})}>
               {d.ring && d.written.includes(d.ring) ? (

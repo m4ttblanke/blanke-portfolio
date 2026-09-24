@@ -30,6 +30,9 @@ const dir = "components/plannr";
 const tsx = readdirSync(join(root, dir)).filter((f) => f.endsWith(".tsx"));
 const sources = Object.fromEntries(tsx.map((f) => [f, strip(read(`${dir}/${f}`))]));
 const allSource = Object.values(sources).join("\n");
+// M6B: exactly ONE client module, the trace island. Every other file stays a server component.
+const ISLAND = "plannr-trace.tsx";
+const serverSources = Object.entries(sources).filter(([name]) => name !== ISLAND);
 const css = read(`${dir}/plannr.css`);
 const content = read("lib/work/plannr-content.ts");
 
@@ -121,8 +124,10 @@ describe("Plannr case study: color world containment", () => {
     expect(allSource).not.toMatch(/\b(?:bg|text|border)-(?:red|blue|yellow|amber)-\d+/);
   });
 
-  it("never rotates body text: no rotation at all on the page, and no tilt utility on the document", () => {
-    expect(strip(css)).not.toMatch(/(?<![-\w])rotate\s*:/);
+  it("never rotates body text: the only rotation is the review slip's slab behind its words, and no tilt utility on the document", () => {
+    const rotations = [...strip(css).matchAll(/([^{}]+)\{[^{}]*(?<![-\w])rotate\s*:[^;}]*/g)].map((m) => m[1].trim());
+    expect(rotations).toEqual([".pc-rs::before"]);
+    expect(strip(css)).toMatch(/\.pc-rs::before\s*\{[^}]*rotate:\s*calc\(var\(--tilt-1\) \* var\(--chaos\)/);
     expect(sources["document-page.tsx"]).not.toMatch(/tilt-/);
   });
 
@@ -152,15 +157,21 @@ describe("Plannr case study: color world containment", () => {
 });
 
 describe("Plannr case study: static, server-rendered", () => {
-  it("no client component and no interaction code anywhere in the case study", () => {
-    for (const [name, src] of Object.entries(sources)) {
-      expect(src, name).not.toMatch(/"use client"|'use client'/);
-      expect(src, name).not.toMatch(/\buse(State|Effect|Ref|Reducer|LayoutEffect)\b|onClick|onMouse|onPointer|onKey|onScroll|addEventListener/);
+  it("one client island only (M6B); every other file is a server component with no hooks or listeners", () => {
+    const clients = Object.entries(sources).filter(([, src]) => /"use client"|'use client'/.test(src)).map(([n]) => n);
+    expect(clients).toEqual([ISLAND]);
+    for (const [name, src] of serverSources) {
+      expect(src, name).not.toMatch(/\buse(State|Effect|Ref|Reducer|LayoutEffect)\b|onMouse|onPointer|onKey|onScroll|addEventListener/);
+      // the one handler that exists outside the island is the document page's optional `trace` callback prop
+      if (name !== "document-page.tsx") expect(src, name).not.toMatch(/onClick/);
     }
+    expect(sources["document-page.tsx"].match(/onClick/g)).toHaveLength(1);
+    expect(sources["document-page.tsx"]).toMatch(/onClick=\{\(\) => trace\.onSelect\(d\.id\)\}/);
   });
 
   it("no animation, scroll or pointer behavior in the CSS", () => {
-    expect(strip(css)).not.toMatch(/@keyframes|animation\s*:|scroll-timeline|animation-timeline|cursor\s*:/);
+    // the native cursor stays: only `cursor: pointer` on real controls, never a replacement
+    expect(strip(css)).not.toMatch(/@keyframes|animation\s*:|scroll-timeline|animation-timeline|cursor\s*:\s*(?!\s|pointer\b)/);
     expect(strip(css)).not.toMatch(/transition(-property)?\s*:\s*all\b/);
   });
 
@@ -185,7 +196,7 @@ describe("Plannr case study: the M6B foundation is present and inert", () => {
     expect(flow).toContain('data-pl-step="extract"');
     expect(flow).toContain('data-pl-step="review"');
     expect(flow).toContain('data-pl-step="calendar"');
-    expect(flow).toContain("data-pl-event={d.id}");
+    expect(sources[ISLAND]).toContain("data-pl-event={d.id}");
     expect(sources["document-page.tsx"]).toContain('"data-pl-deadline": d.id');
     expect(sources["document-page.tsx"]).toContain('"data-pl-deadline-when": d.id');
     expect(sources["term-grid.tsx"]).toContain("data-pl-cell={iso}");
@@ -193,7 +204,7 @@ describe("Plannr case study: the M6B foundation is present and inert", () => {
   });
 
   it("the hooks are unique on the page: only the copy of the document inside the transformation carries them", () => {
-    expect(sources["plannr-transformation.tsx"]).toMatch(/<DocumentPage variant="lines" hooks \/>/);
+    expect(sources[ISLAND]).toMatch(/<DocumentPage\s+variant="lines"\s+hooks\s+trace=/);
     expect(sources["plannr-hero.tsx"]).not.toMatch(/hooks/);
     expect(sources["plannr-document.tsx"]).not.toMatch(/hooks/);
     expect(sources["plannr-document.tsx"]).not.toMatch(/data-pl-/);
@@ -210,10 +221,10 @@ describe("Plannr case study: the M6B foundation is present and inert", () => {
   });
 
   it("every part of the M6B model has a target: phrase, record, plate, and calendar cell per deadline", () => {
-    const flow = sources["plannr-transformation.tsx"] + sources["document-page.tsx"] + sources["term-grid.tsx"];
+    const flow = sources["plannr-transformation.tsx"] + sources[ISLAND] + sources["document-page.tsx"] + sources["term-grid.tsx"];
     for (const hook of ["data-pl-deadline", "data-pl-event", "data-pl-review", "data-pl-cell"]) expect(flow).toContain(hook);
-    // no interactive state is pre-baked into the static markup
-    expect(flow).not.toMatch(/data-pl-(active|state|selected|accepted|declined)/);
+    // no interactive state is pre-baked into the server-rendered section; it is only ever added by the island's state
+    expect(sources["plannr-transformation.tsx"]).not.toMatch(/data-pl-(active|state|selected|verdict|accepted|declined)/);
   });
 
   it("the four steps are a real ordered list in the order syllabus, extract, review, calendar", () => {
@@ -558,8 +569,8 @@ describe("Plannr case study: the M6A refinement pass", () => {
     expect(css).toMatch(/:root\[data-copy="clean"\] \.pc-sheet\s*\{[^}]*padding-inline-start/);
   });
 
-  it("stays static: still no client component, dependency or animation after the refinement", () => {
-    for (const [name, src] of Object.entries(sources)) expect(src, name).not.toMatch(/"use client"|useState|useEffect|onClick/);
+  it("stays server-rendered outside the trace island: no other client component, hook or keyframe animation", () => {
+    for (const [name, src] of serverSources) expect(src, name).not.toMatch(/"use client"|useState|useEffect/);
     expect(strip(css)).not.toMatch(/@keyframes|animation\s*:|transition\s*:\s*all/);
   });
 });
