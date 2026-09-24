@@ -164,6 +164,8 @@ export const DECISIONS = [
   {
     id: "review",
     name: "The student signs off before anything reaches a calendar.",
+    /** The phrase of `name` the pen underlines: the review note is attached to it. */
+    mark: "signs off",
     constraint:
       "Extraction is inference. Friday of Week 3 is a calculation, and a calculation can be wrong. A wrong date costs a student a deadline.",
     decision:
@@ -175,6 +177,8 @@ export const DECISIONS = [
   {
     id: "ownership",
     name: "One calendar per class, and Plannr only patches.",
+    /** The phrase of `name` the pen underlines: the review note is attached to it. */
+    mark: "only patches",
     constraint: "The calendar it writes to is the student's own. They will add a location, a note, a reminder. A sync must not erase it.",
     decision:
       "Each class gets a dedicated secondary Google Calendar, found or created by name and coloured to match. Existing events are patched, not replaced, so anything added in Google survives a re-sync. If an event has been deleted in Google, only that one is recreated. Every event carries a private id, so a retried request updates the event it already made instead of duplicating it.",
@@ -185,6 +189,8 @@ export const DECISIONS = [
   {
     id: "diff",
     name: "A changed syllabus is a diff, not a rebuild.",
+    /** The phrase of `name` the pen underlines: the review note is attached to it. */
+    mark: "a diff",
     constraint: "Professors move deadlines. Uploading the new version must not wipe the student's edits or duplicate the term.",
     decision:
       "Re-uploads are reconciled against the class's existing events. Two events are the same when their title and date match; a local edit beats the new parse; only the difference is pushed to Google. Every sync is snapshotted, and a class can be restored to any earlier one.",
@@ -202,11 +208,11 @@ export const SYSTEM_COLUMNS = [
   { key: "google", name: "Google", holds: "Gemini reads the text. Google Calendar holds the result." },
 ] as const;
 
-/** Hops, in order. `from`/`to` are 1-based columns of SYSTEM_COLUMNS. [REPO backend/app.py, DEPLOY.md] */
+/** Hops, in order. `from`/`to` are 1-based columns of SYSTEM_COLUMNS. `note` names the SYSTEM_NOTES entry pinned to that hop: the extraction note to the hop that reaches Gemini, the storage note to the hop where the server hands the events back and keeps nothing. [REPO backend/app.py, DEPLOY.md] */
 export const SYSTEM_HOPS = [
   { n: 1, from: 1, to: 2, label: "Syllabus PDF or pasted text, up to 10 MB" },
-  { n: 2, from: 2, to: 3, label: "The document's text goes to Gemini; structured events come back", both: true },
-  { n: 3, from: 2, to: 1, label: "Events go back to the phone for review" },
+  { n: 2, from: 2, to: 3, label: "The document's text goes to Gemini; structured events come back", both: true, note: "extraction" },
+  { n: 3, from: 2, to: 1, label: "Events go back to the phone for review", note: "storage" },
   { n: 4, from: 1, to: 2, label: "Accepted events, after the student presses Sync" },
   { n: 5, from: 2, to: 3, label: "Insert or patch on the class's own Google Calendar" },
 ] as const;

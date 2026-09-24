@@ -518,3 +518,16 @@ and **never `redirect()` inside an admin page**.
   width (container query), not the viewport's. The transformation carries stable
   `data-pl-*` hooks as the static foundation for M6B. Big Shoulders appears in two
   moments only: the wordmark and the four step words.
+- **M6A refinement.** Approved sections (hero, document, transformation, product)
+  frozen; verified pixel-identical to the prior commit (60 geometry fingerprints,
+  15 widths x 4 sections). Decisions became one review sheet with three findings:
+  the pen note is attached to an underlined phrase of its own headline and the
+  code reference moved under it, so the left column carries weight (about 30%
+  shorter per finding at desktop). Under the Hood: each pen note now lives inside
+  the hop it annotates and leaves that hop's line on a leader, using the
+  Document's margin-note vocabulary; the lane legend moved inside the sheet under
+  its lanes. Receipt: punched for the same binder as the syllabus page plus a
+  second sheet's edge (both scaled by --chaos). The transformation gained only a
+  positioning plate around the review screenshot (`data-pl-review`) and unique
+  hooks. Clean Copy: the hero's registrar form moves into the space the decoration
+  leaves; wide margin notes keep a pen rule.

@@ -15,7 +15,16 @@ import { DEADLINES, DOCUMENT_NOISE, DOCUMENT_NOTES } from "@/lib/work/plannr-con
 // as real text (the margin notes). Real text stays real text, so reading order
 // is the document's own.
 /** full: the whole page. fragment: the top of it, three lines (hero). lines: only the schedule, all six (transformation). */
-export function DocumentPage({ variant = "full", notes = false }: { variant?: "full" | "fragment" | "lines"; notes?: boolean }) {
+export function DocumentPage({
+  variant = "full",
+  notes = false,
+  hooks = false,
+}: {
+  variant?: "full" | "fragment" | "lines";
+  notes?: boolean;
+  /** Carry the data-pl-deadline hooks. Only the copy inside the transformation does: the hooks must be unique on the page, so hero and document leave them off. */
+  hooks?: boolean;
+}) {
   const full = variant === "full";
   const shown = variant === "fragment" ? DEADLINES.slice(0, 3) : DEADLINES;
   return (
@@ -40,11 +49,11 @@ export function DocumentPage({ variant = "full", notes = false }: { variant?: "f
       <ul className="pc-page-list">
         {shown.map((d) => (
           <li key={d.id}>
-            <span className="pc-hl" data-pl-deadline={d.id}>
+            <span className="pc-hl" {...(hooks ? { "data-pl-deadline": d.id } : {})}>
               {d.title}
             </span>
             {" — "}
-            <span className="pc-hl" data-pl-deadline-when={d.id}>
+            <span className="pc-hl" {...(hooks ? { "data-pl-deadline-when": d.id } : {})}>
               {d.ring && d.written.includes(d.ring) ? (
                 <>
                   {d.written.split(d.ring)[0]}

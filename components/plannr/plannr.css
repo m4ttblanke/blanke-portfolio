@@ -553,11 +553,16 @@
   font-weight: 650;
 }
 
-/* REVIEW: the real screen, edged like a plate. No device, no shadow. */
+/* REVIEW: the real screen, edged like a plate. No device, no shadow. The plate
+   is only a positioning context (data-pl-review): a later control layer can sit
+   beside or over it without ever being part of the bitmap. Geometry unchanged. */
+.pc-review-plate {
+  position: relative;
+  max-inline-size: 19rem;
+}
 .pc-review-img {
   display: block;
   inline-size: 100%;
-  max-inline-size: 19rem;
   block-size: auto;
   border: 1px solid var(--pc-rule);
   background-color: var(--color-ink);
@@ -845,46 +850,82 @@
   margin: 0.75rem 0 0;
   max-inline-size: 32ch;
 }
+
+/* One review sheet, three findings: the same white, hairline-edged paper as the
+   syllabus page and the receipt, each finding a band on it. */
 .pc-decision-list {
   grid-column: 1 / -1;
   list-style: none;
-  padding: 0;
-  margin: clamp(2rem, 5vw, 3.5rem) 0 0;
+  margin: clamp(1.5rem, 4vw, 2.5rem) 0 0;
+  padding: 0 clamp(1rem, 2.5vw, 2rem);
+  background-color: var(--pc-sheet);
+  border: 1px solid var(--pc-rule);
+  border-block-start: 2px solid var(--color-ink);
 }
 .pc-decision {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  padding-block: clamp(1.5rem, 4vw, 2.25rem);
-  border-block-start: 2px solid var(--color-ink);
-  row-gap: 1.25rem;
+  padding-block: clamp(1.15rem, 2.6vw, 1.6rem);
+  row-gap: 1.1rem;
 }
-.pc-decision:last-child {
-  border-block-end: 1px solid var(--pc-rule);
+.pc-decision + .pc-decision {
+  border-block-start: 2px solid var(--color-ink);
+}
+
+.pc-decision-ref {
+  margin: 0 0 0.45rem;
+  color: var(--pc-soft);
 }
 .pc-decision-name {
   margin: 0;
   text-wrap: balance;
   font-size: clamp(1.5rem, 1.05rem + 1.5vw, 2.25rem);
+  /* a little more leading than the global head style: the pen underline sits
+     between lines and must not touch the next one. */
+  line-height: 1.14;
+}
+
+/* The pen underlines the phrase the review note is about (decoration, hidden by
+   Clean Copy); the note itself is real text hanging directly beneath the
+   headline on a pen leader, so it reads as a mark on this finding. */
+.pc-uline {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+}
+.pc-uline-mark {
+  inset-inline: -0.05em;
+  inset-block-end: -0.2em;
+  inline-size: calc(100% + 0.1em);
+  block-size: 0.3em;
+  color: var(--plannr-pen);
+  --mark-tilt: 0deg;
 }
 .pc-decision-note {
   position: relative;
-  display: inline-block;
-  margin-block-start: 0.9rem;
-  padding-inline-start: 2.6rem;
+  margin-block-start: 1.15rem;
+  padding-inline-start: 0.85rem;
+  border-inline-start: 2px solid var(--plannr-pen);
+  font-size: 1.0625rem;
 }
-.pc-pen-arrow {
+.pc-decision-leader {
   position: absolute;
-  inset-block-start: 0.05em;
-  inset-inline-start: 0;
-  inline-size: 2.1rem;
-  block-size: 1.05rem;
-  color: var(--plannr-pen);
-  --mark-tilt: 4deg;
+  inset-inline-start: -2px;
+  inset-block-end: 100%;
+  block-size: 0.85rem;
+  border-inline-start: 2px solid var(--plannr-pen);
 }
-.pc-pen-arrow svg {
-  inline-size: 100%;
-  block-size: 100%;
+.pc-decision-code {
+  margin: 0.75rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.75rem;
 }
+.pc-decision-code .t-meta {
+  color: var(--pc-soft);
+}
+
 .pc-decision-rows {
   margin: 0;
   display: grid;
@@ -893,12 +934,15 @@
 .pc-decision-rows > div {
   display: grid;
   gap: 0.25rem;
-  padding-block: 0.8rem;
+  padding-block: 0.7rem;
   border-block-start: 1px solid var(--pc-rule);
 }
 .pc-decision-rows > div:first-child {
   border-block-start: 0;
   padding-block-start: 0;
+}
+.pc-decision-rows > div:last-child {
+  padding-block-end: 0;
 }
 .pc-decision-rows dt {
   color: var(--pc-soft);
@@ -912,15 +956,19 @@
   .pc-decision {
     grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
     column-gap: var(--gutter);
+    align-items: start;
   }
   .pc-decision-claim {
     grid-column: 1 / span 4;
   }
+  /* the reasoning is ruled out beside the claim, with a hairline between them */
   .pc-decision-rows {
-    grid-column: 6 / -1;
+    grid-column: 5 / -1;
+    padding-inline-start: var(--gutter);
+    border-inline-start: 1px solid var(--pc-rule);
   }
   .pc-decision-rows > div {
-    grid-template-columns: 9rem minmax(0, 1fr);
+    grid-template-columns: 8.25rem minmax(0, 1fr);
     column-gap: var(--gutter);
     align-items: baseline;
   }
@@ -1038,16 +1086,20 @@
   border-inline-end: 10px solid var(--plannr-navy);
 }
 
+/* The legend sits inside the sheet, under the lanes it describes. */
 .pc-lives {
-  grid-column: 1 / -1;
-  margin: 1.5rem 0 0;
+  margin: 0.25rem 0 0;
+  padding-block-start: 0.4rem;
   display: grid;
-  gap: 1rem;
-  align-content: start;
+  gap: 0;
+  border-block-start: 2px solid var(--color-ink);
 }
 .pc-lives > div {
-  padding-block-start: 0.6rem;
+  padding-block: 0.7rem;
   border-block-start: 1px solid var(--pc-rule);
+}
+.pc-lives > div:first-child {
+  border-block-start: 0;
 }
 .pc-lives dt {
   color: var(--pc-soft);
@@ -1056,19 +1108,21 @@
 .pc-lives dd {
   margin: 0;
 }
-.pc-system-notes {
+
+/* The pen notes, narrow: inside the sheet, directly under the hop they are
+   about. (Wide screens hang them off the end of the hop's line: see below.) */
+.pc-hop-note {
   grid-column: 1 / -1;
-  list-style: none;
-  margin: 1.5rem 0 0;
-  padding: 0;
-  display: grid;
-  gap: 0.9rem;
-}
-.pc-system-notes .pc-pen {
   padding-inline-start: 0.85rem;
   border-inline-start: 2px solid var(--plannr-pen);
   font-size: 1rem;
+  /* the lane guides run behind the hops: keep them out from under the words */
+  background-color: var(--pc-sheet);
 }
+.pc-hop-leader {
+  display: none;
+}
+
 .pc-system-foot {
   grid-column: 1 / -1;
   margin-block-start: 2rem;
@@ -1086,22 +1140,52 @@
   letter-spacing: 0.05em;
 }
 
+@media (min-width: 48rem) {
+  .pc-lives {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 0;
+  }
+  .pc-lives > div {
+    border-block-start: 0;
+    padding-inline: 0.75rem;
+    text-align: center;
+  }
+  .pc-lives > div + div {
+    border-inline-start: 1px solid var(--pc-rule);
+  }
+}
+
 @media (min-width: 64rem) {
   .pc-seq {
     grid-column: 1 / span 8;
   }
-  .pc-lives {
-    grid-column: 9 / -1;
-    grid-row: 2;
-    margin-block-start: clamp(1.75rem, 4vw, 2.5rem);
-  }
-  .pc-system-notes {
-    grid-column: 9 / -1;
-    grid-row: 3;
-    align-self: start;
-  }
   .pc-lane-name {
     font-size: 1rem;
+  }
+  .pc-hop {
+    position: relative;
+  }
+  /* Wide: each note leaves the end of its hop's line on a pen leader and lands
+     in the margin at the same height. The leader is drawn from the line's own
+     right-hand end (--leaves, set per hop) so it visibly starts at the arrow. */
+  .pc-hop-leader {
+    display: block;
+    position: absolute;
+    inset-block-end: 0.9rem;
+    inset-inline-start: calc(var(--leaves) + 0.75rem);
+    inset-inline-end: -3rem;
+    border-block-start: 2px solid var(--plannr-pen);
+  }
+  .pc-hop-note {
+    position: absolute;
+    inset-block-end: calc(0.9rem + 4px);
+    inset-inline-start: calc(100% + 3.25rem);
+    inline-size: 15.5rem;
+    margin: 0;
+    padding-inline-start: 0;
+    border-inline-start: 0;
+    background-color: transparent;
+    font-size: 1.0625rem;
   }
 }
 
@@ -1124,7 +1208,23 @@
   margin-block-start: clamp(1.75rem, 4vw, 2.5rem);
   background-color: var(--pc-sheet);
   border: 1px solid var(--pc-rule);
-  padding: clamp(1rem, 3vw, 2rem);
+  /* left padding clears the binder holes: the receipt is punched for the same
+     binder as the syllabus page above, the second sheet of the same file. */
+  padding: clamp(1rem, 3vw, 2rem) clamp(1rem, 3vw, 2rem) clamp(1rem, 3vw, 2rem) 2.1rem;
+  /* A second sheet shows its edge beneath (right and bottom only). Scaled by
+     --chaos, so Clean Copy lays the sheets flat. */
+  box-shadow: calc(0.45rem * var(--chaos)) calc(0.45rem * var(--chaos)) 0 -1px var(--pc-sheet),
+    calc(0.45rem * var(--chaos)) calc(0.45rem * var(--chaos)) 0 0 color-mix(in srgb, var(--color-ink) 42%, transparent);
+}
+.pc-sheet .pc-holes {
+  inset-inline-start: 0.55rem;
+}
+.pc-sheet .pc-holes i {
+  inline-size: 0.8rem;
+  block-size: 0.8rem;
+}
+.pc-sheet .pc-link-plain {
+  overflow-wrap: break-word;
 }
 
 /* The date stamp: an approval carries the date it was given. It is the one
@@ -1132,7 +1232,7 @@
    the same date is real text under the heading. */
 .pc-stamp {
   position: absolute;
-  inset-block-start: -1.1rem;
+  inset-block-start: -1.45rem;
   inset-inline-end: clamp(0.75rem, 3vw, 2rem);
   display: block;
   padding: 0.3rem 0.7rem 0.35rem;
@@ -1208,6 +1308,19 @@
 }
 
 @media (min-width: 48rem) {
+  .pc-sheet {
+    padding-inline-start: 3.25rem;
+  }
+  .pc-sheet .pc-holes {
+    inset-inline-start: 1rem;
+  }
+  .pc-sheet .pc-holes i {
+    inline-size: 1rem;
+    block-size: 1rem;
+  }
+}
+
+@media (min-width: 48rem) {
   .pc-ledger-row {
     grid-template-columns: 8rem minmax(0, 1fr);
     column-gap: var(--gutter);
@@ -1244,6 +1357,29 @@
   text-decoration-thickness: 2px;
   text-underline-offset: 0.2em;
   text-decoration-color: var(--plannr-pen);
+}
+/* Clean Copy hero: the decorative page-and-term composition is gone, which
+   would leave the right of the masthead empty. The registrar form (existing
+   content, not new) moves up into that space as a column. Nothing is invented. */
+@media (min-width: 64rem) {
+  :root[data-copy="clean"] .pc-form {
+    grid-column: 8 / -1;
+    grid-row: 1 / span 3;
+    grid-template-columns: minmax(0, 1fr);
+    margin: 0;
+    align-self: start;
+  }
+}
+/* Clean Copy, the adjusted sections: the pen leaders are ornament and go, so the
+   wide margin notes keep a pen rule of their own (they still sit level with the
+   hop they annotate), and the receipt drops the extra left padding that only
+   the binder holes needed. */
+:root[data-copy="clean"] .pc-hop-note {
+  padding-inline-start: 0.85rem;
+  border-inline-start: 2px solid var(--plannr-pen);
+}
+:root[data-copy="clean"] .pc-sheet {
+  padding-inline-start: clamp(1rem, 3vw, 2rem);
 }
 :root[data-copy="clean"] .pc-mark-host {
   padding-inline: 0;

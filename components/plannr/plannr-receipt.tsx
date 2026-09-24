@@ -3,7 +3,10 @@ import { PLANNR_META, RECEIPT_CREDITS, RECEIPT_NOT_ON_FILE, RECEIPT_ROWS } from 
 
 // THE RECEIPT: is this real? A filing sheet, not a dashboard. Each row is one
 // thing that exists and where to check it; the stamp records WHEN it was
-// checked (the reason the mark exists: an approval stamp carries a date). No
+// checked (the reason the mark exists: an approval stamp carries a date). The
+// sheet is punched for the same binder as the syllabus page above (it is the
+// same file: the document, then the evidence) and sits on a second sheet whose
+// edge shows beneath it, so it reads as a filed page, not a floating panel. No
 // user counts, no revenue, no accuracy figures: the last row says plainly what
 // is not on file. Credits keep the authorship honest: a seven-person course
 // project first, then Matt alone. Exits to Work, not to a made-up "next".
@@ -19,6 +22,11 @@ export function PlannrReceipt() {
       </header>
 
       <div className="pc-sheet">
+        <span className="pc-holes ornament" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </span>
         <span className="pc-stamp ornament tilt-ccw-2" aria-hidden="true">
           Checked
           <br />

@@ -186,9 +186,34 @@ describe("Plannr case study: the M6B foundation is present and inert", () => {
     expect(flow).toContain('data-pl-step="review"');
     expect(flow).toContain('data-pl-step="calendar"');
     expect(flow).toContain("data-pl-event={d.id}");
-    expect(sources["document-page.tsx"]).toContain("data-pl-deadline={d.id}");
+    expect(sources["document-page.tsx"]).toContain('"data-pl-deadline": d.id');
+    expect(sources["document-page.tsx"]).toContain('"data-pl-deadline-when": d.id');
     expect(sources["term-grid.tsx"]).toContain("data-pl-cell={iso}");
     expect(sources["term-grid.tsx"]).toContain('"data-pl-event": hit.id');
+  });
+
+  it("the hooks are unique on the page: only the copy of the document inside the transformation carries them", () => {
+    expect(sources["plannr-transformation.tsx"]).toMatch(/<DocumentPage variant="lines" hooks \/>/);
+    expect(sources["plannr-hero.tsx"]).not.toMatch(/hooks/);
+    expect(sources["plannr-document.tsx"]).not.toMatch(/hooks/);
+    expect(sources["plannr-document.tsx"]).not.toMatch(/data-pl-/);
+    expect(sources["plannr-hero.tsx"]).not.toMatch(/data-pl-/);
+  });
+
+  it("the review screenshot sits on a plate that is only a positioning context, and stays an inert image", () => {
+    const flow = sources["plannr-transformation.tsx"];
+    expect(flow).toMatch(/<div className="pc-review-plate" data-pl-review>\s*<Image/);
+    // the bitmap is never a control: no handlers, no role, no tabindex, no map, no button in the figure
+    const figure = flow.slice(flow.indexOf('<figure className="pc-step-art pc-review">'), flow.indexOf("</figure>", flow.indexOf('pc-review">')));
+    expect(figure).not.toMatch(/<button|<a\b|role=|tabIndex|useMap|onClick|<input/);
+    expect(css).toMatch(/\.pc-review-plate\s*\{[^}]*position:\s*relative/);
+  });
+
+  it("every part of the M6B model has a target: phrase, record, plate, and calendar cell per deadline", () => {
+    const flow = sources["plannr-transformation.tsx"] + sources["document-page.tsx"] + sources["term-grid.tsx"];
+    for (const hook of ["data-pl-deadline", "data-pl-event", "data-pl-review", "data-pl-cell"]) expect(flow).toContain(hook);
+    // no interactive state is pre-baked into the static markup
+    expect(flow).not.toMatch(/data-pl-(active|state|selected|accepted|declined)/);
   });
 
   it("the four steps are a real ordered list in the order syllabus, extract, review, calendar", () => {
@@ -447,5 +472,94 @@ describe("Plannr case study: accessibility structure", () => {
   it("touch targets are at least 44px and focus is left to the global visible-focus rule", () => {
     expect(css).toMatch(/\.pc-link-solid,\s*\.pc-link-plain\s*\{[^}]*min-block-size:\s*2\.75rem/);
     expect(strip(css)).not.toMatch(/outline\s*:\s*(none|0)\b/);
+  });
+});
+
+describe("Plannr case study: the M6A refinement pass", () => {
+  it("Decisions: still exactly the three real decisions, with constraint, what it does, where it stops, and a code link each", () => {
+    expect(DECISIONS.map((d) => d.id)).toEqual(["review", "ownership", "diff"]);
+    const dec = sources["plannr-decisions.tsx"];
+    for (const label of ["The constraint", "What it does", "Where it stops", "In the code"]) expect(dec).toContain(label);
+    expect(dec).toMatch(/d\.constraint/);
+    expect(dec).toMatch(/d\.decision/);
+    expect(dec).toMatch(/d\.limit/);
+    expect(dec).toMatch(/href=\{d\.code\.href\}[^>]*target="_blank"[^>]*rel="noopener noreferrer"/);
+  });
+
+  it("Decisions: one pen note per finding, and it is attached to a phrase of that finding's own headline", () => {
+    expect(DECISIONS.map((d) => d.note)).toEqual(["opt-out, not opt-in", "patch, not update", "identity is title + date"]);
+    for (const d of DECISIONS) {
+      expect(d.name, d.id).toContain(d.mark);
+      expect(d.name.split(d.mark), d.id).toHaveLength(2); // the phrase occurs once, so the split is unambiguous
+    }
+    const dec = sources["plannr-decisions.tsx"];
+    expect(dec).toMatch(/<MarkUnderline className="annotation pc-uline-mark ornament" \/>/);
+    expect([...dec.matchAll(/pc-decision-note/g)]).toHaveLength(1); // one note per rendered finding, none added to fill space
+    expect(dec).not.toMatch(/MarkArrow|MarkCircle|MarkX/);
+  });
+
+  it("Decisions: one review sheet with heavy rules between findings, not cards and not a three-column grid", () => {
+    expect(css).toMatch(/\.pc-decision-list\s*\{[^}]*background-color:\s*var\(--pc-sheet\)/);
+    expect(css).toMatch(/\.pc-decision \+ \.pc-decision\s*\{[^}]*border-block-start:\s*2px solid/);
+    const block = css.slice(css.indexOf("THE DECISIONS"), css.indexOf("UNDER THE HOOD"));
+    expect(block).not.toMatch(/border-radius|repeat\(3,/);
+  });
+
+  it("Under the Hood: the diagram is untouched: three lanes, five hops, an ordered list, and the stack line", () => {
+    expect(SYSTEM_COLUMNS.map((c) => c.key)).toEqual(["phone", "server", "google"]);
+    expect(SYSTEM_HOPS).toHaveLength(5);
+    expect(sources["plannr-system.tsx"]).toMatch(/<ol className="pc-hops">/);
+    expect(sources["plannr-system.tsx"]).toContain("SYSTEM_STACK");
+  });
+
+  it("Under the Hood: each pen note lives inside the hop it annotates, in the same vocabulary as The Document", () => {
+    const withNotes = SYSTEM_HOPS.filter((h) => "note" in h && h.note);
+    expect(withNotes.map((h) => [h.n, "note" in h ? h.note : null])).toEqual([
+      [2, "extraction"],
+      [3, "storage"],
+    ]);
+    const sys = sources["plannr-system.tsx"];
+    expect(sys).toMatch(/<span className="pc-hop-leader ornament" aria-hidden="true" \/>\s*<p className="pc-pen pc-hop-note">/);
+    expect(sys).not.toMatch(/pc-system-notes/);
+    expect(css).toMatch(/\.pc-hop-leader\s*\{[^}]*border-block-start:\s*2px solid var\(--plannr-pen\)/);
+    // the legend lives inside the figure, under its lanes
+    const fig = sys.slice(sys.indexOf('<figure className="pc-seq">'), sys.indexOf("</figure>"));
+    expect(fig).toContain('<dl className="pc-lives">');
+  });
+
+  it("Under the Hood: no icons, logos, images or new arrows were added", () => {
+    const sys = sources["plannr-system.tsx"];
+    expect(sys).not.toMatch(/<Image|<img|<svg|MarkArrow|MarkCircle|MarkUnderline|MarkX/);
+  });
+
+  it("Receipt: same content, plus binder holes as an aria-hidden ornament, and a sheet edge scaled by --chaos", () => {
+    const rec = sources["plannr-receipt.tsx"];
+    expect(rec).toMatch(/<span className="pc-holes ornament" aria-hidden="true">/);
+    for (const c of ["RECEIPT_ROWS.map", "RECEIPT_CREDITS.map", "RECEIPT_NOT_ON_FILE", "PLANNR_META.checkedOn", "Back to Work", "Who built it"]) expect(rec).toContain(c);
+    const sheet = css.match(/\.pc-sheet\s*\{[^}]*\}/)?.[0] ?? "";
+    const shadows = sheet.match(/box-shadow:[^;]*;/)?.[0] ?? "";
+    expect(shadows).toContain("var(--chaos)");
+    expect(shadows).not.toMatch(/blur|\b[1-9]\d*px\s+[1-9]\d*px\s+[1-9]/); // a hard-edged sheet, never a soft drop shadow
+  });
+
+  it("Receipt: no invented artifacts: no signature, staple, tape or handwriting, and no new claims", () => {
+    expect(sources["plannr-receipt.tsx"]).not.toMatch(/signature|staple|tape|handwrit/i);
+    expect(css).not.toMatch(/\.tape|staple|signature/i);
+    expect(RECEIPT_ROWS).toHaveLength(6);
+  });
+
+  it("Clean Copy: the hero form moves into the space the decoration leaves, using its existing content", () => {
+    expect(css).toMatch(/:root\[data-copy="clean"\] \.pc-form\s*\{[^}]*grid-column:\s*8 \/ -1/);
+    expect(sources["plannr-hero.tsx"]).not.toMatch(/data-copy|clean/i); // no replacement content invented for it
+  });
+
+  it("Clean Copy: the wide margin notes keep a pen rule, and the receipt drops the hole padding", () => {
+    expect(css).toMatch(/:root\[data-copy="clean"\] \.pc-hop-note\s*\{[^}]*border-inline-start:\s*2px solid var\(--plannr-pen\)/);
+    expect(css).toMatch(/:root\[data-copy="clean"\] \.pc-sheet\s*\{[^}]*padding-inline-start/);
+  });
+
+  it("stays static: still no client component, dependency or animation after the refinement", () => {
+    for (const [name, src] of Object.entries(sources)) expect(src, name).not.toMatch(/"use client"|useState|useEffect|onClick/);
+    expect(strip(css)).not.toMatch(/@keyframes|animation\s*:|transition\s*:\s*all/);
   });
 });

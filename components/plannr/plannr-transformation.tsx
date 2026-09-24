@@ -13,12 +13,25 @@ import { DEADLINES, FLOW_CAPTIONS, FLOW_STEPS } from "@/lib/work/plannr-content"
 //
 // This is the STATIC FOUNDATION for M6B, which will progressively enhance it
 // without redesigning it. The hooks are already in the markup:
-//   data-pl-flow                    the island root
+//   data-pl-flow                    the section root
 //   data-pl-step="syllabus|..."     each step
-//   data-pl-deadline="ps1"          a highlighted phrase on the page
-//   data-pl-event="ps1"             its extracted record AND its marked cell
+//   data-pl-deadline="ps1"          a highlighted phrase on the page (title), and
+//   data-pl-deadline-when="ps1"     its written date; unique to this section
+//   data-pl-event="ps1"             its extracted record (li) AND its marked cell
 //   data-pl-cell="2027-01-15"       every cell of the term grid
+//   data-pl-review                  the plate around the real review screenshot
 // Nothing here listens, animates or holds state.
+//
+// The model M6B will layer on, and how this DOM already supports it:
+//   A  a visitor picks one highlighted phrase       -> [data-pl-deadline=id] (its <li> is the row)
+//   B  its record becomes the active one            -> li[data-pl-event=id]
+//   C  a review control is offered                  -> beside or over [data-pl-review]. The plate is
+//        only a positioning context. The screenshot is a bitmap of the real app and stays inert:
+//        M6B must draw its own clearly portfolio-level control, never pretend pixels are buttons.
+//        (The captured sample shows the app's own Problem Set 1, dated 2026-10-09, not this
+//        illustration's 2027-01-15: another reason the control has to be separate from the image.)
+//   D  accepting marks its calendar cell            -> [data-pl-cell][data-pl-event=id]
+// The static state shown today is the fully accepted one, so with no JS nothing is missing.
 export function PlannrTransformation() {
   const [syllabus, extract, review, calendar] = FLOW_STEPS;
   return (
@@ -36,7 +49,7 @@ export function PlannrTransformation() {
           <h3 className="pc-step-word t-display">{syllabus.word}</h3>
           <p className="pc-step-body t-small">{syllabus.body}</p>
           <div className="pc-step-art">
-            <DocumentPage variant="lines" />
+            <DocumentPage variant="lines" hooks />
           </div>
         </li>
 
@@ -64,14 +77,16 @@ export function PlannrTransformation() {
           <h3 className="pc-step-word t-display">{review.word}</h3>
           <p className="pc-step-body t-small">{review.body}</p>
           <figure className="pc-step-art pc-review">
-            <Image
-              src="/plannr/review-sample.png"
-              alt="Plannr's review screen for a sample class. A week strip, then event cards for Problem Set 1 and Problem Set 2, each marked Accepted with Edit, Accept and Decline buttons, and a Sync button below."
-              width={760}
-              height={1652}
-              sizes="(min-width: 64rem) 22vw, (min-width: 48rem) 40vw, 80vw"
-              className="pc-review-img"
-            />
+            <div className="pc-review-plate" data-pl-review>
+              <Image
+                src="/plannr/review-sample.png"
+                alt="Plannr's review screen for a sample class. A week strip, then event cards for Problem Set 1 and Problem Set 2, each marked Accepted with Edit, Accept and Decline buttons, and a Sync button below."
+                width={760}
+                height={1652}
+                sizes="(min-width: 64rem) 22vw, (min-width: 48rem) 40vw, 80vw"
+                className="pc-review-img"
+              />
+            </div>
             <figcaption className="t-caption">{FLOW_CAPTIONS.review}</figcaption>
           </figure>
         </li>
