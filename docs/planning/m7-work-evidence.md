@@ -106,8 +106,8 @@ those already verify.
 | CMPSC 156 team01/team02 as a separate entry | Real and verifiable, but the same course and stack as Courses Search. Folded into that entry. |
 | CMPSC 165B hw2 | Standard ML homework notebooks. Exercises, not projects. Would be included only to fill an "ML" slot. |
 | RankTheRef | Private. Documentation and conventions only, no code. A concept, not a build. (ART_DIRECTION §16 already marks it provisional.) |
-| CMPSC 111 two-ball collision (forward Euler) and SVD image compression | **Missing evidence.** Mentioned only in `[CV]`. No notebook, output or repository found anywhere on this machine (`find` for `*.ipynb`, "billiard", "svd", "collision"). Worth adding once Matthew supplies the notebooks: it is the one computational-science signal the archive lacks. |
-| Cabrillo honors modeling: crossed E and B fields (Fall 2024); wave–particle duality (Spring 2025) | **Missing evidence**, same as above: `[CV]` only. |
+| CMPSC 111 two-ball collision (forward Euler) and SVD image compression | **Missing evidence.** Mentioned only in `[CV]`. No notebook, output or repository found anywhere on this machine (`find` for `*.ipynb`, "billiard", "svd", "collision"). Could be reconsidered if the original notebooks or files are recovered: it is the one computational-science signal the archive lacks. Not an M7 blocker, and no placeholder. |
+| Cabrillo honors modeling: crossed E and B fields (Fall 2024); wave–particle duality (Spring 2025) | **Missing evidence**, same as above: `[CV]` only. Could be reconsidered if the original files are recovered. |
 | ARM / computer organization (West Valley College) | `[CV]` lists the course only. No project material. |
 | Earlier data-structures / algorithms work | Nothing found beyond course titles on the résumé. |
 

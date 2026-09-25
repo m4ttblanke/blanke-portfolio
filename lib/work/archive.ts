@@ -109,11 +109,11 @@ export const ARCHIVE: readonly ArchiveEntry[] = [
     context: "CMPSC 156, UCSB · Team project", // [156-COURSES] [CV]
     role: "Contributor to an inherited codebase",
     summary:
-      "A full-stack course search for UCSB students that has been passed from cohort to cohort since 2021. Over 2,200 commits from earlier students and instructors were already in it when Matthew's team arrived.", // [156-COURSES] 2,290 commits before 2025-09-01
+      "A full-stack UCSB course search, handed from cohort to cohort since 2021. It already held over 2,200 commits from earlier students and instructors when Matthew's team arrived.", // [156-COURSES] 2,290 commits before 2025-09-01
     work:
-      "Four merged pull requests: a clear “no courses found” state (an empty search had looked the same as a slow one), course IDs that link to their details page, a paginated admin job log with sort and page-size controls, and a fix for a details page that loaded blank.", // [156-PRS] #23 #28 #38 #39
+      "Four merged pull requests: a clear “no courses found” state (an empty search had looked like a slow one), course IDs that link to their details pages, a paginated admin job log with sort and page-size controls, and a fix for a blank details page.", // [156-PRS] #23 #28 #38 #39
     note:
-      "The course's CI runs coverage and mutation testing (PIT for Java, Stryker for React), and several of his commits exist only to close the last gaps in both. Earlier in the course he built one resource end to end for the team exercises: database table, REST controller, React pages, integration and end-to-end tests.", // [156-COURSES] 5319d43 dd82ade 8125a04; [156-TEAM]
+      "The course's CI runs coverage and mutation testing (PIT for Java, Stryker for React); several of his commits exist only to close the last gaps. In the earlier team exercises he built one resource end to end: database table, REST controller, React pages, integration and end-to-end tests.", // [156-COURSES] 5319d43 dd82ade 8125a04; [156-TEAM]
     stack: ["Java", "Spring Boot", "React", "JavaScript"],
     links: [
       { label: "PR #23", href: `${COURSES_REPO}/pull/23`, context: "UCSB Courses Search pull request 23, “no courses found” feedback", external: true },
@@ -148,9 +148,9 @@ export const ARCHIVE: readonly ArchiveEntry[] = [
     context: "matthewblanke.com · Personal project", // [PORT]
     role: "Designed and built by Matthew",
     summary:
-      "The site you are reading. It is a magazine about one person, built with Next.js. Content lives in Convex, behind an admin page that Convex itself authorizes.", // [PORT]
+      "The site you're reading: an editorial portfolio built with Next.js, with its content in Convex behind an authenticated admin (WorkOS AuthKit sign-in, authorization enforced in Convex).", // [PORT]
     work:
-      "The art direction is a written document, and every rule in it that a machine can check is a test. The same checks run before every production deploy.", // [PORT] docs/ART_DIRECTION.md, tests/design, .github/workflows/ci.yml
+      "Its art direction is written down, and the rules a machine can check are tests that run before every production deploy.", // [PORT] docs/ART_DIRECTION.md, tests/design, .github/workflows/ci.yml
     note:
       "Visible “chaos” (the tilts, overlaps and torn edges) is deterministic, and one variable, ‑‑chaos, scales all of it. Setting it to zero realigns the whole page.", // [PORT] app/globals.css
     stack: ["Next.js", "TypeScript", "Convex", "WorkOS AuthKit", "Vitest"],

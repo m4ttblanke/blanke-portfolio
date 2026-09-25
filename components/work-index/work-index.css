@@ -307,8 +307,11 @@
 
 @media (min-width: 64rem) {
   .wi-feature { row-gap: 0; }
-  .wi-rankle .wi-plate { grid-column: 1 / 8; grid-row: 1; }
-  .wi-rankle .wi-feature-text { grid-column: 8 / -1; grid-row: 1; }
+  /* Rankle's plate is one column narrower than Plannr's (6 against 7): an
+     ink field weighs more than Plannr's paper one, so this is what keeps the
+     two features optically equal and the name, not the plate, in charge. */
+  .wi-rankle .wi-plate { grid-column: 1 / 7; grid-row: 1; }
+  .wi-rankle .wi-feature-text { grid-column: 7 / -1; grid-row: 1; }
   .wi-plannr .wi-feature-text { grid-column: 1 / 6; grid-row: 1; }
   .wi-plannr .wi-plate { grid-column: 6 / -1; grid-row: 1; }
   .wi-feature-name { font-size: clamp(4rem, 1rem + 6.4vw, 8.5rem); }

@@ -40,6 +40,11 @@ describe("Work index — hierarchy", () => {
     expect(globals).toMatch(/\.wi-plannr\s*\{[^}]*--plannr-navy:\s*#002e61/);
   });
 
+  it("Rankle's ink plate is one column narrower than Plannr's paper plate on desktop", () => {
+    expect(css).toMatch(/\.wi-rankle \.wi-plate \{ grid-column: 1 \/ 7;/);
+    expect(css).toMatch(/\.wi-plannr \.wi-plate \{ grid-column: 6 \/ -1;/);
+  });
+
   it("creates no secondary detail routes", () => {
     const routes = readdirSync(join(root, "app/(public)/projects")).sort();
     expect(routes).toEqual(["[slug]", "page.tsx", "plannr", "rankle"]);
