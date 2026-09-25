@@ -173,9 +173,13 @@ describe("Selected Work — the M3 -> M4 transition", () => {
 });
 
 describe("route regression", () => {
-  it("/projects still activates the WORK section and stays functional", () => {
+  it("/projects still sits under the WORK section and stays functional", () => {
+    // M7 replaced the legacy PageHeader (section="work") with the Work index.
+    // The masthead marks WORK active from the path (lib/shell/nav.ts), not
+    // from the page, so the section is still WORK.
     const projects = read("app/(public)/projects/page.tsx");
-    expect(projects).toMatch(/section="work"/);
+    expect(projects).toMatch(/<WorkIndex\b/);
+    expect(read("lib/shell/nav.ts")).toMatch(/match: \["\/projects"\]/);
   });
 
   it("the homepage nav still has no active section (unaffected by this change)", () => {

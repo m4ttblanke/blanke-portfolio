@@ -1,0 +1,611 @@
+/* THE WORK INDEX (M7). See components/work-index/work-index.tsx for the
+   composition and docs/ART_DIRECTION.md for the rules it follows.
+
+   Everything sits on the 12/8/4 grid. The masthead's contents start at column
+   5 (the pagehead already aligns to it), and so does every reading column on
+   this page: the title, the standfirst, the archive's entries. Columns 1-4 are
+   the index margin: folios, numbers, dates.
+
+   Hierarchy is carried by scale, color and density, never by motion:
+     features  display names, project color, big plates, alternating sides
+     archive   Schibsted only, paper/ink/red, strict four-column checklist */
+
+.work-index {
+  padding-block-end: var(--space-section-m);
+}
+
+.work-index > * {
+  grid-column: 1 / -1;
+}
+
+/* ------------------------------------------------------------------ opening */
+
+.wi-head {
+  display: grid;
+  grid-template-columns: subgrid;
+  row-gap: 1rem;
+  padding-block: var(--space-section-s) var(--space-section-s);
+}
+.wi-head > * { grid-column: 1 / -1; }
+
+.wi-title {
+  font-size: var(--t-head-1);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+}
+
+.wi-standfirst {
+  max-inline-size: 34ch;
+}
+
+.wi-contents {
+  display: grid;
+  gap: 1.75rem var(--gutter);
+  margin-block-start: 1.5rem;
+}
+
+.wi-contents-group > p {
+  padding-block-end: 0.5rem;
+  border-block-end: 3px solid var(--on);
+}
+
+.wi-contents-group a {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  column-gap: 0.75rem;
+  min-block-size: 2.75rem;
+  padding-block: 0.6rem;
+  border-block-end: 1px solid var(--rule);
+  font-weight: 650;
+  text-decoration: none;
+}
+.wi-contents-group a:hover .wi-contents-title {
+  text-decoration: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.2em;
+}
+
+.wi-contents-num,
+.wi-contents-when {
+  font-size: var(--t-meta);
+  font-weight: 650;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+.wi-contents-when { text-align: end; }
+
+@media (min-width: 48rem) {
+  .wi-contents { grid-template-columns: subgrid; }
+  .wi-contents-group:first-child { grid-column: 1 / 4; }
+  .wi-contents-group:last-child { grid-column: 4 / -1; }
+}
+
+@media (min-width: 64rem) {
+  .wi-folio { grid-column: 1 / 5; grid-row: 1; padding-block-start: 0.35rem; }
+  .wi-title { grid-column: 5 / -1; grid-row: 1; }
+  .wi-standfirst { grid-column: 5 / 11; }
+  .wi-contents { grid-column: 5 / -1; }
+  .wi-contents-group:first-child { grid-column: 1 / 4; }
+  .wi-contents-group:last-child { grid-column: 4 / -1; }
+}
+
+/* ------------------------------------------------------------ section heads */
+
+.wi-sechead {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
+  align-items: baseline;
+  row-gap: 0.35rem;
+  padding-block: 1rem 0;
+  border-block-start: 1px solid var(--on);
+}
+.wi-sechead > * { grid-column: 1 / -1; }
+
+.wi-sectitle {
+  font-size: var(--t-head-3);
+  font-weight: 750;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+
+@media (min-width: 64rem) {
+  .wi-sechead .wi-sectitle { grid-column: 1 / 5; grid-row: 1; }
+  .wi-sechead > .t-meta { grid-column: 5 / -1; grid-row: 1; }
+}
+
+/* ----------------------------------------------------------------- features */
+
+.wi-features {
+  display: grid;
+  grid-template-columns: subgrid;
+  row-gap: var(--space-section-s);
+  padding-block-start: var(--space-section-s);
+}
+
+.wi-feature {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
+  row-gap: 2rem;
+  align-items: center;
+}
+
+.wi-feature-text,
+.wi-plate {
+  grid-column: 1 / -1;
+  min-inline-size: 0;
+}
+
+.wi-feature-num {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Project names are the page's only display type: the features' own posters.
+   Sized to the column, not the viewport, so they never crowd the text. */
+.wi-feature-name {
+  margin-block-start: 0.5rem;
+  font-size: clamp(4rem, 2rem + 8vw, 8.5rem);
+}
+
+.wi-thesis {
+  margin-block-start: 1.25rem;
+  max-inline-size: 36ch;
+  font-size: var(--t-lede);
+  font-weight: 500;
+  line-height: 1.32;
+  letter-spacing: -0.01em;
+  text-wrap: pretty;
+}
+
+.wi-facts {
+  display: grid;
+  margin-block-start: 1.75rem;
+  border-block-start: 1px solid var(--rule);
+}
+.wi-facts > div {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  column-gap: 1rem;
+  align-items: baseline;
+  padding-block: 0.6rem;
+  border-block-end: 1px solid var(--rule);
+}
+.wi-facts dd { font-size: var(--t-small); line-height: 1.45; }
+
+.wi-case {
+  margin-block-start: 1.75rem;
+}
+.wi-case a {
+  display: inline-block;
+  padding-block: 0.35rem;
+  font-size: var(--t-head-3);
+  font-weight: 750;
+  letter-spacing: -0.015em;
+  text-decoration-thickness: 0.1em;
+}
+
+.wi-more {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 1.5rem;
+  font-size: var(--t-small);
+  font-weight: 600;
+}
+.wi-more a,
+.wi-entry-links a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 2.75rem;
+}
+
+/* Rankle. Loud: black sheet, tier colors, one loose card. */
+.wi-rankle .wi-feature-name { color: var(--color-ink); }
+
+.wi-plate-rankle {
+  aspect-ratio: 16 / 11;
+  padding: clamp(1rem, 3.2%, 2rem);
+  background-color: var(--color-ink);
+}
+
+.wi-rk-sheet {
+  display: grid;
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  block-size: 100%;
+  border-block-start: 2px solid color-mix(in srgb, var(--color-paper) 22%, transparent);
+}
+
+.wi-rk-row {
+  display: grid;
+  grid-template-columns: minmax(3rem, 16%) minmax(0, 1fr);
+  border-block-end: 2px solid color-mix(in srgb, var(--color-paper) 22%, transparent);
+}
+
+.wi-rk-label {
+  display: grid;
+  place-items: center;
+  font-family: var(--font-body);
+  font-size: clamp(1.5rem, 1rem + 2vw, 2.75rem);
+  font-weight: 850;
+  color: var(--color-ink);
+}
+.wi-rk-row-s .wi-rk-label { background-color: var(--rankle-red); color: var(--color-white); }
+.wi-rk-row-a .wi-rk-label { background-color: var(--rankle-yellow); }
+.wi-rk-row-b .wi-rk-label { background-color: var(--rankle-blue); color: var(--color-white); }
+
+.wi-rk-cards {
+  display: flex;
+  align-items: center;
+  gap: 4%;
+  padding-inline: 5%;
+}
+
+.wi-rk-card {
+  display: block;
+  inline-size: 15%;
+  aspect-ratio: 3 / 4;
+  max-block-size: 76%;
+  background-color: var(--color-paper);
+}
+
+/* The one undecided card: lifted off the sheet, across the S/A line. */
+.wi-rk-loose {
+  position: absolute;
+  inset-block-start: 26%;
+  inset-inline-end: 9%;
+  inline-size: 13%;
+  max-block-size: none;
+  box-shadow: 0 0 0 2px var(--rankle-yellow);
+}
+
+/* Plannr. Ordered: its own paper, navy type, a real capture, no rotation. */
+.wi-plannr .wi-feature-name { color: var(--plannr-navy); }
+.wi-plannr .wi-case a { color: var(--plannr-navy); }
+.wi-plannr .wi-case a:hover { color: var(--color-red); }
+
+.wi-plate-plannr {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: end;
+  justify-items: center;
+  aspect-ratio: 16 / 11;
+  padding: clamp(1rem, 4%, 2.5rem) clamp(1rem, 4%, 2.5rem) 0;
+  background-color: var(--plannr-paper);
+  border-block-start: 6px solid var(--plannr-navy);
+  overflow: clip;
+}
+
+/* The phone capture, cropped to the week: title, counts, the day strip. */
+.wi-pl-print {
+  inline-size: min(62%, 22rem);
+  aspect-ratio: 760 / 1040;
+  border: 1px solid color-mix(in srgb, var(--plannr-navy) 40%, transparent);
+  border-block-end: 0;
+  --crop-y: 0%;
+}
+.wi-pl-print img {
+  object-position: 50% 0%;
+}
+
+.wi-pl-caption {
+  justify-self: stretch;
+  padding-block: 0.6rem;
+  border-block-start: 1px solid color-mix(in srgb, var(--plannr-navy) 40%, transparent);
+  color: var(--plannr-navy);
+  text-align: center;
+}
+
+/* Tablet: text then plate, both wide. Desktop: they alternate sides. */
+@media (min-width: 48rem) {
+  .wi-feature-text { grid-column: 1 / 7; }
+  .wi-plate { grid-column: 1 / -1; }
+}
+
+@media (min-width: 64rem) {
+  .wi-feature { row-gap: 0; }
+  .wi-rankle .wi-plate { grid-column: 1 / 8; grid-row: 1; }
+  .wi-rankle .wi-feature-text { grid-column: 8 / -1; grid-row: 1; }
+  .wi-plannr .wi-feature-text { grid-column: 1 / 6; grid-row: 1; }
+  .wi-plannr .wi-plate { grid-column: 6 / -1; grid-row: 1; }
+  .wi-feature-name { font-size: clamp(4rem, 1rem + 6.4vw, 8.5rem); }
+}
+
+/* ------------------------------------------------ the break: features -> archive */
+
+/* The one heavy rule on the page, after the widest breath: "those were the
+   stories; this is the rest of the work." Denser from here on. */
+.wi-archive {
+  display: grid;
+  grid-template-columns: subgrid;
+  margin-block-start: var(--space-section-m);
+}
+
+.wi-sechead-archive {
+  border-block-start: 6px solid var(--on);
+  padding-block-start: 1.25rem;
+}
+
+.wi-sechead-archive .wi-sectitle {
+  font-size: var(--t-head-2);
+  font-weight: 750;
+  letter-spacing: -0.025em;
+  line-height: 1.06;
+}
+
+.wi-archive-intro {
+  max-inline-size: 52ch;
+  margin-block-start: 0.5rem;
+  font-size: var(--t-small);
+  color: var(--on-soft);
+}
+
+@media (min-width: 64rem) {
+  .wi-sechead-archive > .t-meta { grid-column: 5 / -1; grid-row: 1; }
+  .wi-archive-intro { grid-column: 5 / 11; grid-row: 2; margin-block-start: 0; }
+}
+
+/* ------------------------------------------------------------------ archive */
+
+.wi-entries {
+  grid-column: 1 / -1;
+  margin-block-start: var(--space-section-s);
+}
+
+.wi-entry {
+  border-block-start: 1px solid var(--on);
+}
+
+.wi-entry-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  column-gap: var(--gutter);
+  row-gap: 1.5rem;
+  padding-block: 1.5rem 2.5rem;
+}
+.wi-entry-grid > * { grid-column: 1 / -1; min-inline-size: 0; }
+
+.wi-entry-num {
+  font-size: var(--t-head-3);
+  font-weight: 750;
+  letter-spacing: -0.025em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--on-soft);
+}
+
+.wi-entry-body {
+  font-size: var(--t-small);
+  line-height: 1.55;
+}
+.wi-entry-body > * + * { margin-block-start: 0.85em; }
+.wi-entry-body p { max-inline-size: 60ch; text-wrap: pretty; }
+
+.wi-entry-title {
+  font-size: var(--t-head-3);
+  font-weight: 750;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+}
+
+.wi-entry-meta {
+  display: grid;
+  row-gap: 0.15rem;
+  line-height: 1.4;
+}
+.wi-entry-meta .t-meta { margin-block-end: 0.2rem; }
+
+.wi-entry-note {
+  padding-inline-start: 0.85rem;
+  border-inline-start: 2px solid var(--on);
+}
+.wi-entry-note .t-meta { margin-inline-end: 0.35rem; }
+
+.wi-entry-stack {
+  color: var(--on);
+  text-wrap: balance;
+}
+
+.wi-entry-links {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 1.25rem;
+  font-weight: 600;
+}
+.wi-ext { font-weight: 500; }
+
+/* Tablet: number in the margin, entry and exhibit in the wide column. */
+@media (min-width: 48rem) {
+  .wi-entry-num { grid-column: 1 / 3; font-size: var(--t-head-2); }
+  .wi-entry-body { grid-column: 3 / -1; }
+  .wi-entry-exhibit { grid-column: 3 / -1; }
+}
+
+/* Desktop: the checklist. Number | (margin) | entry on the masthead's column
+   | exhibit. Every entry keeps the same columns; only the exhibits differ. */
+@media (min-width: 64rem) {
+  .wi-entry-grid { padding-block: 1.75rem 3.5rem; }
+  .wi-entry-num { grid-column: 1 / 3; grid-row: 1; }
+  .wi-entry-body { grid-column: 3 / 9; grid-row: 1; }
+  .wi-entry-exhibit { grid-column: 9 / -1; grid-row: 1; padding-block-start: 0.4rem; }
+}
+
+/* On wide screens the entry's meta hangs in the index margin, level with
+   its title, so the entry column starts with the name. */
+@media (min-width: 80rem) {
+  .wi-rankle .wi-feature-text { grid-column: 9 / -1; }
+  .wi-plannr .wi-feature-text { grid-column: 1 / 5; }
+  .wi-entry-body { grid-column: 5 / 9; position: relative; }
+  .wi-entry-meta {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-end: calc(100% + var(--gutter));
+    inline-size: calc(50% - var(--gutter));
+    margin-block-start: 0.2rem;
+    font-size: var(--t-caption);
+  }
+}
+
+/* ----------------------------------------------------------------- exhibits */
+
+.wi-exhibit {
+  display: grid;
+  row-gap: 0.6rem;
+}
+
+/* 03: the pull request's own screenshot. */
+.wi-shot {
+  border: 1px solid var(--rule);
+  background-color: var(--color-white);
+}
+.wi-shot img {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+}
+.wi-shot-mark {
+  inset-block-start: 18%;
+  inset-inline-start: 23.5%;
+  inline-size: 25.5%;
+  block-size: 15%;
+}
+.wi-shot-mark svg { inline-size: 100%; block-size: 100%; }
+
+/* 04: topology and output, side by side when there is room. */
+.wi-run {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+  padding: 1.25rem;
+  background-color: var(--color-white);
+  border: 1px solid var(--rule);
+}
+
+.wi-run-map {
+  inline-size: 100%;
+  max-inline-size: 22rem;
+  block-size: auto;
+  overflow: visible;
+  font-family: var(--font-body);
+}
+.wi-run-link line {
+  stroke: var(--color-ink);
+  stroke-width: 1.5;
+}
+.wi-run-link text {
+  font-size: 12px;
+  font-weight: 650;
+  fill: var(--color-ink-soft);
+}
+.wi-run-link.is-route line {
+  stroke: var(--accent-graphic);
+  stroke-width: 3.5;
+}
+.wi-run-link.is-route text { fill: var(--color-ink); }
+.wi-run-node rect {
+  fill: var(--color-white);
+  stroke: var(--color-ink);
+  stroke-width: 1.5;
+}
+.wi-run-node text {
+  font-size: 12px;
+  font-weight: 750;
+  fill: var(--color-ink);
+}
+
+.wi-run-table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-small);
+  font-variant-numeric: tabular-nums;
+}
+.wi-run-table caption {
+  padding-block-end: 0.5rem;
+  text-align: start;
+}
+.wi-run-table th,
+.wi-run-table td {
+  padding: 0.4rem 0.5rem 0.4rem 0;
+  text-align: start;
+  border-block-end: 1px solid var(--rule);
+}
+.wi-run-table thead th {
+  font-size: var(--t-caption);
+  font-weight: 650;
+  color: var(--on-soft);
+  border-block-end: 1px solid var(--on);
+}
+.wi-run-table tbody th { font-weight: 700; }
+
+.wi-run-settled {
+  display: inline-block;
+  font-weight: 800;
+}
+.wi-run-mark {
+  inset: -0.55rem -0.8rem;
+}
+.wi-run-mark svg { inline-size: 100%; block-size: 100%; }
+
+@media (min-width: 30rem) {
+  .wi-run { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); }
+}
+@media (min-width: 64rem) and (max-width: 79.99rem) {
+  .wi-run { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* 05: the rules, as a printed list. Schibsted: no monospace face on this site. */
+.wi-rules {
+  padding: 1.25rem 1.25rem 1.4rem;
+  background-color: var(--color-white);
+  border: 1px solid var(--rule);
+}
+.wi-rules-file {
+  font-size: var(--t-caption);
+  font-weight: 600;
+}
+.wi-rules-suite {
+  margin-block-start: 0.6rem;
+  padding-block-end: 0.6rem;
+  font-weight: 750;
+  border-block-end: 1px solid var(--on);
+}
+.wi-rules-list {
+  counter-reset: rule;
+}
+.wi-rules-list li {
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr);
+  padding-block: 0.5rem;
+  font-size: var(--t-small);
+  line-height: 1.4;
+  border-block-end: 1px solid var(--rule);
+  overflow-wrap: anywhere;
+}
+.wi-rules-list li::before {
+  counter-increment: rule;
+  content: counter(rule);
+  font-size: var(--t-meta);
+  font-weight: 650;
+  color: var(--on-soft);
+  font-variant-numeric: tabular-nums;
+  padding-block-start: 0.15rem;
+}
+
+/* ---------------------------------------------------------- tier C (filed) */
+
+.wi-filed {
+  margin-block-start: var(--space-section-s);
+}
+.wi-filed ul { margin-block-start: 0.75rem; }
+.wi-filed li {
+  display: grid;
+  grid-template-columns: 4rem minmax(0, 1fr);
+  column-gap: var(--gutter);
+  padding-block: 0.6rem;
+  border-block-end: 1px solid var(--rule);
+}
+.wi-filed li > .t-small { grid-column: 2; }

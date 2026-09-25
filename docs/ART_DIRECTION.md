@@ -463,7 +463,7 @@ Unnecessary scroll-jacking. A serif added for variety. Everything distressed.
 
 ### Legacy pages
 
-Home, Projects, About, Experience and Coursework are M0 structures that only
+About, Experience and Coursework are M0 structures that only
 inherit the foundation's base styles (paper, Schibsted, a framed `<main>`). They
 are placeholders and will be replaced or substantially recomposed in later
 milestones. **Do not polish them.** Change them only to fix a functional or
@@ -550,3 +550,20 @@ and **never `redirect()` inside an admin page**.
   keystrokes but moves focus off a control the visitor just pressed). Motion is
   `--dur-quick` transitions on named properties only, so reduced motion is
   immediate; no keyframes; nothing animates on its own.
+- **M7 Work index.** `/projects` became the issue's contents and back catalog
+  (`components/work-index/`, content in `lib/work/archive.ts`, evidence in
+  `docs/planning/m7-work-evidence.md`). Three levels, told apart by scale,
+  color and density rather than motion. The opening is a Schibsted title and a
+  contents list. The features are Rankle and Plannr: the page's only display type
+  (their names), the only project color (scoped `.wi-rankle` / `.wi-plannr`),
+  and plates that alternate sides. Rankle's plate is an empty tier sheet with one
+  undecided card (the one tilt, scaled by `--chaos`); Plannr's is its real Week at a
+  Glance capture on its own paper, level. A 6px rule then starts the archive, a strict
+  checklist: number in the margin, the entry on the masthead's column 5, one
+  exhibit on the right. Exhibits are evidence, not branding: the screenshot from
+  a real pull request, real routing-simulation output, the verbatim names of
+  this site's design tests. Each has at most one red mark, pointing at what its
+  caption states. Three archive entries, because only three passed selection.
+  CMPSC 111 and the Cabrillo modeling projects wait on source material. No Tier C
+  list and no secondary detail routes. Admin-published Convex projects still
+  appear, filed as plain rows after the archive (none exist today).
