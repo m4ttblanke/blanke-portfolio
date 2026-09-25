@@ -42,8 +42,9 @@ describe("Selected Work — content truth", () => {
   it("every flagship links somewhere real: no route is fabricated", () => {
     // Rankle's real case-study route, built in M5A (app/(public)/projects/rankle).
     expect(RANKLE.href).toBe("/projects/rankle");
-    // Plannr links straight to the real, live product (next.config.ts rewrite).
-    expect(PLANNR.href).toBe("/plannr/");
+    // Plannr's real case-study route, built in M6A (app/(public)/projects/plannr).
+    expect(PLANNR.href).toBe("/projects/plannr");
+    // The live product site is still proxied at /plannr/ (M0 invariant, untouched).
     expect(read("next.config.ts")).toMatch(/plannr/);
   });
 });

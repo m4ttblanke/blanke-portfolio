@@ -10,9 +10,12 @@
 //   there instead of the placeholder /projects index -- the only M4
 //   behavior change M5A makes; the poster's own visuals are untouched.
 // - Plannr: confirmed in docs/PRD.md ("Plannr, a SwiftUI + FastAPI iOS app
-//   with Google Calendar integration") and has a real, working destination
-//   already wired in this repo (next.config.ts proxies /plannr/* to the
-//   live product site). Its deep case study is M6.
+//   with Google Calendar integration"). M4 linked it straight to the live
+//   product site (next.config.ts proxies /plannr/* there); M6A built its
+//   real case-study route (/projects/plannr, lib/work/plannr-content.ts,
+//   docs/planning/m6-plannr-evidence.md), so the poster now links there --
+//   the only M4 behavior change M6A makes; the poster's own visuals are
+//   untouched. /plannr/* itself is unchanged.
 //
 // The single Convex `projects` record that exists today (slug
 // "tempproject123") is an unpublished draft placeholder ("temp project"),
@@ -54,8 +57,10 @@ export const PLANNR: FlagshipProject = {
   name: "Plannr",
   descriptor: "Turns a syllabus into a calendar.",
   meta: "iOS · SwiftUI",
-  // The real, live product site, already proxied by this repo.
-  href: "/plannr/",
+  // The real case-study route, built in M6A. See lib/work/plannr-content.ts.
+  // The live product site is still reachable at /plannr/ (next.config.ts
+  // rewrites, untouched); the case study links to it.
+  href: "/projects/plannr",
   accessibleName: "Plannr — turns a syllabus into a calendar, iOS, SwiftUI",
 };
 

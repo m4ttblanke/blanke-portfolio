@@ -498,3 +498,55 @@ and **never `redirect()` inside an admin page**.
   and one registration mark next to the issue number; nothing is sticky. The
   legacy pages sit inside the shell with only a temporary folio/title entry —
   their bodies are unchanged.
+- **M6A Plannr case study.** `/projects/plannr`: seven static spreads (course
+  packet hero, document, transformation, product, decisions, under the hood,
+  receipt) on one `.plannr-case` scope. Plannr is the ordered counterpart to
+  Rankle: paper, hairline rules, registrar forms, one highlighter and one blue
+  pen. Its palette is the real product's (navy, gold, paper, wave blue) plus a
+  pen blue and highlighter *derived* from them with `color-mix()`; it has no red.
+  The syllabus is the protagonist, but every real syllabus in the workspace
+  carries instructor names, emails or private Canvas URLs, so the page uses a
+  labelled fictitious illustration and real product captures instead (see
+  `docs/planning/m6-plannr-evidence.md`). Each mark answers "why was this
+  altered?": binder holes (a punched handout), highlighter (what the extractor
+  will read as a deadline), one pen ring (the one date nobody states), a bracket
+  (the lines Plannr ignores), a date stamp (an approval carries a date). No mark
+  is the only carrier of a fact: each has real text, and Clean Copy demotes the
+  highlighter to an underline. Body text is never rotated (there is no rotation on
+  the page at all). Desktop compositions that need room start at 1280; 768 to 1279
+  keeps the same reading order in two columns; the hero re-composes by its own
+  width (container query), not the viewport's. The transformation carries stable
+  `data-pl-*` hooks as the static foundation for M6B. Big Shoulders appears in two
+  moments only: the wordmark and the four step words.
+- **M6A refinement.** Approved sections (hero, document, transformation, product)
+  frozen; verified pixel-identical to the prior commit (60 geometry fingerprints,
+  15 widths x 4 sections). Decisions became one review sheet with three findings:
+  the pen note is attached to an underlined phrase of its own headline and the
+  code reference moved under it, so the left column carries weight (about 30%
+  shorter per finding at desktop). Under the Hood: each pen note now lives inside
+  the hop it annotates and leaves that hop's line on a leader, using the
+  Document's margin-note vocabulary; the lane legend moved inside the sheet under
+  its lanes. Receipt: punched for the same binder as the syllabus page plus a
+  second sheet's edge (both scaled by --chaos). The transformation gained only a
+  positioning plate around the review screenshot (`data-pl-review`) and unique
+  hooks. Clean Copy: the hero's registrar form moves into the space the decoration
+  leaves; wide margin notes keep a pen rule.
+- **M6B Plannr trace.** One product-specific interaction on the Transformation
+  spread, "trace a deadline": select a highlighted phrase on the syllabus, its
+  record activates, a review slip represents it, ACCEPT places its cell on the
+  term grid. It progressively enhances the approved static spread (at rest it is
+  the same composition; the frozen spreads are byte-identical) and is an editorial
+  demonstration of the verified workflow, not Plannr running in the page. The real
+  review screenshot stays an inert bitmap: its sample data (2026-10-09) is not this
+  illustration's (2027-01-15), so the slip is a separate portfolio-level sheet laid
+  over the week strip (the one band of the capture with no review information),
+  drawn nothing like the app (white paper, navy rule, square uppercase buttons; the
+  tilt is on the slab behind the words, scaled by `--chaos`). States use the
+  packet's own vocabulary (stronger highlighter, pen underline, registration mark,
+  pen rule, stamp, check), never a SaaS state, and each is also carried by text or
+  shape. One client island (`components/plannr/plannr-trace.tsx`), state in a pure
+  module (`lib/work/plannr-trace.ts`), no persistence, no request, no dependency.
+  Focus stays where the visitor put it (the alternative, jumping to ACCEPT, saves
+  keystrokes but moves focus off a control the visitor just pressed). Motion is
+  `--dur-quick` transitions on named properties only, so reduced motion is
+  immediate; no keyframes; nothing animates on its own.

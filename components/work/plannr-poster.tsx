@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { PLANNR } from "@/lib/work/projects";
 
 // PLANNR — M4A entry poster only. "Ordered, academic, structured" (M4A brief
@@ -18,10 +19,11 @@ import { PLANNR } from "@/lib/work/projects";
 // rather than anything Plannr-specific; the resting shadow is unchanged.
 export function PlannrWorkPoster() {
   return (
-    // Plain anchor on purpose: /plannr/* is a next.config.ts rewrite to the
-    // real, external product site (github.io), not a Next.js page route --
-    // the same pattern the colophon's "Sign in" link uses for /admin.
-    <a
+    // M6A: the poster now routes to the real case study (/projects/plannr), a
+    // Next.js page like Rankle's, so it is a Link. (Before M6A it was a plain
+    // anchor because /plannr/ is a next.config.ts rewrite to the external
+    // product site; the case study links there itself.)
+    <Link
       href={PLANNR.href}
       aria-label={PLANNR.accessibleName}
       className="work-poster wall-plannr"
@@ -41,6 +43,6 @@ export function PlannrWorkPoster() {
         <p className="t-meta pl-meta">{PLANNR.meta}</p>
         <p className="t-small pl-descriptor">{PLANNR.descriptor}</p>
       </span>
-    </a>
+    </Link>
   );
 }
