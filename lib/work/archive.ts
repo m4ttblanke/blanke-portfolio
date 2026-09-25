@@ -131,9 +131,9 @@ export const ARCHIVE: readonly ArchiveEntry[] = [
     context: "CMPSC 176A, UCSB · Course projects", // [176A]
     role: "The protocol side of each project. Specs and simulators came from the course",
     summary:
-      "Five projects that work up the network stack: mail sent over SMTP and read back over POP3, an HTTP/1.1 file server on raw sockets, reliable transport (alternating-bit and Go-Back-N) in C, distance-vector routing, and a hangman server in C for three players at once.", // [176A] p01-p04, hangman
+      "Five projects that work up the network stack: mail sent over SMTP and read back over POP3, an HTTP/1.1 file server on raw sockets, reliable Go-Back-N transport in C, distance-vector routing, and a hangman server in C for three players at once.", // [176A] p01-p04, hangman
     work:
-      "Matthew wrote each protocol against the course's harness. The routing project is shown here because its result is easy to read: every node starts out knowing only its neighbors and ends with the cheapest route to every other node.",
+      "Matthew wrote each protocol to the course's spec. The routing project is shown here because its result is easy to read: every node starts out knowing only its neighbors and ends with the cheapest route to every other node.",
     note:
       "Each node sends only when its own table changes. There is no timer, so the simulation ends by itself once every node agrees.", // [176A] p4.md "triggered updates only"
     stack: ["C", "Python", "Sockets"],
@@ -150,7 +150,7 @@ export const ARCHIVE: readonly ArchiveEntry[] = [
     summary:
       "The site you're reading: an editorial portfolio built with Next.js, with its content in Convex behind an authenticated admin (WorkOS AuthKit sign-in, authorization enforced in Convex).", // [PORT]
     work:
-      "Its art direction is written down, and the rules a machine can check are tests that run before every production deploy.", // [PORT] docs/ART_DIRECTION.md, tests/design, .github/workflows/ci.yml
+      "Its art direction is written down, and most of the rules a machine can check are tests that run before every production deploy.", // [PORT] docs/ART_DIRECTION.md, tests/design, .github/workflows/ci.yml
     note:
       "Visible “chaos” (the tilts, overlaps and torn edges) is deterministic, and one variable, ‑‑chaos, scales all of it. Setting it to zero realigns the whole page.", // [PORT] app/globals.css
     stack: ["Next.js", "TypeScript", "Convex", "WorkOS AuthKit", "Vitest"],

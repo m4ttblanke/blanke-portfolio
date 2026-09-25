@@ -65,7 +65,7 @@ those already verify.
   spec and harness; Matthew wrote the protocol side: `[176A]`
   - p01: sends mail over SMTP and reads it back over POP3 (Python). The spec requires individual work.
   - p02: "Jewel", an HTTP/1.1 file server on raw sockets (Python).
-  - p03: reliable transport, alternating-bit and Go-Back-N, in C against the course's network simulator.
+  - p03: reliable transport in C against the course's network simulator. The spec asks for alternating-bit then Go-Back-N; the final `entity.c` is Go-Back-N with a configurable window, so the public copy says Go-Back-N only.
   - p04: distance-vector routing, with triggered updates only (Python, course simulator).
   - Extra credit: a hangman game server and client in C, up to three concurrent players.
 - **Date.** File dates 2026-04-19 to 2026-05-30 (Spring 2026).
@@ -80,7 +80,7 @@ those already verify.
   The direct E0–E3 link costs 7; `route_packet(0, 3)` returns `[0, 1, 2, 3]`.
   The diagram is redrawn from the topology comment in the course's `project.py`.
   Only the output is shown, never `entity.py`.
-- **Claims excluded.** Grades. Gradescope results. Anything about p03's
+- **Claims excluded.** "Alternating-bit" (not separately in the final code). A course harness for p01/p02 (they have specs only, so the copy says "to the course's spec"). Grades. Gradescope results. Anything about p03's
   performance under loss or corruption, because it was not re-run.
 
 ### SELECTED — This publication (2026)
