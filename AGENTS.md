@@ -26,8 +26,8 @@ The short version, all enforced by `tests/design`:
 - Deterministic chaos utilities are tools, not a composition system. Hero, major
   photography, flagship spreads and File 001 are art-directed by hand. Global
   effects do not propagate into project spreads.
-- Clean Copy is infrastructure only; do not add a public toggle yet. Home,
-  Projects, About, Experience and Coursework are legacy: do not polish them.
+- Clean Copy is infrastructure only; do not add a public toggle yet. About,
+  Experience and Coursework are legacy: do not polish them.
 - z-index only via `.layer-*` inside a `.stage`. Chaos only via the named
   primitives in `app/globals.css`, all scaled by `--chaos`. **No `Math.random()`
   for visible design.** No `transition: all`.
