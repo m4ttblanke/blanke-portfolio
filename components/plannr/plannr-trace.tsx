@@ -12,8 +12,10 @@ import {
   initialTrace,
   isEngaged,
   isTraceId,
+  receipt,
   slipNote,
   traceReducer,
+  VERDICT_LABEL,
   type TraceAction,
   type TraceState,
 } from "@/lib/work/plannr-trace";
@@ -27,10 +29,12 @@ import {
 // BOUNDARY. This file is the client boundary, and it is deliberately small:
 //   TraceProvider   holds the state (a useReducer over lib/work/plannr-trace.ts) and renders no DOM
 //   TracePage       the syllabus lines, the traced phrases as buttons
-//   TraceStatus     the visible status line (a live region) and "Start over"
+//   TraceStatus     the visible status line (the live region)
+//   TraceReceipt    below 80rem only: a one-line, controlless echo of the traced deadline's state
 //   TraceRecords    the extracted records, the active one marked
 //   TraceSlip       the portfolio-level review slip that sits over the screenshot's plate
 //   TraceCalendar   the term grid, with the accepted events placed
+//   TraceReset      "Start over", after the review actions in DOM order (see its comment)
 // Everything else in the transformation (the section, its headings, the four
 // steps, the review screenshot and its plate, every caption) stays a server
 // component in plannr-transformation.tsx and reaches this file only as children.
@@ -79,26 +83,62 @@ export function TracePage() {
 
 /** The status line under the syllabus: the last thing that happened, in words. It is also the live region, so what is announced is what is shown. */
 export function TraceStatus() {
-  const { state, dispatch } = useTrace();
-  const engaged = isEngaged(state);
+  const { state } = useTrace();
   return (
     <div className="pc-trace-status">
       <p className="pc-trace-msg t-caption" role="status">
         {state.message}
       </p>
-      <button
-        type="button"
-        className="pc-trace-clear t-meta"
-        data-pl-shown={engaged ? "" : undefined}
-        onClick={(e) => {
-          // The button hides itself once nothing is left to clear, so focus goes to where the trace
-          // begins (the first phrase) before it does: predictable, and never lost to <body>.
-          e.currentTarget.closest("[data-pl-flow]")?.querySelector<HTMLElement>("button[data-pl-deadline]")?.focus();
-          dispatch({ type: "reset" });
-        }}
-      >
-        Start over
-      </button>
+    </div>
+  );
+}
+
+/**
+ * The mobile trace receipt. Below 80rem the syllabus, the slip and the calendar are
+ * a screen or more apart, so a selection would show nothing without scrolling. This
+ * is a filing line under the syllabus that answers "what happened to the thing I
+ * just selected?": tag, resolved date, verdict, and where it lands (or that it is not
+ * sent). It is an ECHO: derived from the same state, no controls, no state of its own.
+ * Plain text and not a live region: the status line above already announces every
+ * change, so a screen reader hears each event once. The slot is always rendered (and
+ * reserves two quiet lines) so a selection never moves the page; at 80rem and up the
+ * four columns already read spatially and the slot is display: none.
+ */
+export function TraceReceipt() {
+  const { state } = useTrace();
+  const r = receipt(state);
+  return (
+    <div className="pc-tr-slot">
+      {r ? (
+        <p className="pc-tr" data-pl-receipt={r.tag} data-pl-verdict={r.verdict}>
+          <span className="pc-tr-reg ornament" aria-hidden="true" />
+          <span className="pc-tr-seg pc-tr-tag">
+            <span aria-hidden="true">{r.tag}</span>
+            <span className="sr-only">{r.title}</span>
+          </span>{" "}
+          <span className="pc-tr-seg pc-tr-date">
+            <time dateTime={r.iso}>{r.iso}</time>
+          </span>{" "}
+          <span className="pc-tr-seg pc-tr-verdict">
+            <span className="pc-tr-word">{r.verdictLabel}</span>
+          </span>
+          {r.tail ? (
+            <>
+              {" "}
+              <span className="pc-tr-seg pc-tr-tail" data-kind={r.tail.kind}>
+                {r.tail.text}
+                {r.tail.kind === "cell" ? <span className="pc-tr-check ornament" aria-hidden="true" /> : null}
+              </span>
+            </>
+          ) : null}
+          {r.note ? (
+            <>
+              {" "}
+              <span className="pc-tr-seg pc-tr-note">{r.note}</span>
+            </>
+          ) : null}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -134,8 +174,6 @@ export function TraceRecords() {
   );
 }
 
-const STAMP = { unreviewed: "To review", accepted: "Accepted", declined: "Declined" } as const;
-
 /** C: the review slip. Present only while a deadline is selected. */
 export function TraceSlip() {
   const { state, dispatch } = useTrace();
@@ -152,7 +190,7 @@ export function TraceSlip() {
     >
       <p className="pc-rs-head t-meta">
         <span>Review slip</span>
-        <span className="pc-rs-stamp">{STAMP[verdict]}</span>
+        <span className="pc-rs-stamp">{VERDICT_LABEL[verdict]}</span>
       </p>
       <p className="pc-rs-line">
         <span className="pc-rs-title">{d.title}</span>
@@ -186,5 +224,30 @@ export function TraceCalendar() {
       <TermGrid className={isEngaged(state) ? "pc-term-traced" : ""} states={cellStates(state)} />
       <p className="sr-only">{calendarSummary(state)}</p>
     </>
+  );
+}
+
+/**
+ * Start over. It lives at the end of the flow, after the review actions in DOM
+ * order, so the primary keyboard path is phrase -> the other phrases -> Accept, Edit,
+ * Decline -> Start over -> whatever follows, with no positive tabindex and no
+ * forced focus. When it clears, the button hides itself (nothing is left to
+ * clear), so focus goes to where the trace begins (the first phrase) before it
+ * does: predictable, and never lost to <body>.
+ */
+export function TraceReset() {
+  const { state, dispatch } = useTrace();
+  return (
+    <button
+      type="button"
+      className="pc-trace-clear t-meta"
+      data-pl-shown={isEngaged(state) ? "" : undefined}
+      onClick={(e) => {
+        e.currentTarget.closest("[data-pl-flow]")?.querySelector<HTMLElement>("button[data-pl-deadline]")?.focus();
+        dispatch({ type: "reset" });
+      }}
+    >
+      Start over
+    </button>
   );
 }

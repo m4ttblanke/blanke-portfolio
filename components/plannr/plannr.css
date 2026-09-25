@@ -690,24 +690,132 @@
 }
 
 /* The status line: the last thing that happened, in words, and also the live
-   region. Its height is reserved (four lines of caption) so a longer message
-   never moves the page. */
+   region. Its height is reserved (three lines of caption at the narrowest
+   column) so a longer message never moves the page. */
 .pc-trace-status {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.5rem 0.75rem;
-  min-block-size: calc(4 * 1.4em);
   font-size: 0.8125rem;
+  min-block-size: calc(3 * 1.4em);
 }
 .pc-trace-msg {
   margin: 0;
-  flex: 1 1 auto;
-  min-inline-size: 0;
   color: var(--pc-soft);
 }
+
+/* The mobile trace receipt: below 80rem the syllabus, the slip and the calendar
+   are a screen or more apart (measured: within ~260px of the phrase at 1280 and
+   up, ~1 screen at 768 to 1279, ~2.8 screens stacked), so a selection would show
+   nothing without scrolling. This is a filing line under the syllabus: tag ->
+   resolved date -> verdict -> where it lands, in the packet's own vocabulary
+   (navy ink, a hairline rule above and a dotted one below, the registration mark
+   the selected row already carries, a pen arrow between entries, a check). It is
+   an echo of the canonical state: no control, no state, not a live region (the
+   status line announces). No radius, no shadow, no fill. Its slot reserves two
+   quiet lines so a selection never moves the page. */
+.pc-tr-slot {
+  min-block-size: 3rem;
+}
+/* From 64rem the two-column steps are wide enough that the receipt never wraps
+   (measured: one line at 1024 in every state), so it reserves one line, not two. */
+@media (min-width: 64rem) {
+  .pc-tr-slot {
+    min-block-size: 1.9rem;
+  }
+}
+@media (min-width: 80rem) {
+  .pc-tr-slot {
+    display: none;
+  }
+}
+.pc-tr {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem 0.4rem;
+  margin: 0;
+  padding: 0.4rem 0 0.35rem 1.15rem;
+  border-block-start: 1px solid var(--plannr-navy);
+  border-block-end: 1px dotted var(--pc-rule);
+  color: var(--plannr-navy);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  transition: opacity var(--dur-quick) var(--ease-out), translate var(--dur-quick) var(--ease-out);
+}
+@starting-style {
+  .pc-tr {
+    opacity: 0;
+    translate: 0 0.25rem;
+  }
+}
+.pc-tr-reg {
+  position: absolute;
+  inset-block-start: 0.55rem;
+  inset-inline-start: 0.15rem;
+  inline-size: 0.6rem;
+  block-size: 0.6rem;
+  border: 1.5px solid var(--plannr-pen);
+  border-radius: 50%;
+  background: linear-gradient(var(--plannr-pen), var(--plannr-pen)) center / 100% 1.5px no-repeat,
+    linear-gradient(var(--plannr-pen), var(--plannr-pen)) center / 1.5px 100% no-repeat;
+}
+.pc-tr-seg {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.pc-tr-seg:has(~ .pc-tr-seg:not(.pc-tr-note))::after {
+  content: "";
+  inline-size: 0.85rem;
+  block-size: 0.5rem;
+  background-color: var(--plannr-pen);
+  clip-path: polygon(0 42%, 68% 42%, 68% 10%, 100% 50%, 68% 90%, 68% 58%, 0 58%);
+}
+.pc-tr-tag {
+  font-weight: 800;
+}
+.pc-tr-date {
+  font-variant-numeric: tabular-nums;
+}
+.pc-tr-verdict {
+  color: var(--plannr-pen);
+}
+.pc-tr-word {
+  transition: background-color var(--dur-quick) var(--ease-out), color var(--dur-quick) var(--ease-out);
+}
+.pc-tr[data-pl-verdict="accepted"] .pc-tr-verdict {
+  color: var(--plannr-navy);
+}
+.pc-tr[data-pl-verdict="accepted"] .pc-tr-word {
+  background-color: var(--plannr-hl);
+  padding-inline: 0.25em;
+  margin-inline: -0.25em;
+}
+.pc-tr[data-pl-verdict="declined"] .pc-tr-verdict {
+  color: var(--color-ink);
+}
+.pc-tr-tail[data-kind="not-sent"] {
+  color: var(--pc-soft);
+}
+.pc-tr-check {
+  display: inline-block;
+  inline-size: 0.6rem;
+  block-size: 0.5rem;
+  background-color: var(--plannr-navy);
+  clip-path: polygon(0 55%, 14% 40%, 38% 62%, 86% 0, 100% 16%, 38% 100%);
+}
+.pc-tr-note {
+  color: var(--plannr-pen);
+}
+.pc-tr-note::before {
+  content: "\00b7";
+  margin-inline-end: 0.1rem;
+}
+
 .pc-trace-clear {
-  flex: none;
+  align-self: flex-start;
   display: inline-flex;
   align-items: center;
   min-block-size: 2.75rem;
@@ -971,6 +1079,9 @@
   text-decoration-thickness: 1.5px;
 }
 .pc-rs-note {
+  /* two lines are always reserved, so the buttons above never move when the note
+     shortens (Accept turns the two-line note into a one-line one) */
+  min-block-size: calc(2 * 1.35em);
   color: var(--pc-soft);
   font-size: 0.75rem;
   line-height: 1.35;
@@ -1757,4 +1868,24 @@
 :root[data-copy="clean"] .pc-page-list li[data-pl-selected] .pc-hl {
   background-image: none;
   text-decoration-thickness: 4px;
+}
+/* Clean Copy, the receipt: the registration mark and the check are ornament and
+   go (globally); the pen arrows become plain dashes and the accepted verdict is
+   underlined instead of highlighted. The entries themselves, which carry the
+   meaning, stay: PS1 - 2027-01-15 - ACCEPTED - JAN 15. */
+:root[data-copy="clean"] .pc-tr {
+  padding-inline-start: 0;
+}
+:root[data-copy="clean"] .pc-tr-seg:has(~ .pc-tr-seg:not(.pc-tr-note))::after {
+  content: "\2014";
+  inline-size: auto;
+  block-size: auto;
+  background: none;
+  clip-path: none;
+}
+:root[data-copy="clean"] .pc-tr[data-pl-verdict="accepted"] .pc-tr-word {
+  background-color: transparent;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
 }

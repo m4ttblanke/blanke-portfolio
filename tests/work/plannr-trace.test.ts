@@ -7,7 +7,16 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { DocumentPage } from "../../components/plannr/document-page";
 import { TermGrid } from "../../components/plannr/term-grid";
-import { TraceCalendar, TracePage, TraceProvider, TraceRecords, TraceSlip, TraceStatus } from "../../components/plannr/plannr-trace";
+import {
+  TraceCalendar,
+  TracePage,
+  TraceProvider,
+  TraceReceipt,
+  TraceRecords,
+  TraceReset,
+  TraceSlip,
+  TraceStatus,
+} from "../../components/plannr/plannr-trace";
 import { DEADLINES, FLOW_STEPS } from "../../lib/work/plannr-content";
 import {
   REST_MESSAGE,
@@ -21,8 +30,11 @@ import {
   initialTrace,
   isEngaged,
   isTraceId,
+  receipt,
+  shortDate,
   slipNote,
   traceReducer,
+  VERDICT_LABEL,
   type TraceAction,
   type TraceId,
   type TraceState,
@@ -228,11 +240,17 @@ describe("M6B trace: what is rendered (server output at rest, which is what hydr
     expect(cal).toContain("Nothing accepted for the calendar yet.");
   });
 
-  it("the status line is the live region and the only place the visitor is told what happened", () => {
+  it("the status line is the live region and the only place the visitor is told what happened; it holds no control", () => {
     const html = rest(createElement(TraceStatus));
     expect(html).toMatch(/<p class="pc-trace-msg t-caption" role="status">Trace a deadline\./);
-    expect(html).toContain("Start over");
-    expect(html).not.toContain("data-pl-shown"); // hidden at rest, and out of the tab order with it
+    expect(html).not.toMatch(/<button|Start over/);
+    expect([...read("components/plannr/plannr-trace.tsx").matchAll(/role="status"/g)]).toHaveLength(1);
+  });
+
+  it("Start over is hidden at rest (and so out of the tab order) and is a real button", () => {
+    const html = rest(createElement(TraceReset));
+    expect(html).toMatch(/^<button type="button" class="pc-trace-clear t-meta">Start over<\/button>$/);
+    expect(html).not.toContain("data-pl-shown");
   });
 
   it("the term grid and the syllabus are byte-identical to the static M6A output when no trace state is passed", () => {
@@ -273,9 +291,9 @@ describe("M6B trace: the client boundary is narrow, and it keeps no data anywher
     expect(read("lib/work/plannr-trace.ts")).not.toMatch(/use client/);
   });
 
-  it("the island exports only its provider and five leaves; the section, steps, screenshot and captions stay server-rendered", () => {
+  it("the island exports only its provider and seven leaves, all in this one module; the section, steps, screenshot and captions stay server-rendered", () => {
     expect([...island.matchAll(/export function (\w+)/g)].map((m) => m[1])).toEqual([
-      "TraceProvider", "TracePage", "TraceStatus", "TraceRecords", "TraceSlip", "TraceCalendar",
+      "TraceProvider", "TracePage", "TraceStatus", "TraceReceipt", "TraceRecords", "TraceSlip", "TraceCalendar", "TraceReset",
     ]);
     expect(flow).toMatch(/<TraceProvider>/);
     for (const server of ["<h3", "<Image", "<figcaption", "<ol className=\"pc-steps\">", "<MarkArrow"]) expect(flow).toContain(server);
@@ -388,7 +406,8 @@ describe("M6B trace: motion, reduced motion, Clean Copy, touch", () => {
     expect(trace_css).toMatch(/\.pc-cell\[data-pl-state="accepted"\]::after\s*\{[^}]*clip-path:\s*polygon/);
     expect(trace_css).toMatch(/\.pc-cell\[data-pl-state="declined"\] \.pc-slip-tag|\.pc-cell\[data-pl-state="declined"\] \.pc-cell-tag\s*\{[^}]*line-through/);
     expect(island).toMatch(/pc-slip-verdict t-meta">\{verdict\}/);
-    expect(island).toMatch(/STAMP = \{ unreviewed: "To review", accepted: "Accepted", declined: "Declined" \}/);
+    expect(VERDICT_LABEL).toEqual({ unreviewed: "To review", accepted: "Accepted", declined: "Declined" });
+    expect(island).toMatch(/\{VERDICT_LABEL\[verdict\]\}/);
   });
 
   it("Clean Copy: decoration goes, semantic state stays", () => {
@@ -418,13 +437,139 @@ describe("M6B trace: motion, reduced motion, Clean Copy, touch", () => {
   });
 
   it("the status line's height is reserved, so a longer message never moves the page", () => {
-    expect(trace_css).toMatch(/\.pc-trace-status\s*\{[^}]*min-block-size:\s*calc\(4 \* 1\.4em\)/);
+    expect(trace_css).toMatch(/\.pc-trace-status\s*\{[^}]*min-block-size:\s*calc\(3 \* 1\.4em\)/);
     expect(trace_css).toMatch(/\.pc-trace-clear:not\(\[data-pl-shown\]\)\s*\{\s*visibility:\s*hidden/);
   });
 
   it("uses tokens only: no raw color, no z-index, no cursor other than the native pointer", () => {
     expect(strip(trace_css)).not.toMatch(/#[0-9a-fA-F]{3,8}\b|rgba?\(|hsla?\(|z-index/);
     expect([...strip(trace_css).matchAll(/cursor\s*:\s*(\S+)/g)].map((m) => m[1]).every((v) => v === "pointer;")).toBe(true);
+  });
+});
+
+describe("M6B final adjustment: the mobile trace receipt is a derived, controlless echo", () => {
+  const at = (...a: TraceAction[]) => receipt(run(...a));
+
+  it("exists only while a deadline is selected", () => {
+    expect(receipt(initialTrace())).toBeNull();
+    expect(at(sel("ps1"))).not.toBeNull();
+    expect(at(sel("ps1"), sel("ps1"))).toBeNull();
+    expect(at(sel("ps1"), { type: "accept" }, sel("ps1"))).toBeNull(); // deselected: the calendar and slip still hold the verdict
+  });
+
+  it("selected: tag, resolved date, TO REVIEW, and nowhere to land yet", () => {
+    expect(at(sel("ps1"))).toEqual({
+      tag: "PS1", title: "Problem Set 1", iso: "2027-01-15", verdict: "unreviewed", verdictLabel: "To review", tail: null, note: null,
+    });
+    expect(at(sel("obs1"))).toMatchObject({ tag: "OR1", iso: "2027-01-27" });
+    expect(at(sel("mid"))).toMatchObject({ tag: "MID", iso: "2027-02-05" });
+  });
+
+  it("accepted: names the calendar cell it lands on, in the term grid's short form", () => {
+    expect(at(sel("ps1"), { type: "accept" })).toMatchObject({ verdict: "accepted", verdictLabel: "Accepted", tail: { kind: "cell", text: "JAN 15" } });
+    expect(at(sel("obs1"), { type: "accept" })?.tail?.text).toBe("JAN 27");
+    expect(at(sel("mid"), { type: "accept" })?.tail?.text).toBe("FEB 5");
+    for (const id of TRACE_IDS) expect(shortDate(cellFor(id))).toMatch(/^[A-Z]{3} \d{1,2}$/);
+  });
+
+  it("declined: says it is not sent", () => {
+    expect(at(sel("obs1"), { type: "decline" })).toMatchObject({ verdict: "declined", verdictLabel: "Declined", tail: { kind: "not-sent", text: "Not sent" } });
+  });
+
+  it("edit: adds a concise note and changes nothing else", () => {
+    const base = at(sel("ps1"), { type: "accept" });
+    const edited = at(sel("ps1"), { type: "accept" }, { type: "edit" });
+    expect(edited?.note).toBe("Editable in app");
+    expect({ ...edited, note: null }).toEqual(base);
+    expect(at(sel("ps1"), { type: "edit" }, sel("obs1"))?.note).toBeNull();
+  });
+
+  it("follows the canonical state exactly: switching deadlines and verdicts, and Start over, are reflected with nothing of its own", () => {
+    const seq = run(sel("ps1"), { type: "accept" }, sel("obs1"), { type: "decline" });
+    expect(receipt(seq)).toMatchObject({ tag: "OR1", verdict: "declined" });
+    expect(receipt(traceReducer(seq, sel("ps1")))).toMatchObject({ tag: "PS1", verdict: "accepted" });
+    expect(receipt(traceReducer(seq, { type: "reset" }))).toBeNull();
+    expect(receipt.length).toBe(1); // a function of the state alone
+  });
+
+  it("renders as an empty, reserved slot at rest (no placeholder text) and as plain text, never a control, when selected", () => {
+    expect(renderToStaticMarkup(createElement(TraceProvider, null, createElement(TraceReceipt)))).toBe('<div class="pc-tr-slot"></div>');
+    const src = read("components/plannr/plannr-trace.tsx");
+    const body = src.slice(src.indexOf("export function TraceReceipt"), src.indexOf("/** B: the extracted records."));
+    expect(body).not.toMatch(/<button|<a\b|onClick|onKey|tabIndex|role=|aria-live|aria-pressed|useState|useReducer|dispatch/);
+    expect(body).toMatch(/const \{ state \} = useTrace\(\)/); // reads the one canonical state, writes nothing
+    expect(body).toMatch(/aria-hidden="true">\{r\.tag\}<\/span>\s*<span className="sr-only">\{r\.title\}/); // the full title is what is read
+  });
+
+  it("is announced once: the status line stays the only live region, so the receipt adds no second announcement", () => {
+    expect([...island.matchAll(/role="status"|aria-live|aria-atomic/g)]).toHaveLength(1);
+  });
+
+  it("appears only below the four-column layout (80rem, where the steps stop being one row): display: none from 80rem", () => {
+    expect(css).toMatch(/@media \(min-width: 80rem\)\s*\{\s*\.pc-steps\s*\{[^}]*repeat\(4, minmax\(0, 1fr\)\)/);
+    expect(css).toMatch(/@media \(min-width: 80rem\)\s*\{\s*\.pc-tr-slot\s*\{\s*display:\s*none/);
+    expect(css).toMatch(/\.pc-tr-slot\s*\{\s*min-block-size:\s*3rem/);
+    expect(css).toMatch(/@media \(min-width: 64rem\)\s*\{\s*\.pc-tr-slot\s*\{\s*min-block-size:\s*1\.9rem/);
+  });
+
+  it("is a registrar's filing line: hairline rules, no radius, no shadow, no fill card, no toast, no stepper", () => {
+    const block = css.slice(css.indexOf(".pc-tr-slot {"), css.indexOf("/* B: the extracted records."));
+    expect(block).not.toMatch(/border-radius:\s*(?!\s|50%)|box-shadow|backdrop|position:\s*(fixed|sticky)|z-index/);
+    expect(block).toMatch(/\.pc-tr\s*\{[^}]*border-block-start:\s*1px solid var\(--plannr-navy\)[^}]*border-block-end:\s*1px dotted/);
+    expect(block).not.toMatch(/(?<![-\w])(?:background(?:-color)?)\s*:\s*var\(--pc-sheet\)/); // it is not a card
+    expect(strip(block)).not.toMatch(/#[0-9a-fA-F]{3,8}\b|rgba?\(|hsla?\(/);
+    expect(block).toMatch(/@starting-style\s*\{\s*\.pc-tr\s*\{\s*opacity:\s*0;\s*translate:\s*0 0\.25rem/);
+    expect(island).not.toMatch(/toast|stepper|breadcrumb|progress/i);
+  });
+
+  it("its motion uses the same tokens (arrival and verdict word only), so reduced motion is immediate", () => {
+    for (const m of css.slice(css.indexOf(".pc-tr-slot {"), css.indexOf("/* B: the extracted records.")).matchAll(/transition:\s*([^;]+);/g)) {
+      expect(m[1]).toMatch(/^[a-z-]+ var\(--dur-quick\) var\(--ease-out\)(, [a-z-]+ var\(--dur-quick\) var\(--ease-out\))*$/);
+    }
+  });
+
+  it("Clean Copy keeps the summary (the arrows become dashes, the accepted word is underlined); only the marks and check are ornament", () => {
+    expect(css).toMatch(/:root\[data-copy="clean"\] \.pc-tr-seg:has\(~ \.pc-tr-seg:not\(\.pc-tr-note\)\)::after\s*\{\s*content:\s*"\\2014"/);
+    expect(css).toMatch(/:root\[data-copy="clean"\] \.pc-tr\[data-pl-verdict="accepted"\] \.pc-tr-word\s*\{[^}]*text-decoration:\s*underline/);
+    expect(island).toMatch(/pc-tr-reg ornament" aria-hidden="true"/);
+    expect(island).toMatch(/pc-tr-check ornament" aria-hidden="true"/);
+  });
+});
+
+describe("M6B final adjustment: the slip's buttons stay put when its note changes length", () => {
+  it("the note always reserves two lines, so pressing Accept or Decline never moves the controls", () => {
+    expect(css).toMatch(/\.pc-rs-note\s*\{[^}]*min-block-size:\s*calc\(2 \* 1\.35em\)/);
+    expect(css).toMatch(/\.pc-rs-note\s*\{[^}]*line-height:\s*1\.35/);
+  });
+});
+
+describe("M6B final adjustment: keyboard order (phrases -> review actions -> Start over -> onward)", () => {
+  const src = read("components/plannr/plannr-transformation.tsx");
+  const at = (t: string) => src.indexOf(`<${t} />`);
+
+  it("DOM order: the phrases, then the slip's actions, then the calendar, then Start over; nothing before the slip is a control but the phrases", () => {
+    expect(at("TracePage")).toBeGreaterThan(0);
+    expect(at("TracePage")).toBeLessThan(at("TraceSlip"));
+    expect(at("TraceSlip")).toBeLessThan(at("TraceCalendar"));
+    expect(at("TraceCalendar")).toBeLessThan(at("TraceReset"));
+    // the receipt and status sit between the phrases and the slip and are not controls
+    expect(at("TraceReceipt")).toBeGreaterThan(at("TracePage"));
+    expect(at("TraceStatus")).toBeLessThan(at("TraceSlip"));
+    // Start over is the last thing in the flow
+    expect(src.slice(at("TraceReset")).match(/<button|<a\b/g)).toBeNull();
+  });
+
+  it("no positive tabindex and no focus jumps: the one .focus() is Start over sending focus to the first phrase, before it hides", () => {
+    expect(island + trace + strip(read("components/plannr/document-page.tsx"))).not.toMatch(/tabIndex/);
+    expect(strip(css)).not.toMatch(/tabindex/i);
+    expect([...island.matchAll(/\.focus\(/g)]).toHaveLength(1);
+    expect(island).not.toMatch(/autoFocus|scrollIntoView|scrollTo|\.blur\(/);
+    expect(island).not.toMatch(/useEffect/);
+  });
+
+  it("no CSS reorders the flow visually away from the DOM (no `order`, no row-reverse) inside the transformation", () => {
+    const flowCss = css.slice(css.indexOf(".pc-flow {"), css.indexOf("THE PRODUCT */"));
+    expect(strip(flowCss)).not.toMatch(/(?<![-\w])order\s*:|row-reverse|column-reverse|grid-row-start|grid-area/);
   });
 });
 

@@ -195,3 +195,47 @@ export function calendarSummary(s: TraceState): string {
     ? "Nothing accepted for the calendar yet."
     : `Accepted for the calendar: ${placed.join("; ")}.`;
 }
+
+// ------------------------------------------------------------------- receipt
+
+export const VERDICT_LABEL: Readonly<Record<Verdict, string>> = { unreviewed: "To review", accepted: "Accepted", declined: "Declined" };
+
+const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"] as const;
+
+/** "2027-01-15" -> "JAN 15": the calendar cell a deadline lands on, in the term grid's own short form. */
+export function shortDate(iso: string): string {
+  const [, m, d] = iso.split("-").map(Number);
+  return `${MONTHS[m - 1]} ${d}`;
+}
+
+/**
+ * The mobile trace receipt: a one-line echo of what has happened to the deadline
+ * being followed, for widths where the syllabus, the slip and the calendar are
+ * screens apart. It is DERIVED from the canonical state, never held: no controls,
+ * no state of its own, and it exists only while a deadline is selected.
+ * tail: where an accepted event lands, or that a declined one is not sent.
+ */
+export type Receipt = {
+  tag: string;
+  title: string;
+  iso: string;
+  verdict: Verdict;
+  verdictLabel: string;
+  tail: { kind: "cell" | "not-sent"; text: string } | null;
+  note: string | null;
+};
+
+export function receipt(s: TraceState): Receipt | null {
+  if (!s.selected) return null;
+  const d = deadlineFor(s.selected);
+  const verdict = s.verdicts[s.selected];
+  return {
+    tag: d.tag,
+    title: d.title,
+    iso: d.iso,
+    verdict,
+    verdictLabel: VERDICT_LABEL[verdict],
+    tail: verdict === "accepted" ? { kind: "cell", text: shortDate(cellFor(s.selected)) } : verdict === "declined" ? { kind: "not-sent", text: "Not sent" } : null,
+    note: s.edited === s.selected ? "Editable in app" : null,
+  };
+}

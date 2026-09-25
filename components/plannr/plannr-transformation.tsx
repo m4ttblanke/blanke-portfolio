@@ -1,7 +1,16 @@
 import Image from "next/image";
 import { MarkArrow } from "@/components/design/marks";
 import { DEADLINES, FLOW_CAPTIONS, FLOW_STEPS } from "@/lib/work/plannr-content";
-import { TraceCalendar, TracePage, TraceProvider, TraceRecords, TraceSlip, TraceStatus } from "./plannr-trace";
+import {
+  TraceCalendar,
+  TracePage,
+  TraceProvider,
+  TraceReceipt,
+  TraceRecords,
+  TraceReset,
+  TraceSlip,
+  TraceStatus,
+} from "./plannr-trace";
 
 // THE TRANSFORMATION: SYLLABUS -> EXTRACT -> REVIEW -> CALENDAR, the whole
 // product in one static reading. A real sequence, so the four steps are a real
@@ -49,6 +58,7 @@ export function PlannrTransformation() {
             <div className="pc-step-art">
               <TracePage />
             </div>
+            <TraceReceipt />
             <TraceStatus />
           </li>
 
@@ -90,6 +100,7 @@ export function PlannrTransformation() {
               </p>
               <figcaption className="t-caption">{FLOW_CAPTIONS.calendar}</figcaption>
             </figure>
+            <TraceReset />
           </li>
         </ol>
       </TraceProvider>
