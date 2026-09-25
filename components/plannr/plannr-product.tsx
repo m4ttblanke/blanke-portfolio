@@ -33,7 +33,7 @@ export function PlannrProduct() {
         <div className="pc-shot-body">
           <Image
             src="/plannr/week-at-a-glance.png"
-            alt="Plannr's Week at a Glance screen, 30 August to 5 September. Tiles show 8 due this week, 11 next week and 0 percent complete. A week strip shows a count of what is due each day. A weekend preview reads Busy Weekend, 3 assignments due early next week. Upcoming events list Viral Video and Week 4 Discussion Peer Responses for class TMP124."
+            alt="Plannr's Week at a Glance screen, 30 August to 5 September. Tiles show 8 due this week, 11 next week and 0 percent complete. A week strip shows a count on each day that has something due. A weekend preview reads Busy Weekend, 3 assignments due early next week. Upcoming events list Viral Video, for class TMP124, and Week 4 Discussion Peer Responses, tagged Homework."
             width={760}
             height={1652}
             sizes="(min-width: 64rem) 26vw, (min-width: 48rem) 44vw, 80vw"

@@ -421,8 +421,8 @@ describe("M6B trace: motion, reduced motion, Clean Copy, touch", () => {
     expect(trace_css).toMatch(/:root:not\(\[data-copy="clean"\]\) \.pc-trace-btn \.pc-hl/);
   });
 
-  it("touch: the hit area is stretched over the whole row without resizing the type, and rows reach 44px on a coarse pointer", () => {
-    expect(trace_css).toMatch(/\.pc-trace-btn::after\s*\{[^}]*position:\s*absolute;[^}]*inset-block:\s*-0\.35rem;[^}]*inset-inline:\s*0/);
+  it("touch: the hit area is exactly the row (it never overlaps a neighbour) without resizing the type, and rows reach 44px on a coarse pointer", () => {
+    expect(trace_css).toMatch(/\.pc-trace-btn::after\s*\{[^}]*position:\s*absolute;[^}]*inset-block:\s*0;[^}]*inset-inline:\s*0/);
     expect(trace_css).toMatch(/\.pc-page-list li\[data-pl-trace\]\s*\{\s*position:\s*relative/);
     expect(trace_css).toMatch(/@media \(pointer: coarse\)\s*\{\s*\.pc-page-list li\[data-pl-trace\]\s*\{\s*padding-block:\s*0\.7rem/);
     expect(trace_css).toMatch(/\.pc-rs-btn\s*\{[^}]*min-block-size:\s*2\.75rem/);
@@ -573,18 +573,19 @@ describe("M6B final adjustment: keyboard order (phrases -> review actions -> Sta
   });
 });
 
-// The M6A and M2 to M5 freezes, pinned by content hash of every file at the approved commit (3d36bfa).
+// The M6A and M2 to M5 freezes, pinned by content hash of every file at the approved commit (3d36bfa),
+// except the two M6 hardening edits noted below (claim-precision fixes found by the final audit).
 // If one of these fails, a frozen file was edited: that needs a deliberate decision, not a test update.
 describe("freeze: M6A spreads and M2 to M5 files are byte-identical to the approved commits", () => {
   const sha = (p: string) => createHash("sha256").update(readFileSync(join(root, p))).digest("hex").slice(0, 16);
   const frozen: Record<string, string> = {
     "components/plannr/plannr-hero.tsx": "b747693a900be87b",
     "components/plannr/plannr-document.tsx": "58dbcd94d1046d16",
-    "components/plannr/plannr-product.tsx": "b2389b2434a5542b",
+    "components/plannr/plannr-product.tsx": "c9c63bd0d599fe31", // M6 hardening: one alt-text precision fix
     "components/plannr/plannr-decisions.tsx": "d385f9709f66d317",
     "components/plannr/plannr-system.tsx": "d236c21b7a973ccf",
     "components/plannr/plannr-receipt.tsx": "89cad7bc8f767fe6",
-    "lib/work/plannr-content.ts": "8d9e26ff85c07447",
+    "lib/work/plannr-content.ts": "946639be24afa929", // M6 hardening: CI trigger wording, one screenshot note
     "app/(public)/projects/rankle/page.tsx": "ca8ceaad180545bd",
     "app/layout.tsx": "ccd0514ea23da07c",
     "components/cover/cover.css": "a8de6934f26ddf81",

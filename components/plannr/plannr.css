@@ -855,7 +855,9 @@
 .pc-trace-btn::after {
   content: "";
   position: absolute;
-  inset-block: -0.35rem;
+  /* exactly the row: an extension past the row would overlap its neighbours' edges and
+     hand their last few pixels to the row below (found by a touch-edge test). */
+  inset-block: 0;
   inset-inline: 0;
 }
 @media (pointer: coarse) {

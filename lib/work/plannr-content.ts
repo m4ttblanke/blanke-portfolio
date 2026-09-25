@@ -149,7 +149,7 @@ export const PRODUCT_KEEPS = [
 export const PRODUCT_NOTES = {
   week: [
     { at: 40, text: "8 due this week, 11 next. The app itself calls it a heavy week." },
-    { at: 58, text: "Each day carries a count of what is due." },
+    { at: 58, text: "Each day with something due carries a count." },
     { at: 72, text: "A weekend preview: three assignments due early next week." },
   ],
   classes: [{ at: 30, text: "One colour per class. 27 events synced." }],
@@ -247,7 +247,7 @@ export const RECEIPT_ROWS = [
   },
   {
     label: "Tests",
-    body: "97 backend and 199 iOS test functions. CI is set up to run both suites on every push and pull request.",
+    body: "97 backend and 199 iOS test functions. CI is set up to run both suites on every push to main and every pull request.",
   },
   {
     label: "Crashes",
